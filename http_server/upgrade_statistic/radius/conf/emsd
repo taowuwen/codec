@@ -1,0 +1,122 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) taowuwen@gmail.com
+
+START=99
+
+ROOT=/tmp/ems
+
+USE_PROCD=1
+QUIET=""
+
+#service_triggers() {
+# procd_add_reload_trigger firewall	
+#	procd_add_network_trigger "lan"|"etho0" 
+#	procd_add_network_trigger "br-lan"
+#}
+
+# table
+flush_fw_table()
+{
+	local tbl=$1
+
+	# for speed up
+	iptables -S -t $tbl | grep locus_ | grep "\-N" | awk '{print $2}' |
+	while read chain
+	do
+		iptables -t $tbl -F $chain
+	done
+
+
+	iptables -S -t $tbl | grep locus_ | grep "\-A" | awk -F'-A' '{print $2}' |
+	while read rule
+	do
+		iptables -t $tbl -D $rule
+	done
+
+	iptables -S -t $tbl | grep locus_ | grep "\-N" | awk '{print $2}' |
+	while read chain
+	do
+		iptables -t $tbl -X $chain
+	done
+}
+
+flush_fw()
+{
+	flush_fw_table nat
+	flush_fw_table filter
+
+	iptables -S -t nat | grep PREROUTING |
+		grep -E ":9111$|:9112$" | awk -F'-A' '{print $2}' |
+	while read rule
+	do
+		iptables -t nat -D $rule
+	done
+}
+
+take_over_ports()
+{
+# take over tcp
+ 	netstat -antp | grep LISTEN | grep 9111 | awk '{print $7}' | cut -d'/' -f1 | \
+	while read pid
+	do
+		[ -n "$pid" ] && ! [ "$pid" -eq "$$" ] && kill -9 $pid
+	done
+
+# take over udp
+ 	netstat -anup | grep -E "9112|9113" | awk '{print $6}' | cut -d'/' -f1 | \
+	while read pid
+	do
+		[ -n "$pid" ] && ! [ "$pid" -eq "$$" ] && kill -9 $pid
+	done
+}
+
+
+
+stop_service()
+{
+	killall ems
+
+	sleep 3
+
+	ps | grep "$ROOT/bin/ems" | grep -Ev "emsd|grep|$$" | awk '{print $1}' | \
+	while read pid
+	do
+		[ -n "$pid" ] && ! [ "$pid" -eq "$$" ] && kill -9 $pid
+	done
+
+	rm -rf $ROOT
+
+	flush_fw
+}
+
+start_service() {
+	flush_fw
+	take_over_ports
+
+	mkdir -p $ROOT
+	cp -rf /usr/ems/* $ROOT
+	cp -f  /usr/ems/conf/firewall /etc/init.d/firewall
+
+	procd_open_instance
+	procd_set_param command $ROOT/bin/ems -c /etc/ems.conf
+	procd_set_param respawn
+#	procd_set_param env SOME_VARIABLE=funtimes  # pass environment variables to your process
+#	procd_set_param limits core="unlimited"  # If you need to set ulimit for your process
+#	procd_set_param file /var/etc/your_service.conf # /etc/init.d/your_service reload will restart the daemon if these files have changed
+#	procd_set_param netdev dev # likewise, except if dev's ifindex changes.
+#	procd_set_param data name=value ... # likewise, except if this data changes.
+	procd_close_instance
+}
+
+reload_service()
+{
+        export PATH=$PATH:/tmp/ems/bin
+        local ems_fw=$(which ems_fw)
+
+	flush_fw
+        [ -n "$ems_fw" -a -h "$ems_fw" ] && $ems_fw method=set
+
+        [ $? -eq 0 ] && echo "$(date) restart ems fw success" && return 0
+
+        echo "$(date) restart ems fw failed"
+}

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+
+s=0
+while [ $s -lt 256 ]
+do
+	p_dec=`printf "%03d" $s`
+	p_hex=`printf "%02x" $s`
+
+	printf "%s---%s---`echo -en "\x$p_hex"`" $p_dec $p_hex
+	#printf "%03d --- 0x%02x --- `echo -en "\x%x"`\t" $s $s
+	#echo -en "\x$s"
+
+	s=`expr $s + 1`
+
+	[ 0 -eq `expr $s % 4` ] && echo 
+done

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+
+parse_ctx()
+{
+	local fl=$1
+
+	[ -z "$fl" ] && echo "usage $0 filename" && exit 1
+
+	[ -z "`file $fl | grep  "UTF-8"`" ] && {
+		iconv -c -f gbk -t utf8 -o $fl".tmp" $fl || exit 1
+		mv $fl".tmp" $fl
+	}
+
+	cat $fl | awk -f gettitle.awk
+	cat $fl | sed -n -f getctx.sed | sed  's/<.*>//g'
+	echo ""
+	echo ""
+}
+
+[ `basename $0` == fetchctx ] && parse_ctx $*
+

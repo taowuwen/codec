@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#root_path=$(cd `dirname $0`; pwd)
+root_path=${HOME}
+
+libpcap_compile_and_install()
+{
+	./configure --prefix=$root_path/usr --disable-bluetooth --disable-usb --disable-canusb || return 1
+	make || return 1
+
+	make install
+}
+
+
+install_libpcap()
+{
+
+	tar xvzf ./3rd/libpcap-1.7.2.tar.gz -C /tmp
+
+	cd /tmp/libpcap-1.7.2
+
+	libpcap_compile_and_install
+
+	ret=$?
+
+	rm -rf /tmp/libpcap-1.7.2
+}
+
+install_wput()
+{
+	echo "install libpcap"
+}
+
+
+do_compile()
+{
+	echo "do_compile"
+}
+
+
+main()
+{
+	pushd `pwd`
+	install_libpcap
+	popd
+	export CFLAGS=`$root_path/usr/bin/pcap-config --cflags`
+	export LDFLAGS=`$root_path/usr/bin/pcap-config --libs`
+
+	make $*
+}
+
+
+main $*

@@ -1,0 +1,181 @@
+#!/usr/bin/env bash
+
+export PATH=$PATH:"/usr/bin/ems_c/bin"
+
+flg_stat_online=$((1 << 31))
+flg_stat_download=$((1 << 17))
+flg_stat_upgraded=$((1 << 18))
+
+
+#cfg key
+get_value()
+{
+	grep $2 $1 | head -1 | awk -F= '{print $2}'
+}
+
+print_header()
+{
+	echo -ne "Content-Type: text/html\r\n\r\n"
+
+	echo "
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<meta charset="utf-8">
+<head>
+	<style type="text/css">
+		div#container{width:1024px}
+		div#header {background-color:#99bbbb;}
+		div#menu {background-color:#ffff99;width:50%;float:left;}
+		div#content {background-color:#EEEEEE;width:100%;float:left;}
+		div#footer {background-color:#99bbbb;clear:both;text-align:center;}
+		h1 {margin-bottom:0;}
+		h2 {margin-bottom:0;font-size:18px;}
+		ul {margin:0;}
+		li {list-style:none;}
+	</style>
+</head>
+
+<body bgcolor=#aabbaa>
+<div>
+
+<div id="header">
+	<h1> 设备状态信息 </h1>
+</div>
+"
+}
+
+print_tailer()
+{
+	echo "
+</div>
+	<script type="text/javascript" src="/refresh.js"></script>
+</body>
+</html>
+"
+}
+
+# flg
+print_device_status()
+{
+	local flg=$1
+
+	[ 0 -eq $(( $flg & $flg_stat_online )) ]    || {
+		echo -en " Online "
+	}
+
+	[ 0 -eq  $(( $flg & $flg_stat_download )) ] || {
+		echo -en " downloaded "
+	}
+
+	[ 0 -eq $(( $flg & $flg_stat_upgraded )) ] || {
+		echo -en " upgraded "
+	}
+}
+
+# upgs
+print_device_history()
+{
+	local upgs=$1
+
+	json_select $upgs
+	json_get_keys keys
+
+	for key in $keys
+	do
+		json_select $key
+
+		json_get_vars ip ty ver status create access flag
+
+		echo "<tr> <font color=#0000aa>"
+		echo "<td></td>"
+		echo "<td></td>"
+		echo "<td> $key </td>"
+		echo "<td> $ip </td>"
+		echo "<td> $ty </td>"
+		echo "<td> $ver </td>"
+		echo "<td> $status </td>"
+		echo "<td> $create </td>"
+		echo "<td> $access </td>"
+		echo "<td> `print_device_status $flag`</td>"
+		echo "</font> </tr>"
+
+	done
+}
+
+print_all_devices()
+{
+	json_set_namespace RESPONSE
+
+	json_select device &>/dev/null
+
+	json_get_keys keys
+
+	for key in $keys
+	do
+		json_select $key
+
+		json_get_vars  sn flag upgs
+
+		[ -n "$upgs" -a -n "$sn" -a -n "$flag" ] && {
+
+			echo "<tr>"
+			echo "<td> $sn </td>"
+			echo "<td> `print_device_status $flag` </td>"
+			echo "</tr>"
+
+			print_device_history upgs
+		}
+
+		json_select
+		json_select device
+	done
+}
+
+print_content()
+{
+	. /usr/bin/ems_c/bin/jshn.sh
+
+	echo "<div id="content">"
+
+	ems_statistic method=get || {
+		echo  "<p> 无法获得统计信息 </p>"
+		echo "</div>"
+		return 1
+	}
+
+	json_set_namespace RESPONSE
+
+	json_load "`cat /tmp/ems_result.res`" 2>/dev/null
+
+	echo "<table align="left">"
+	echo "<tr>"	
+	echo "<th width=10% align="left">设备SN</th> "
+	echo "<th width=10% align="left">设备状态 </th> "
+	echo "<th width=10% align="left">编号 </th> "
+	echo "<th width=10% align="left">IP地址 </th> "
+	echo "<th width=10% align="left">设备类型 </th> "
+	echo "<th width=10% align="left">ROM版本 </th> "
+	echo "<th width=10% align="left">当前进度 </th> "
+	echo "<th width=10% align="left">创建时间 </th> "
+	echo "<th width=10% align="left">更新时间 </th> "
+	echo "<th width=10% align="left">状态 </th> "
+	echo "</tr>"
+
+	print_all_devices
+
+	echo "</table>"
+
+	echo "</div>"
+}
+
+main()
+{
+	print_header
+
+	print_content
+
+	print_tailer
+}
+
+main

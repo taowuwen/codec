@@ -1,0 +1,135 @@
+#!/bin/sh
+
+
+inf=$1
+
+[ -z "$inf" ] && echo "usage $0 inf" >&2 && exit 1
+
+
+[ -z "`ip link show dev $inf 2>/dev/null`" ] && {
+	echo "did not find device $inf" >&2
+	exit 2
+}
+
+
+current_utc_seconds()
+{
+	date '+%s'
+}
+
+utc_2_date()
+{
+	date --date=@$1
+}
+
+
+# 
+#Inter-|   Receive                                                |  Transmit
+# face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+
+fetchone()
+{
+	cat /proc/net/dev | awk '/'"$inf:"'/{ print $2, $10}'
+}
+
+
+main()
+{
+	local ctx
+	local tm_start rx_start tx_start
+	local tm_cur   rx_cur   tx_cur
+	local tm_last  rx_last  tx_last
+
+	ctx=`fetchone`
+
+	tm_start=`current_utc_seconds`
+	rx_start=`echo $ctx | cut -d' ' -f1`
+	tx_start=`echo $ctx | cut -d' ' -f2`
+
+	tm_last=$tm_start
+	rx_last=$rx_start
+	tx_last=$tx_start
+
+	echo "TIMEDIFF   RX       TX    RX(Bytes) TX(Bytes) |  TIMEDIFF   RX   TX   RX(Bytes) TX(Bytes)"
+	while true
+	do
+		sleep 2
+
+		ctx=`fetchone`
+
+		tm_cur=`current_utc_seconds`
+		rx_cur=`echo $ctx | cut -d' ' -f1`
+		tx_cur=`echo $ctx | cut -d' ' -f2`
+
+		echo "" |
+		awk \
+		-v inf=$inf \
+		-v tm_start=$tm_start \
+		-v tm_cur=$tm_cur \
+		-v tm_last=$tm_last \
+		-v rx_start=$rx_start \
+		-v rx_cur=$rx_cur \
+		-v rx_last=$rx_last \
+		-v tx_start=$tx_start \
+		-v tx_cur=$tx_cur \
+		-v tx_last=$tx_last \
+		'
+
+		function cal_speed(bytes, tm)
+		{
+			speed = bytes / tm
+# B
+			if (speed < 1024)
+				return speed "B"
+# K
+
+			speed = bytes / (tm * lshift(1, 10))
+			if (speed < 1024)
+				return speed "KB"
+
+# M
+			speed = bytes / (tm * lshift(1, 20))
+			if (speed < 1024)
+				return speed "M"
+
+# G
+			speed = bytes / (tm * lshift(1, 30))
+
+			return speed "G"
+		}
+
+		{
+# for current speed
+			cur_tm       = tm_cur - tm_last
+# for RX
+			cur_rx_diff  = rx_cur - rx_last
+			cur_rx_speed = cal_speed(cur_rx_diff, cur_tm)
+
+# for TX
+			cur_tx_diff  = tx_cur - tx_last
+			cur_tx_speed = cal_speed(cur_tx_diff, cur_tm)
+
+# for avg speed
+			avg_tm       = tm_cur - tm_start
+# for RX
+			avg_rx_diff  = rx_cur - rx_start
+			avg_rx_speed = cal_speed(avg_rx_diff, avg_tm);
+
+# for TX
+			avg_tx_diff = tx_cur - tx_start
+			avg_tx_speed = cal_speed(avg_tx_diff, avg_tm);
+
+			printf("CUR %2d, %10s, %10s [%8d, %8d] | AVG %5d, %10s %10s [%10d, %10d]\n",
+					cur_tm, cur_rx_speed, cur_tx_speed, cur_rx_diff, cur_tx_diff,
+					avg_tm, avg_rx_speed, avg_tx_speed, avg_rx_diff, avg_tx_diff);
+		}
+		'
+		
+		tm_last=$tm_cur
+		rx_last=$rx_cur
+		tx_last=$tx_cur
+
+	done
+}
+
+main $*

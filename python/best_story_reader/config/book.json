@@ -1,0 +1,11 @@
+{
+    "path": [
+        "/tmp/bsr/books",
+	"/home/tww/books"
+    ],
+
+    "web": [
+	    "www.baidu.com",
+	    "www.bing.com"
+    ]
+}

@@ -1,0 +1,391 @@
+#!/usr/bin/env bash
+
+
+export PATH=$PATH:"/usr/bin/ems_c/bin"
+
+content=${QUERY_STRING}
+
+logfile="/tmp/logfile.log"
+
+get_value()
+{
+	grep $2 $1 | head -1 | awk -F= '{print $2}'
+}
+
+# key
+getargs()
+{
+	echo $content |
+	awk -v search="$1" -F\& '{
+		for ( i = 1; i <= NF; i++) {
+			split($i, ary, "=")
+			if (ary[1] == search) {
+				printf("%s", ary[2])
+				exit
+			}
+		}
+	}'
+}
+
+# query_string
+print_all_key_value()
+{
+	echo $1 |
+	awk -F\& '{
+		print $0
+
+		for ( i = 1; i <= NF; i++) {
+			printf("<p>%d: %s</p>", i, $i);
+		}
+	}'
+}
+
+
+getrequest()
+{
+#	local ctx
+
+#	while read line
+#	do
+#		ctx=$ctx$line
+#	done
+	read ctx
+	echo $ctx
+	echo -en "request: \033[01;31m \n $ctx \033[00m" >>$logfile
+}
+
+print_404_not_found()
+{
+	echo -en "Status: 404 Not Found\r\n"
+	echo -en "Content-Type: text/html\r\n\r\n"
+	echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
+}
+
+#id
+rsp_open()
+{
+	json_set_namespace RESPONSE
+	json_init
+		json_add_string jsonrpc "2.0"
+		json_add_int    id      "$1"
+}
+
+rsp_close()
+{
+	json_set_namespace RESPONSE
+
+	ctx=$(echo -en `json_dump`)
+
+	echo -en "\nresponse: \n\033[00;32m" >>$logfile
+	echo "$ctx" >> $logfile
+	echo -en "\033[00m" >>$logfile
+
+	echo -en "Content-Length: ${#ctx}\r\n"
+	echo -en "Content-Type: text/html\r\n\r\n"
+	echo "$ctx"
+}
+
+
+# id
+rsp_msg_getdc()
+{
+	json_add_object result
+		json_add_string dcConfig "$(echo -en "nm_addr=${SERVER_ADDR}\nnm_port=80")"
+	json_close_object
+}
+
+# devicesn:      ssssss
+# devicetype:    type
+# deviceversion: version
+# deviceipaddr:  ipaddr
+handle_msg_uc()
+{
+	. /usr/bin/ems_c/bin/jshn.sh
+
+	[ "${REQUEST_METHOD}" == "POST" ] || {
+		print_404_not_found
+		return 1
+	}
+
+	json_set_namespace REQUEST
+	json_load "`getrequest`" &>>$logfile
+
+	json_get_vars id method
+
+	[ "$method" == "getDC" ] || {
+		print_404_not_found
+		return 1
+	}
+
+	json_select params &>> $logfile
+	json_get_vars sn devType softVer
+
+	[ -z "$sn" -o -z "$devType" -o -z "$softVer" ] && {
+		print_404_not_found
+		return 1
+	}
+
+	ems_getdc method=set \
+		 deviceipaddr="${REMOTE_ADDR}" \
+		 devicesn="$sn" \
+		 devicetype="$devType" \
+		 deviceversion="$softVer" || {
+		print_404_not_found
+		return 1
+	 }
+
+	rsp_open "$1"
+	rsp_msg_getdc
+	rsp_close
+}
+
+# configNumber
+rsp_msg_getconf()
+{
+	cfgnum="3"
+	cfg="client.upt_period=60\n
+client.getconf_period=600\n
+client.enable_subdomain=1\n
+client.retry_period=60\n
+portal.addr=dpa.yingkewifi.com\n
+portal.port=2000\n
+portal.reg_period=600\n
+portal.hb_period=30\n
+portal.redirect_port=80\n
+radius.addr=dpa.yingkewifi.com\n
+radius.secret=admin\n
+radius.authport=1812\n
+radius.acctport=1813\n
+radius.rp_period=60\n
+radius.retry_times=3\n
+radius.retry_timeout=5\n
+bwlist.white.0=qq.com\n
+bwlist.white.1=pub.idqqimg.com\n
+bwlist.white.2=qzonestyle.gtimg.cn\n
+bwlist.white.3=open.weibo.cn\n
+bwlist.white.4=api.weibo.com\n
+bwlist.white.5=upload.api.weibo.com\n
+bwlist.white.6=login.sina.com.cn\n
+bwlist.white.7=api.t.sina.com.cn\n
+bwlist.white.8=denglu.cc\n
+bwlist.white.9=apple.com\n
+bwlist.white.10=appleiphonecell.com\n
+bwlist.white.11=yingkewifi.com\n
+bwlist.white.12=qlogo.cn\n
+bwlist.white.13=qpic.cn\n
+"
+	json_add_object result
+		json_add_array config
+			[ "$1" == "$cfgnum" ] || {
+				json_add_object 
+				json_add_int configNumber "$cfgnum"
+				json_add_string config "$(echo -en $cfg)"
+				json_close_object
+			}
+		json_close_array
+	json_close_object
+}
+
+
+msg_dc_getconf()
+{
+	json_set_namespace REQUEST
+
+	json_select params &>> $logfile
+	json_select nasInfos
+	json_select 1
+
+	json_get_vars sn devType softVer configNumber
+
+	[ -z "$sn" -o -z "$devType" -o -z "$softVer" -o -z "$configNumber" ] && 
+	{
+		print_404_not_found
+		return 1
+	}
+
+	ems_getconf method=set \
+		 deviceipaddr="${REMOTE_ADDR}" \
+		 devicesn="$sn" \
+		 devicetype="$devType" \
+		 deviceversion="$softVer" || {
+		print_404_not_found
+		return 1
+	 }
+
+	rsp_open "$1"
+	rsp_msg_getconf "$configNumber"
+	rsp_close
+}
+
+# updateFileNumber
+rsp_msg_getupdatefile()
+{
+	uptnum="1"
+	json_add_object result
+		json_add_array updateFile
+			[ "$1" == "$uptnum" ] || {
+				json_add_object 
+
+					json_add_array files
+						json_add_object
+							cfg="${DOCUMENT_ROOT}/conf/rom.conf"
+							json_add_string fileUrl   "http://${SERVER_ADDR}/download"
+							json_add_string fileVer   "`get_value $cfg rom.version`"
+							json_add_string fileType  "rom"
+							json_add_string fileName  "$(basename `get_value $cfg rom.path`)"
+						json_close_object
+					json_close_array
+
+					json_add_string sn               "$2"
+					json_add_int    updateFileNumber "$uptnum"
+
+				json_close_object
+			}
+		json_close_array
+	json_close_object
+}
+
+msg_dc_getupdatefile()
+{
+	json_set_namespace REQUEST
+
+	json_select params &>> $logfile
+	json_select nasInfos
+	json_select 1
+	json_get_vars sn devType softVer updateFileNumber
+
+	[ -z "$sn" -o -z "$devType" -o -z "$softVer" -o -z "$updateFileNumber" ] && 
+	{
+		print_404_not_found
+		return 1
+	}
+
+	ems_getupdatefile method=set \
+		 deviceipaddr="${REMOTE_ADDR}" \
+		 devicesn="$sn" \
+		 devicetype="$devType" \
+		 deviceversion="$softVer" || {
+		print_404_not_found
+		return 1
+	 }
+
+	rsp_open "$1"
+	rsp_msg_getupdatefile "$updateFileNumber" "$sn"
+	rsp_close
+}
+
+msg_dc_updatestatus()
+{
+	json_set_namespace REQUEST
+
+	json_select params &>> $logfile
+	json_select status
+	json_select 1
+	json_get_vars sn devType softVer
+
+	[ -z "$sn" -o -z "$devType" -o -z "$softVer" ] && 
+	{
+		print_404_not_found
+		return 1
+	}
+
+	ems_updatestatus method=set \
+		 deviceipaddr="${REMOTE_ADDR}" \
+		 devicesn="$sn" \
+		 devicetype="$devType" \
+		 deviceversion="$softVer" || {
+		print_404_not_found
+		return 1
+	 }
+
+	rsp_open "$1"
+	rsp_close
+}
+
+handle_msg_dc()
+{
+	. /usr/bin/ems_c/bin/jshn.sh
+
+	[ "${REQUEST_METHOD}" == "POST" ] || {
+		print_404_not_found
+		return 1
+	}
+
+	json_set_namespace REQUEST
+	json_load "`getrequest`" &>>$logfile
+
+	json_get_vars id method
+
+	case $method in 
+		getConf)
+			msg_dc_getconf "$id"
+		;;
+
+		getUpdateFile)
+			msg_dc_getupdatefile "$id"
+			;;
+
+		updateStatus)
+			msg_dc_updatestatus "$id"
+			;;
+
+		*)
+			print_404_not_found
+			return 1
+		;;
+	esac
+}
+
+handle_msg_download()
+{
+	local fl
+	local conf=${DOCUMENT_ROOT}/conf/rom.conf
+
+	fl=`get_value $conf rom.path`
+
+	[ -f "${DOCUMENT_ROOT}$fl" ] || {
+		print_404_not_found
+		return 1
+	}
+
+	ems_download method=get deviceipaddr="${REMOTE_ADDR}" || {
+		print_404_not_found
+		return 1
+	}
+
+	echo -en "Status: 302 Moved Temporarily\r\n"
+	echo -en "Location: http://${SERVER_ADDR}$fl\r\n"
+	echo -en "Content-Type: text/html\r\n\r\n"
+}
+
+main()
+{
+	local cmd=`basename $0`
+
+	echo -ne "\n`date`--------- $cmd ----${REMOTE_ADDR}:${REMOTE_PORT} start ($$)\n" >>$logfile
+
+	case $cmd in
+	inm_nas_v1)
+		handle_msg_dc
+		;;
+
+	inm_nas_dc_v1)
+		handle_msg_uc
+		;;
+
+	download)
+		handle_msg_download
+		;;
+
+	*)
+		print_404_not_found
+	;;
+
+	esac
+	echo -en "\n`date`--------- $cmd ----${REMOTE_ADDR}:${REMOTE_PORT} finished ($$)" >>$logfile
+
+	return $?			
+}
+
+main
+exit $?

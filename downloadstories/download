@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+
+source ./fetchctx
+
+main()
+{
+	local url fl ctx root last
+	
+	url=$1
+	fl=$2
+
+	[ -z "$fl" -o -z "$url" ] && {
+		echo "usage: $0 url filename" >&2
+		return 1
+	}
+
+	root=`dirname $url`
+	tmpfl=/tmp/tmp.html
+
+	while true
+	do
+		rm -f $tmpfl
+		echo "try to download: $url"
+		retry=1
+
+		while [ $retry -le 3 ]
+		do
+			wget -t 3 --dns-timeout=5 \
+				--timeout=15 \
+				--read-timeout=5 \
+				--connect-timeout=15 \
+				-c $url -O $tmpfl || {
+				echo "download $url failed, do retry"
+				retry=`expr $retry + 1`
+				continue
+			}
+
+			break
+		done
+
+		[ $retry -gt 3 ] && return 1
+
+		[ -n "`file $tmpfl | grep gzip`" ] && {
+			echo "uncompress file $tmpfl"
+			mv $tmpfl $tmpfl".gz"
+			gunzip -d $tmpfl".gz"
+		}
+
+		parse_ctx $tmpfl >>$fl 
+
+		next_page=$(basename `awk -f nextpage.awk $tmpfl`)
+	#	next_page=$(basename `cat $tmpfl | awk -F\" '/next_?page/ {print $2; exit}'`)
+		[ "$next_page" == "index.html" ] && {
+			echo "finished"
+			break
+		}
+
+		url=$root/$next_page
+
+		[ "$url" == "$last" ] && {
+			echo "finished"
+			break
+		}
+
+		last=$url
+	done
+	rm -f $tmpfl
+}
+
+main $*
+

@@ -1,0 +1,160 @@
+#!/bin/sh
+
+content=""
+# key
+getargs()
+{
+	echo $content |
+	awk -v search="$1" -F\& '{
+		for ( i = 1; i <= NF; i++) {
+			split($i, ary, "=")
+			if (ary[1] == search) {
+				printf("%s", ary[2])
+				exit
+			}
+		}
+	}'
+}
+
+# query_string
+print_all_key_value()
+{
+	echo $1 |
+	awk -F\& '{
+		print $0
+
+		for ( i = 1; i <= NF; i++) {
+			printf("<p>%d: %s</p>", i, $i);
+		}
+	}'
+}
+
+print_200_ok()
+{
+	echo -en "Content-Type: text/html\r\n\r\n"
+	echo -en "<html> <body> <h1 align="center"> <font color="green">SUCCESS!!! </font> </h1> </body> </html>"
+}
+
+print_404_notfound()
+{
+	echo -en "Status: 404 Not found\r\n"
+	echo -en "Content-Type: text/html\r\n\r\n"
+	echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
+}
+
+dns_get()
+{
+	echo -en "Content-Type: text/html\r\n\r\n"
+
+	echo -en "
+<html lang="zh-cn">
+<meta charset="utf-8">
+<body>
+<table align="center">
+<tr>
+</td>
+<form action="/cgi-bin/dns_set" method="get">
+"
+	if [ -n "`uci get dhcp.@dnsmasq[0].address`" ]; then
+		echo -en "
+			<p>DNS: <input type="text" name="dns"  value="`uci get dhcp.@dnsmasq[0].address | awk '{print $1}' | cut -d'/' -f2`" /> </p>
+			<p>地址:<input type="text" name="address"  value="`uci get dhcp.@dnsmasq[0].address | awk '{print $1}' | cut -d'/' -f3`" /></p>
+		"
+	else
+		echo -en "
+			<p>DNS: <input type="text" name="dns" /> </p>
+			<p>地址:<input type="text" name="address"  /></p>
+		"
+	fi
+echo "
+<input type="submit" value="确定" />
+</form>
+</td>
+</tr>
+</table>
+</body>
+</html>
+ "
+}
+
+
+dns_set()
+{
+	echo -en "Content-Type: text/html\r\n\r\n"
+
+	content=${QUERY_STRING}
+
+	dns=`getargs dns`
+	addr=`getargs address`
+
+	[ -n "$dns" -a -n "$addr" ] && {
+
+		uci del dhcp.@dnsmasq[0].address
+		uci add_list dhcp.@dnsmasq[0].address="/$dns/$addr"
+		uci commit dhcp
+		/etc/init.d/dnsmasq restart
+
+		echo -en "<html lang="zh-cn"> <meta charset="utf-8"> <body> 
+		<h1 align="center"> <font color=#00aa00> 设置完成 </font></h1>
+		<p align="center">DNS: $dns </p>
+		<p align="center">address: $addr </p>
+		<p align="center">请测试: ping $dns </p>
+		</body> </html>"
+
+		return 0
+	}
+
+	echo -en "<html lang="zh-cn"> <meta charset="utf-8"> <body> 
+		<h1 align="center"> <font color=#ff0000> 输入有误，DNS与地址都不能为空</font></h1>
+		</body></html>
+	"
+}
+
+
+# service method
+handle_service()
+{
+	local service=$1 method=$2
+
+	case $method in
+	start)
+		/etc/init.d/$service start
+		;;
+	stop)
+		/etc/init.d/$service stop
+		;;
+	*)
+		print_404_notfound
+		return 1
+	esac
+	return 0
+}
+
+main()
+{
+	cmd=`basename $0`
+	case $cmd in
+
+	dns_set)
+		dns_set
+	;;
+
+	show_dns)
+		dns_get
+	;;
+
+	emsd|telnet|dropbear|dnsmasq)
+		content=${QUERY_STRING}
+		method=`getargs method`
+		handle_service $cmd $method && print_200_ok
+	;;
+
+	*)
+		print_404_notfound
+		;;
+	esac
+
+	return $?
+}
+
+main

@@ -1,0 +1,99 @@
+<html>
+
+<head> hello, world </head>
+
+<body> 
+
+	<p> hello, world </p>
+
+	<form action="test.lua" method="get">
+		<p>First name: <input type="text" name="fname" /></p>
+		<p>Last name: <input type="text" name="lname" /></p>
+		<input type="submit" value="Submit" />
+	</form>
+
+	<form action="/cgi-bin/test.lua" method="get">
+		<p>First name: <input type="text" name="fname" /></p>
+		<p>Last name: <input type="text" name="lname" /></p>
+		<input type="submit" value="Submit" />
+	</form>
+
+	<form action="/cgi-bin/test.sh" method="get">
+		<p>First name: <input type="text" name="firstname" /></p>
+		<p>Last name: <input type="text" name="lastname" /></p>
+		<input type="submit" value="Submit" />
+	</form>
+
+	<form action="/cgi-bin/show_env" method="get">
+		<p>First name: <input type="text" name="firstname" /></p>
+		<p>Last name: <input type="text" name="lastname" /></p>
+		<input type="submit" value="提交GET" />
+	</form>
+
+	<form action="/cgi-bin/show_env" method="post">
+		<p>First name: <input type="text" name="firstname" /></p>
+		<p>Last name: <input type="text" name="lastname" /></p>
+		<input type="submit" value="提交POST" />
+	</form>
+
+
+	<FORM METHOD=POST ACTION="/cgi-bin/show_env">
+	<TABLE CELLPADDING=12 BGCOLOR="#AAAAFF">
+	<TR VALIGN=TOP><TD>name: <INPUT NAME="realname" VALUE="George the Wonder Boy"><BR>
+	email: <INPUT NAME="email" VALUE="george@whatever.idocs.com"><P>
+	preferences:<BR>
+	<INPUT TYPE=CHECKBOX CHECKED NAME="nosmoke">doesn't smoke<BR>
+	<INPUT TYPE=CHECKBOX NAME="hatesanchovies">hates anchovies<BR>
+	<INPUT TYPE=CHECKBOX CHECKED NAME="shakespeare">reads Shakespeare<BR>
+	<INPUT TYPE=CHECKBOX CHECKED NAME="washesdaily">washes daily<BR>
+	<INPUT TYPE=CHECKBOX NAME="beach">romantic walks on the beach<BR>
+	<INPUT TYPE=CHECKBOX CHECKED NAME="brooklyn">romantic walks in Brooklyn<BR>
+	<INPUT TYPE=CHECKBOX CHECKED NAME="dogs">loves dogs<BR>
+	<INPUT TYPE=CHECKBOX CHECKED NAME="cats">loves cats<BR>
+	<INPUT TYPE=CHECKBOX CHECKED NAME="iguanas">loves iguanas
+	</TD>
+	<TD>Now tell us a little about yourself:<BR>
+	<TEXTAREA NAME="myself" ROWS=4 COLS=30 WRAP=VIRTUAL>
+	I was born in the house my father built.  I was raised on a farm with 13,000 acres of oats, and now I 
+	hate oatmeal. Much prefer the crackly taste of wheat.  I'm looking for a wife who loves to cook wheat, particularly fresh raw wheat stalks.
+	</TEXTAREA>
+
+	<P ALIGN=CENTER>
+
+	<INPUT TYPE=SUBMIT VALUE="Send It">
+	</TD>
+	</TR>
+	</TABLE>
+
+	</FORM>
+
+	<form  action="/cgi-bin/show_env" autocomplete="off" method="post" >
+	<input type="hidden" name="username" value="root" />
+	<input value="" id="focus_password" type="password" name="password"  autocomplete="off"  style='text-indent:20px;'/>
+	<input type="submit" value="登录" style='cursor:pointer;'/>
+	</form>
+
+
+	<form  action="/inm_nas_dc_v1" autocomplete="off" method="post" >
+	<input type="hidden" name="username" value="root" />
+	<input value="" id="focus_password" type="password" name="password"  autocomplete="off"  style='text-indent:20px;'/>
+	<input type="submit" value="登录1nas" style='cursor:pointer;'/>
+	</form>
+
+	<form  action="/cgi-bin/check" autocomplete="off" method="post" >
+	<input type="hidden" name="username" value="root" />
+	<input value="" id="focus_password" type="password" name="password"  autocomplete="off"  style='text-indent:20px;'/>
+	<input type="submit" value="登录2check" style='cursor:pointer;'/>
+	</form>
+
+	<form method="post" action="/cgi-bin/server.py" name="submit" enctype="multipart/form-data">
+	<input type="file" name="fileField"><br /><br />
+	<input type="submit" name="submit" value="Submit">
+	</form>
+
+	<!--
+	<script type="text/javascript" src="refresh.js"></script>
+	-->
+
+</body>
+</html>

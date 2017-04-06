@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+
+source ./fetchctx
+
+
+main()
+{
+	local url fl ctx root total
+	
+	url=$1
+	fl=$2
+
+	[ -z "$fl" -o -z "$url" ] && {
+		echo "usage: $0 url filename" >&2
+		return 1
+	}
+
+	root=`dirname $url`
+	tmpfl=/tmp/tmp.html
+	
+	total=0
+
+	while true
+	do
+		rm -f $tmpfl
+		wget -c $url -O $tmpfl || {
+			echo "download $url failed"
+			return 1
+		}
+
+		total=`expr $total + 1`
+
+		parse_ctx $tmpfl >>$fl 
+
+		next_page=`cat $tmpfl | awk -F\" '/next_page/ {print $2; exit}'`
+		[ -z "$next_page" -o "$next_page" == "index.html" ] && break
+
+		url=$root/$next_page
+	done
+	rm -f $tmpfl
+	echo "Finished!!! Total Download: $total"
+}
+
+main $*
+

@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+
+export PATH=$PATH:"/usr/bin/ems_c/bin"
+
+flg_stat_online=$((1 << 31))
+flg_stat_upgraded=$((1 << 17))
+flg_stat_download=$((1 << 18))
+
+ROM_VERSION=""
+
+print_404_not_found()
+{
+	echo -en "Status: 404 Not Found\r\n"
+	echo -en "Content-Type: text/html\r\n\r\n"
+	echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
+}
+
+
+#cfg key
+get_value()
+{
+	grep $2 $1 | head -1 | awk -F= '{print $2}'
+}
+
+# flg
+print_device_status()
+{
+	local flg=$1
+
+	[ 0 -eq $(( $flg & $flg_stat_online )) ]    || {
+		echo -en " Online"
+	}
+
+	[ 0 -eq  $(( $flg & $flg_stat_download )) ] || {
+		echo -en " downloaded"
+	}
+
+	[ 0 -eq $(( $flg & $flg_stat_upgraded )) ] || {
+		echo -en " upgraded"
+	}
+}
+
+# date
+print_date()
+{
+	date --date=@"$1" +"%Y-%m-%d %H:%M:%S"
+}
+
+print_update_status()
+{
+	[ "$1" == "$ROM_VERSION" ] || {
+		echo -en "未升级"
+
+		[ 0 -eq  $(($2 & $flg_stat_download)) ] || {
+			echo -en "|已下载"
+		}
+		return 0
+	}
+
+	echo -en "已升级"
+}
+
+arylen()
+{
+	l=0
+	while true
+	do
+		[ -z "$1" ] && break
+		l=$(( $l + 1))
+		shift
+	done
+
+	echo $l
+}
+
+sn_unexcepted()
+{
+	online=0
+
+	for key in $keys
+	do
+		json_select $key
+
+		json_get_var flag flag 0
+
+		[ 0 -eq $(( $flag & $flg_stat_online )) ] || {
+			online=`expr $online + 1`
+		}
+
+		json_select ".."
+	done
+
+	[ $online -gt 1 ] && return 0
+
+	return 1
+}
+
+
+# sn sn_flag
+print_device_history()
+{
+	local error=0
+
+	json_get_keys keys
+
+	len=`arylen $keys`
+
+	[ $len -gt 1 ] && {
+		sn_unexcepted && error=1
+	}
+
+	for key in $keys
+	do
+		json_select $key
+
+		json_get_vars ip ty ver status create access flag
+
+		if [ $error -eq 1 ]; then
+			if [ 0 -eq $(( $flag & $flg_stat_online )) ]; then
+				echo -en "\n$1,异常, $key[`print_update_status $ver $flag`], $ip, $ty, $ver, $status, `print_date $create`, `print_date $access`, `print_device_status $flag`"
+			else
+				echo -en "\n$1,离线, $key[`print_update_status $ver $flag`], $ip, $ty, $ver, $status, `print_date $create`, `print_date $access`, `print_device_status $flag`"
+			fi
+		else
+			echo -en "\n$1,`print_device_status $2`, $key[`print_update_status $ver $flag`], $ip, $ty, $ver, $status, `print_date $create`, `print_date $access`, `print_device_status $flag`"
+		fi
+
+		json_select ".."
+	done
+}
+
+print_all_devices()
+{
+	json_set_namespace RESPONSE
+
+	json_select device &>/dev/null
+
+	json_get_keys keys
+
+	for key in $keys
+	do
+		json_select $key
+
+		json_get_vars  sn flag upgs
+
+		[ -n "$upgs" -a -n "$sn" -a -n "$flag" ] && {
+
+			json_select upgs
+			print_device_history $sn $flag
+			json_select ".."
+		}
+
+		json_select ".."
+	done
+}
+
+print_all_device_info()
+{
+	. /usr/bin/ems_c/bin/jshn.sh
+
+	json_set_namespace RESPONSE
+
+	json_load "$1" 2>/dev/null
+
+	echo -en "设备SN, 设备状态, 编号, IP地址, 设备类型, ROM版本, 当前进度, 创建时间, 更新时间, 状态"
+
+	print_all_devices
+}
+
+main()
+{
+	local fl_out www_root
+
+	[ -n "${DOCUMENT_ROOT}" ] && {
+		www_root="/upload/upgrade_statistic.csv"
+		fl_out=${DOCUMENT_ROOT}$www_root
+		ROM_VERSION=`get_value "${DOCUMENT_ROOT}/conf/rom.conf" rom.version`
+	}
+
+	ctx=`ems_statistic method=get` || {
+		print_404_not_found
+		return 1
+	}
+
+	[ -z "$fl_out" ] && {
+		ROM_VERSION=`get_value "../conf/rom.conf" rom.version`
+		print_all_device_info "$ctx"
+		echo -e "\n"
+		return 0
+	}
+
+	print_all_device_info "$ctx" >$fl_out
+
+	echo -en "Status: 302 Moved Temporarily\r\n"
+	echo -en "Location: http://${SERVER_ADDR}$www_root\r\n"
+	echo -en "Content-Type: text/html\r\n\r\n"
+}
+
+main

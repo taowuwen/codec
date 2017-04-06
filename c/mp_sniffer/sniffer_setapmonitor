@@ -1,0 +1,117 @@
+#!/bin/sh
+
+logger_trace()
+{
+	logger -t sniffer "$*"
+}
+
+
+list_wifi_inf()
+{
+# \b == \< \> in awk
+	ip -o link |
+	awk '{gsub(":", "", $2); if (match($2, /\<wifi[0-9]\>/) > 0)  print $2}'
+}
+
+list_ath_inf()
+{
+	ip -o link |
+	awk '{gsub(":", "", $2); if (match($2, /\<ath[0-9]{4}\>/) > 0)  print $2}'
+}
+
+updown_wifi()
+{
+	local act=$1
+
+	list_wifi_inf |
+	while read inf
+	do
+		logger_trace "ip link set $inf $act"
+		ip link set $inf $act
+	done
+}
+
+
+updown_ath()
+{
+	local act=$1
+
+	list_ath_inf |
+	while read inf
+	do
+		logger_trace "ip link set $inf $act"
+		ip link set $inf $act
+	done
+}
+
+
+destroy_athx()
+{
+	list_ath_inf |
+	while read inf
+	do
+		logger_trace wlanconfig $inf destroy 
+		wlanconfig $inf destroy 
+	done
+}
+
+create_monitors()
+{
+	list_wifi_inf |
+	while read inf
+	do
+		logger_trace wlanconfig mon$inf create wlandev $inf wlanmode monitor
+		wlanconfig mon$inf create wlandev $inf wlanmode monitor
+	done
+}
+
+updown_monitor()
+{
+	local act=$1
+
+	list_wifi_inf |
+	while read inf
+	do
+		logger_trace ip link set dev mon$inf $act
+		ip link set dev mon$inf $act
+	done
+}
+
+destroy_monitor()
+{
+	list_wifi_inf |
+	while read inf
+	do
+		logger_trace wlanconfig mon$inf destroy
+		wlanconfig mon$inf destroy
+	done
+}
+
+
+main()
+{
+	local act=$1
+
+	[ -z "$1" ] && echo "usage $0 start/stop" && return 1
+
+	if [ $1 == start ]; then
+		updown_wifi down
+		updown_ath down
+
+		destroy_athx
+
+		create_monitors
+
+		updown_wifi up
+		updown_monitor up
+	else
+		updown_monitor down
+		updown_wifi down
+
+		destroy_monitor
+
+		updown_wifi up
+	fi
+}
+
+main $*

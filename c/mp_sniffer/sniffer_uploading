@@ -1,0 +1,116 @@
+#!/bin/sh
+
+logger_trace()
+{
+#	logger -t sniffer "$*"
+	echo "$*"
+}
+
+ftp_upload_wput()
+{
+	local retry log
+
+	retry=2
+	log=/tmp/wput.log
+
+#wput -B $others ftp://user:pass@host:port/path/filename localfilename
+
+# wput: 
+#	-t retry times
+#	-T 10th-SECONDS default 300 == 30s
+#	--waitretry=SECONDS
+#	-B binary mode
+#	-p no-passive mode
+
+	wput -B -t $retry -T 100 --waitretry=1 -o $log \
+	${FTP_URL}/${UPLOADING_FILE} ${UPLOADING_FILE} || {
+		logger_trace "upload ${UPLOADING_FILE} failed, $?"
+		return 1
+	}
+
+	cat $log | grep -q "FINISHED" ||
+	{
+		logger_trace "wput try active mode"
+
+		wput -p -B -t $retry -T 100 --waitretry=1 -a $log \
+		${FTP_URL}/${UPLOADING_FILE} ${UPLOADING_FILE} || {
+			logger_trace "upload ${UPLOADING_FILE} failed, $?"
+			return 1
+		}
+
+		`cat $log | grep -q "FINISHED"` || return 1
+	}
+
+	rm -f $log
+
+	return 0
+}
+
+# currently we use ftpput, if it is not now, use wput instead
+# pay attention on param's URLENCODE, wput need not handle, but ftpput
+ftp_do_upload()
+{
+	ftp_upload_wput
+}
+
+ftp_uploading()
+{
+	logger_trace "FTP_URL:  ${FTP_URL}"
+	[ -z "${FTP_URL}" ] && {
+		logger_trace "FTP_URL not set"
+		return 1
+	}
+
+	[ -n "${UPLOADING_ROOT}" ] && {
+		cd ${UPLOADING_ROOT} || return 1
+	}
+
+	[ -f "${UPLOADING_FILE}" ] || {
+		logger_trace "${UPLOADING_ROOT}/${UPLOADING_FILE} not found"
+		return 1
+	}
+
+	[ $FILE_COMPRESS -eq 1 ] && {
+
+		fl="`echo ${UPLOADING_FILE} | cut -d'.' -f1`.tar.gz"
+		tar cvzf $fl ${UPLOADING_FILE} || {
+			rm -f $fl
+			return 2
+		}
+
+		rm -f ${UPLOADING_FILE}
+
+		logger_trace "update UPLOADING_FILE ${UPLOADING_FILE}-> $fl"
+		export UPLOADING_FILE=$fl
+	}
+
+	ftp_do_upload
+	return $?
+}
+
+main()
+{
+	local upload
+	
+	logger_trace "SERVER_TYPE: ${SERVER_TYPE}"
+	logger_trace "UPLOADING_ROOT : ${UPLOADING_ROOT}"
+	logger_trace "UPLOADING_FILE : ${UPLOADING_FILE}"
+	logger_trace "FILE_COMPRESS: ${FILE_COMPRESS}"
+
+	upload=${SERVER_TYPE}_uploading
+
+	if type $upload &>/dev/null; then
+		$upload
+		return $?
+	fi
+
+	logger_trace "uploading server type ${SERVER_TYPE} not support"
+
+	return 1
+}
+
+err=0
+main $*
+err=$?
+rm -f ${UPLOADING_FILE}
+exit $err

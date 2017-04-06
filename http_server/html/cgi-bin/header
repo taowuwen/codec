@@ -1,0 +1,192 @@
+#!/usr/bin/env bash
+
+
+# cpu    : xxx % (n cores, XXXMHz)                 Version:
+# memory : xxx % (XXX used/XXX free/ XXX total)    device type:      user/online/offline  
+
+all_info()
+{
+	echo -ne "Content-Type: text/html\r\n\r\n"
+
+	echo "
+	<html>
+	<body>
+
+	<p> `env` </p>
+	"
+
+
+	[ "${REQUEST_METHOD}" == "POST" ] && {
+		content=`getcontent`
+		echo "<p> POST METHOD: $content </p>"
+	}
+
+	echo "
+	<h1> query_string: ${QUERY_STRING} </h1>
+	<h4> `print_all_key_value $content` </h4>
+
+
+	<h4> wanna get firstname:  `getargs firstname` </h4>
+	<h4> wanna get lastname:  `getargs lastname` </h4>
+	</body>
+	</html>
+	"
+}
+
+get_cpu_info()
+{
+	local usage cores ghz
+
+	export TERM=linux
+
+	usage=`top -bn1 | grep "%Cpu" | awk '{print $2 + $4}'`
+	cores=`cat /proc/cpuinfo | grep processor | wc -l`
+	ghz=`cat /proc/cpuinfo  | grep "MHz"  | head -1 | awk '{print $4/1024}'`
+
+	echo "$usage% ($cores cores, $ghz G)"
+}
+
+
+get_mem_info()
+{
+	local total used free
+
+	total=`cat /proc/meminfo  | grep -E "MemTotal|SwapTotal" | awk 'BEGIN{total=0}{total = total + $2} END{print total}'`
+	used=`cat /proc/meminfo  | grep -E "MemFree|Buffers|Cached|SwapFree|SwapCached" | awk 'BEGIN{total=0} {total = total + $2} END{print total}'`
+	free=`expr $total - $used`
+
+	echo "`expr $free \* 100 \/ $total` % ($used, $free, $total)"
+}
+
+print_system_info()
+{
+	echo "
+		<td width=25%> 
+			<table bgcolor=#aabbcc>
+				<tr> <td> CPU : `get_cpu_info`</td> </tr>
+				<tr> <td> MEM : `get_mem_info`</td> </tr>
+			</table>
+		</td>
+	"
+}
+
+
+#cfg key
+get_value()
+{
+	grep $2 $1 | head -1 | awk -F= '{print $2}'
+}
+
+get_rom_info()
+{
+	local fl chk ver dev
+
+	cfg="${DOCUMENT_ROOT}/conf/rom.conf"
+
+	fl=${DOCUMENT_ROOT}/`get_value $cfg rom.path`
+	chk=`get_value $cfg rom.checksum`
+	ver=`get_value $cfg rom.version`
+	dev=`get_value $cfg rom.dev`
+
+	if ! [ -f "$fl" ] ; then
+		echo "<tr> <td> <font color=#ff0000>版本文件不存在 $fl </td> </tr>"
+
+	elif [ "`md5sum $fl | awk '{print $1}'`" != "$chk" ]; then
+		echo "<tr> <td> <font color=#ff0000>文件MD5值不正确($chk)</td> </tr>"
+
+	else
+		echo "
+			<tr> <td> 版本: $ver (#`get_value $cfg rom.cfgnum`) </td> </tr>
+			<tr> <td> 类型: $dev </td> </tr>
+		"
+	fi
+}
+
+
+print_rom_info()
+{
+	echo -en "
+		<td width=25%> 
+			<table bgcolor=#aabbcc>
+				`get_rom_info`
+			</table>
+		</td>
+	"
+}
+
+get_current_status()
+{
+	local total offline online
+	export PATH=$PATH:"/usr/bin/ems_c/bin"
+
+	. /usr/bin/ems_c/bin/jshn.sh
+
+	ctx=`ems_totalinfo method=get`|| {
+		echo "<tr><td><font color=#ff0000>无法获得概要信息</font></td></tr>"
+		return 1
+	}
+
+	json_load "$ctx" 2>/dev/null
+
+	json_get_vars  total   offline online
+
+echo "
+<tr>
+<td> 总共 </td>
+<td> 在线 </td>
+<td> 离线 </td>
+</tr>
+<tr align="center"> 
+<td> <font color=#ff0000>$total   </font> </td>
+<td> <font color=#00ff00>$online  </font> </td>
+<td> <font color=#0000ff>$offline </font> </td>
+</tr>
+"
+}
+
+
+print_current_status()
+{
+	echo -en "<td width=25%> 
+			<table bgcolor=#aabbcc>
+				`get_current_status`
+			</table>
+		</td>
+	"
+}
+
+print_system_date()
+{
+	echo -en "<td width=25%> 
+			<table bgcolor=#aabbcc>
+				<tr> <td> `date`</td> </tr>
+			</table>
+		</td>"
+}
+
+main()
+{
+	echo -ne "Content-Type: text/html\r\n\r\n"
+
+	echo -ne "
+<html lang="zh-cn">
+<meta charset="utf-8">
+<body bgcolor=#aabbcc>
+<table>
+	<tr> 
+	"
+
+	print_system_info
+	print_rom_info
+	print_current_status
+	print_system_date
+	
+	echo -ne "</tr>
+</table>
+	<script type="text/javascript" src="/refresh.js"></script>
+</body>
+</html>
+"
+}
+
+main

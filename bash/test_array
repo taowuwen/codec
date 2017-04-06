@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+
+files=(./*)
+
+echo "total : ${#files[@]}"
+
+
+#for inx in ${!files[*]}
+#do
+#	echo "${files[$inx]} `ls -l "${files[$inx]}"`"
+##	echo "${files[$inx]} ===> $(ls -l "`escape_string ${files[$inx]}`")"
+#done
+
+
+for fl in *
+do
+	echo "files: $fl, `ls -l "$fl"`"
+done

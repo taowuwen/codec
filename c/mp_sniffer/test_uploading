@@ -1,0 +1,38 @@
+#!/bin/sh
+
+#SERVER_TYPE: ftp
+#UPLOADING_ROOT : /tmp/sniffer/wlp3s0
+#UPLOADING_FILE : APMAC_1471845123_wlp3s0_1.pcap
+#FILE_COMPRESS: 0
+#ftp_uploading is a shell function
+#FTP_USER: a
+#FTP_PASS: a
+#FTP_HOST: 10.0.12.9
+#FTP_PORT: 21
+#FTP_PATH: /
+
+
+
+
+export SERVER_TYPE="ftp"
+export UPLOADING_ROOT=/tmp/
+
+cp -f /tmp/tmptmp.pcap /tmp/ACMAC_aaa.pcap || exit 1
+
+export UPLOADING_FILE=ACMAC_aaa.pcap
+
+export FILE_COMPRESS=1
+export FTP_USER=a
+export FTP_PASS=a
+export FTP_HOST=10.0.12.9
+export FTP_PORT=21
+export FTP_PATH=/
+
+./sniffer_uploading || {
+	echo "uploading failed"
+	exit $?	
+}
+
+echo "uploading success"
+exit $?
+

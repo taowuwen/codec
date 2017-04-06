@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+
+#root=`pwd`
+root=/usr/bin
+start_ems()
+{
+	ems="$root/ems_c/bin/ems"
+
+	$ems -c "/etc/ems.conf" &
+}
+
+stop_ems()
+{
+	ems="$root/ems_c/bin/ems"
+
+	pid=`ps ax | grep $ems | grep -v grep | awk '{print $1}'`
+
+	[ -n "$pid" ] && {
+		killall $ems
+		sleep 1
+
+		pid=`ps ax | grep $ems | grep -v grep | awk '{print $1}'`
+		[ -n "$pid" ] && kill -9 $pid
+	}
+
+	echo "stop ok"
+}
+
+
+case $1 in
+	restart)
+		stop_ems
+		start_ems
+		;;
+	start)
+		start_ems
+		;;
+	stop)
+		stop_ems
+		;;
+	*)
+		echo "usage: $0 [start/stop/restart]"
+		;;
+esac

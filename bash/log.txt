@@ -1,0 +1,10 @@
+
+
+
+ ssh -t -l dev 115.29.179.68  "echo 'hEU39Cn' | sudo -S netstat -ant | grep -E \"7788|7789\""
+
+
+ bash执行时，去掉密码的输入
+
+
+

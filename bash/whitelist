@@ -1,0 +1,73 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2009-2012 OpenWrt.org
+
+START=99
+USE_PROCD=1
+QUIET=""
+
+whitelist="/etc/xixitao_whitelist"
+
+mac_addr_valid()
+{
+	local addr=${1:-"gg"}
+
+	echo $addr | grep  -q "^[0-9a-f]\{2\}\(:[0-9a-f]\{2\}\)\{5\}$"
+}
+
+#config include
+#	option path '/lib/morewifi/api/fw_blacklist'
+#
+
+_init_firewall_rules()
+{
+	local rules
+
+	rules=`wc -l $whitelist | awk '{print $1}'`
+
+	if [ $rules -gt 0 ] ; then
+		ipset --list xixitao &>/dev/null || {
+			ipset create xixitao hash:ip
+		}
+
+		cat /etc/firewall.user | grep -q xixitao || {
+			echo "iptables -I FORWARD -i br-lan -m set --match-set xixitao src -j ACCEPT" >> /etc/firewall.user
+			echo "iptables -I forwarding_lan_rule -j DROP" >>/etc/firewall.user
+			(sleep 2; /etc/init.d/firewall restart) &
+		}
+	else
+		cat /etc/firewall.user | grep -q xixitao && {
+			sed -i '/xixitao/d' /etc/firewall.user
+			sed -i '/forwarding_lan_rule/d' /etc/firewall.user
+			(sleep 2; /etc/init.d/firewall restart) &
+		}
+	fi
+}
+
+restart() {
+	local ip
+	stop_service
+
+	_init_firewall_rules
+
+	cat $whitelist 2>/dev/null |
+	while read mac
+	do
+		mac_addr_valid $mac &&  {
+			ip=`cat /tmp/dhcp.leases | awk '/'$mac'/{print $3}'` && {
+				ipset add xixitao $ip &>/dev/null
+			}
+		}
+	done
+}
+
+start_service() {
+	restart
+}
+
+stop_service() {
+	ipset --flush xixitao &>/dev/null
+}
+
+reload_service() {
+	restart
+}

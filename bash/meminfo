@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+
+
+#MemTotal:        7865848 kB
+#MemFree:           59476 kB
+#Buffers:         3039508 kB
+#Cached:          3061696 kB
+#SwapCached:            0 kB
+#SwapTotal:             0 kB
+#SwapFree:              0 kB
+
+
+re="\<MemTotal\>|\<MemFree\>|\<SwapCached\>|\<Buffers\>|\<Cached\>|\<SwapTotal\>|\<SwapFree\>"
+cat /proc/meminfo | awk '/'$re'/{print $0}'
+
+cat /proc/meminfo | 
+	awk '/'$re'/{printf("%d ", $2);}END{printf("\n");}' |
+	awk '{total = $1 + $6; avail=$2 + $3 + $4 + $5 + $6; exit } END { printf(" %f : %d/%d (%d)\n", 100.0 * ((total - avail)/total), (total - avail)/1024, total/1024, avail/1024); }' 

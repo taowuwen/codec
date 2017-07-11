@@ -110,6 +110,37 @@ dns_set()
 	"
 }
 
+iwantnet()
+{
+	echo -en "Content-Type: text/html\r\n\r\n"
+
+	echo -en "
+<html lang="zh-cn">
+<meta charset="utf-8">
+<body>
+"
+
+	mac=`cat /tmp/dhcp.leases | awk '/'${REMOTE_ADDR}'/{print $2}'`
+	if [ -n "$mac" ]; then
+
+		cat /etc/xixitao_whitelist | grep -q $mac || {
+			echo $mac >>/etc/xixitao_whitelist
+			/etc/init.d/whitelist reload
+		}
+
+		ipset add xixitao ${REMOTE_ADDR} &>/dev/null
+
+		echo "<h1 align="center"> <font color=#00ff00> ${REMOTE_ADDR}->$mac SUCCESS ~_~ !!!!</font></h1>"
+	else
+		echo "<h1 align="center"> <font color=#ff0000> $REMOTE_ADDR， FAILED ~_~ !!!!</font></h1>"
+	fi
+
+echo "
+</body>
+</html>
+ "
+}
+
 
 # service method
 handle_service()
@@ -137,6 +168,10 @@ main()
 
 	dns_set)
 		dns_set
+	;;
+
+	iwantnet)
+		iwantnet
 	;;
 
 	show_dns)

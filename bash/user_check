@@ -1,0 +1,48 @@
+#!/bin/sh
+
+
+_do_check_whitelist()
+{
+	local mac ip
+
+	mac=$1
+	ip=$2
+
+	grep -q "$mac" /etc/xixitao_whitelist && ipset add xixitao $ip &>/dev/null
+}
+
+_do_search_and_apply()
+{
+	cat /tmp/dhcp.leases |
+	grep -v -e "_NO_USE__" `ipset  --list xixitao | awk '/192./{printf("-e %s ", $0)}'` |
+	awk '{print $2, $3}' |
+	while read ln
+	do
+		echo "_do_check_whitelist $ln;"
+	done
+
+}
+
+#[root@xixitao:/tmp]#ls -e dhcp.leases
+#-rw-r--r--    1 root     root           643 Sat Jul 15 14:59:06 2017 dhcp.leases
+
+_do_start()
+{
+	local last="00:00:00"
+	local cur=""
+
+	while true
+	do
+		cur="`ls -e /tmp/dhcp.leases  | awk '{print $(NF-3)}'`"
+
+		[ "$cur" = "$last" ] || {
+			last="$cur"
+			eval "`_do_search_and_apply""
+		}
+
+		sleep 5s
+	done
+}
+
+
+_do_start $*

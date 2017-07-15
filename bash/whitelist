@@ -30,6 +30,8 @@ _init_firewall_rules()
 		}
 
 		cat /etc/firewall.user | grep -q xixitao || {
+			echo "iptables -D FORWARD -i br-lan -m set --match-set xixitao src -j ACCEPT" >> /etc/firewall.user
+			echo "iptables -D forwarding_lan_rule -j DROP" >>/etc/firewall.user
 			echo "iptables -I FORWARD -i br-lan -m set --match-set xixitao src -j ACCEPT" >> /etc/firewall.user
 			echo "iptables -I forwarding_lan_rule -j DROP" >>/etc/firewall.user
 			(sleep 2; /etc/init.d/firewall restart) &
@@ -58,6 +60,10 @@ restart() {
 			}
 		}
 	done
+
+	sleep 1s
+
+	/usr/sbin/user_check &
 }
 
 start_service() {
@@ -65,6 +71,10 @@ start_service() {
 }
 
 stop_service() {
+
+	pid="`ps | awk '/user_check/{ if ($5 ~/awk/) next; print $0}'`"
+	[ -n "$pid" ] && kill -9 $pid
+
 	ipset --flush xixitao &>/dev/null
 }
 

@@ -7,8 +7,20 @@ parse_ctx()
 
 	[ -z "$fl" ] && echo "usage $0 filename" && exit 1
 
-	cat $fl | iconv -f gbk -t utf8 | awk -f gettitle.awk
-	cat $fl | iconv -f gbk -t utf8 | sed -n -f getctx.sed | sed  's/<.*>//g'
+	_get_utf8_ctx()
+	{
+		file $fl | grep -iq "utf-8" && {
+			cat $fl
+		} || {
+			cat $fl | iconv -c -f gbk -t utf8 
+		}
+	}
+
+	_get_utf8_ctx | awk -f gettitle.awk
+	_get_utf8_ctx | sed -n -f getctx.sed | sed  's/<.*>//g'
+
+#	cat $fl | iconv -f gbk -t utf8 | awk -f gettitle.awk
+#	cat $fl | iconv -f gbk -t utf8 | sed -n -f getctx.sed | sed  's/<.*>//g'
 	echo ""
 	echo ""
 }

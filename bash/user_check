@@ -23,9 +23,6 @@ _do_search_and_apply()
 
 }
 
-#[root@xixitao:/tmp]#ls -e dhcp.leases
-#-rw-r--r--    1 root     root           643 Sat Jul 15 14:59:06 2017 dhcp.leases
-
 _do_start()
 {
 	local last="00:00:00"
@@ -33,11 +30,11 @@ _do_start()
 
 	while true
 	do
-		cur="`ls -e /tmp/dhcp.leases  | awk '{print $(NF-3)}'`"
+		cur="`ls -e /tmp/dhcp.leases  | awk '{print $(NF-2)}'`"
 
 		[ "$cur" = "$last" ] || {
 			last="$cur"
-			eval "`_do_search_and_apply""
+			eval "`_do_search_and_apply`"
 		}
 
 		sleep 5s

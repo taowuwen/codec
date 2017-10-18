@@ -1,7 +1,0 @@
-./uhttpd.c:[00;32m545[00;00m:if (![00;33mpin-[00;00m>redirected && uh_auth_check(cl, req, pin))
-./uhttpd.c:[00;32m548[00;00m:D("uh_path_lookup: name: %s, phys name: %s\n", [00;33mpin-[00;00m>name, realpath([00;33mpin-[00;00m>phys, path_real));
-./uhttpd.c:[00;32m549[00;00m://			if (uh_path_match(conf->cgi_prefix, realpath([00;33mpin-[00;00m>name, path_real)) ||
-./uhttpd.c:[00;32m550[00;00m:if (uh_path_match(conf->cgi_prefix, [00;33mpin-[00;00m>name) ||
-./uhttpd.c:[00;32m551[00;00m:(ipr = uh_interpreter_lookup([00;33mpin-[00;00m>phys)) != NULL)
-./uhttpd.c:[00;32m571[00;00m:if (uh_path_match(conf->cgi_prefix, [00;33mpin-[00;00m>name) ||
-./uhttpd.c:[00;32m572[00;00m:(ipr = uh_interpreter_lookup([00;33mpin-[00;00m>phys)) != NULL)

@@ -8,7 +8,7 @@ get_next_page()
 	local tmpfl=$1
 
 	cat $tmpfl |
-	awk -F= '/next_page/{ for (i = 1; i < NF -1; i = i+2 ) if ($i ~ /next_page/) print $(i+1); exit}' |
+	awk -F= '/next_page/{ for (i = 1; i <= NF -1; i = i+2 ) if ($i ~ /next_page/) print $(i+1); exit}' |
 	sed 's/^.*"\([^;"]*\)".*/\1/g'
 
 #	next_page=`cat $tmpfl | awk -F\" '/next_page/ {print $2; exit}'`

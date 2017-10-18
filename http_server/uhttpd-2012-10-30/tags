@@ -27,28 +27,30 @@ BLOBMSG_TYPE_STRING	libubox/blobmsg.h	/^	BLOBMSG_TYPE_STRING,$/;"	e	enum:blobmsg
 BLOBMSG_TYPE_TABLE	libubox/blobmsg.h	/^	BLOBMSG_TYPE_TABLE,$/;"	e	enum:blobmsg_type
 BLOBMSG_TYPE_UNSPEC	libubox/blobmsg.h	/^	BLOBMSG_TYPE_UNSPEC,$/;"	e	enum:blobmsg_type
 BLOB_ATTR_ALIGN	libubox/blob.h	98;"	d
-BLOB_ATTR_BINARY	libubox/blob.h	/^	BLOB_ATTR_BINARY,$/;"	e	enum:__anon17
+BLOB_ATTR_BINARY	libubox/blob.h	/^	BLOB_ATTR_BINARY,$/;"	e	enum:__anon3
 BLOB_ATTR_ID_MASK	libubox/blob.h	95;"	d
 BLOB_ATTR_ID_SHIFT	libubox/blob.h	96;"	d
-BLOB_ATTR_INT16	libubox/blob.h	/^	BLOB_ATTR_INT16,$/;"	e	enum:__anon17
-BLOB_ATTR_INT32	libubox/blob.h	/^	BLOB_ATTR_INT32,$/;"	e	enum:__anon17
-BLOB_ATTR_INT64	libubox/blob.h	/^	BLOB_ATTR_INT64,$/;"	e	enum:__anon17
-BLOB_ATTR_INT8	libubox/blob.h	/^	BLOB_ATTR_INT8,$/;"	e	enum:__anon17
-BLOB_ATTR_LAST	libubox/blob.h	/^	BLOB_ATTR_LAST$/;"	e	enum:__anon17
+BLOB_ATTR_INT16	libubox/blob.h	/^	BLOB_ATTR_INT16,$/;"	e	enum:__anon3
+BLOB_ATTR_INT32	libubox/blob.h	/^	BLOB_ATTR_INT32,$/;"	e	enum:__anon3
+BLOB_ATTR_INT64	libubox/blob.h	/^	BLOB_ATTR_INT64,$/;"	e	enum:__anon3
+BLOB_ATTR_INT8	libubox/blob.h	/^	BLOB_ATTR_INT8,$/;"	e	enum:__anon3
+BLOB_ATTR_LAST	libubox/blob.h	/^	BLOB_ATTR_LAST$/;"	e	enum:__anon3
 BLOB_ATTR_LEN_MASK	libubox/blob.h	97;"	d
-BLOB_ATTR_NESTED	libubox/blob.h	/^	BLOB_ATTR_NESTED,$/;"	e	enum:__anon17
-BLOB_ATTR_STRING	libubox/blob.h	/^	BLOB_ATTR_STRING,$/;"	e	enum:__anon17
-BLOB_ATTR_UNSPEC	libubox/blob.h	/^	BLOB_ATTR_UNSPEC,$/;"	e	enum:__anon17
+BLOB_ATTR_NESTED	libubox/blob.h	/^	BLOB_ATTR_NESTED,$/;"	e	enum:__anon3
+BLOB_ATTR_STRING	libubox/blob.h	/^	BLOB_ATTR_STRING,$/;"	e	enum:__anon3
+BLOB_ATTR_UNSPEC	libubox/blob.h	/^	BLOB_ATTR_UNSPEC,$/;"	e	enum:__anon3
 CC	Makefile	/^CC = ${ROOT}\/bin\/mipsel-openwrt-linux-gcc$/;"	m
 CC	Makefile	/^CC = gcc$/;"	m
+CC	json/example/Makefile	/^CC = ${ROOT}\/bin\/mipsel-openwrt-linux-gcc$/;"	m
+CC	json/example/Makefile	/^CC = gcc$/;"	m
 CC	libubox/Makefile	/^CC=gcc$/;"	m
 CC	ubus/Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS  = -Wall $(INC)  $/;"	m
 CFLAGS	libubox/Makefile	/^CFLAGS=-Wall -O2 -g -DDEBUG $(INC)  -DHAVE_CGI -DHAVE_TLS -std=gnu99$/;"	m
 CFLAGS	ubus/Makefile	/^CFLAGS=-Wall -O2 -g -DDEBUG $(INC)  -DHAVE_LUA -DHAVE_CGI -DHAVE_TLS$/;"	m
 CLOCK_MONOTONIC	uhttpd-ubus.c	83;"	d	file:
-D	uhttpd.h	77;"	d
-D	uhttpd.h	81;"	d
+D	uhttpd.h	78;"	d
+D	uhttpd.h	82;"	d
 DEFAULT_SET	libubox/ustream.c	113;"	d	file:
 DEFAULT_SET	libubox/ustream.c	130;"	d	file:
 DIR	Makefile	/^DIR=$(shell pwd)$/;"	m
@@ -57,22 +59,22 @@ DIR	ubus/Makefile	/^DIR=$(shell pwd)\/$/;"	m
 DT_UHTTPD_EVENT_HEADER___	dt_uhttpd_evt.h	4;"	d
 DT_UHTTPD_SELECT_EXTEND_HEADER	dt_uhttpd_select.h	3;"	d
 DT_UTILS_HEADER___	dt_uhttpd_utils.h	3;"	d
-DV	uhttpd.h	76;"	d
-DV	uhttpd.h	80;"	d
+DV	uhttpd.h	77;"	d
+DV	uhttpd.h	81;"	d
 EPOLLRDHUP	libubox/uloop.c	188;"	d	file:
 ERR	dt_uhttpd_utils.h	8;"	d
-EVMSG_DATA	ubus/ubusd_event.c	/^	EVMSG_DATA,$/;"	e	enum:__anon14	file:
-EVMSG_ID	ubus/ubusd_event.c	/^	EVMSG_ID,$/;"	e	enum:__anon14	file:
-EVMSG_LAST	ubus/ubusd_event.c	/^	EVMSG_LAST,$/;"	e	enum:__anon14	file:
-EVREG_LAST	ubus/ubusd_event.c	/^	EVREG_LAST,$/;"	e	enum:__anon13	file:
-EVREG_OBJECT	ubus/ubusd_event.c	/^	EVREG_OBJECT,$/;"	e	enum:__anon13	file:
-EVREG_PATTERN	ubus/ubusd_event.c	/^	EVREG_PATTERN,$/;"	e	enum:__anon13	file:
+EVMSG_DATA	ubus/ubusd_event.c	/^	EVMSG_DATA,$/;"	e	enum:__anon6	file:
+EVMSG_ID	ubus/ubusd_event.c	/^	EVMSG_ID,$/;"	e	enum:__anon6	file:
+EVMSG_LAST	ubus/ubusd_event.c	/^	EVMSG_LAST,$/;"	e	enum:__anon6	file:
+EVREG_LAST	ubus/ubusd_event.c	/^	EVREG_LAST,$/;"	e	enum:__anon5	file:
+EVREG_OBJECT	ubus/ubusd_event.c	/^	EVREG_OBJECT,$/;"	e	enum:__anon5	file:
+EVREG_PATTERN	ubus/ubusd_event.c	/^	EVREG_PATTERN,$/;"	e	enum:__anon5	file:
 EXPORT	libubox/avl.h	51;"	d
 FALSE	json/json_object.h	21;"	d
 FALSE	json/json_object.h	22;"	d
-FOO_LIST	libubox/examples/blobmsg-example.c	/^	FOO_LIST,$/;"	e	enum:__anon18	file:
-FOO_MESSAGE	libubox/examples/blobmsg-example.c	/^	FOO_MESSAGE,$/;"	e	enum:__anon18	file:
-FOO_TESTDATA	libubox/examples/blobmsg-example.c	/^	FOO_TESTDATA$/;"	e	enum:__anon18	file:
+FOO_LIST	libubox/examples/blobmsg-example.c	/^	FOO_LIST,$/;"	e	enum:__anon2	file:
+FOO_MESSAGE	libubox/examples/blobmsg-example.c	/^	FOO_MESSAGE,$/;"	e	enum:__anon2	file:
+FOO_TESTDATA	libubox/examples/blobmsg-example.c	/^	FOO_TESTDATA$/;"	e	enum:__anon2	file:
 HAVE_DLFCN_H	json/config.h	5;"	d
 HAVE_FCNTL_H	json/config.h	11;"	d
 HAVE_INTTYPES_H	json/config.h	14;"	d
@@ -98,18 +100,23 @@ HAVE_VASPRINTF	json/config.h	73;"	d
 HAVE_VPRINTF	json/config.h	76;"	d
 HAVE_VSNPRINTF	json/config.h	79;"	d
 HAVE_VSYSLOG	json/config.h	82;"	d
-HELLO_ID	ubus/example/ubus-example.c	/^	HELLO_ID,$/;"	e	enum:__anon9	file:
-HELLO_MSG	ubus/example/ubus-example.c	/^	HELLO_MSG,$/;"	e	enum:__anon9	file:
+HELLO_ID	ubus/example/ubus-example.c	/^	HELLO_ID,$/;"	e	enum:__anon8	file:
+HELLO_MSG	ubus/example/ubus-example.c	/^	HELLO_MSG,$/;"	e	enum:__anon8	file:
 INC	Makefile	/^INC=-I$(INC_DIR) -I.\/libubox -I.\/ -I.\/ubus -I.\/json$/;"	m
+INC	json/example/Makefile	/^INC= -I$(JSON_DIR)$/;"	m
 INC	libubox/Makefile	/^INC=-I$(INC_DIR) -I.\/libubox -I.\/$/;"	m
 INC	ubus/Makefile	/^INC=-I$(INC_DIR) -I..\/libubox -I.\/ -I..\/$/;"	m
 INC_DIR	Makefile	/^INC_DIR=$(DIR)$/;"	m
 INC_DIR	libubox/Makefile	/^INC_DIR=$(DIR)$/;"	m
 INC_DIR	ubus/Makefile	/^INC_DIR=$(DIR)$/;"	m
 INIT_LIST_HEAD	libubox/list.h	/^INIT_LIST_HEAD(struct list_head *list)$/;"	f
+JSON	json/example/Makefile	/^JSON=jshn$/;"	m
 JSON_DIR	Makefile	/^JSON_DIR=$(DIR)\/json$/;"	m
+JSON_DIR	json/example/Makefile	/^JSON_DIR=$(shell pwd)$/;"	m
+JSON_DIR	json/example/Makefile	/^JSON_DIR=.$/;"	m
 JSON_FILE_BUF_SIZE	json/json_util.h	21;"	d
 JSON_OBJECT_DEF_HASH_ENTRIES	json/json_object.h	19;"	d
+JSON_OBJS	json/example/Makefile	/^JSON_OBJS  = $(patsubst $(JSON_DIR)\/%.c, $(OBJ_DIR)\/%.o, $(wildcard $(JSON_DIR)\/*.c))$/;"	m
 JSON_TOKENER_MAX_DEPTH	json/json_tokener.h	72;"	d
 LDFLAGS	Makefile	/^LDFLAGS=-lrt -lm -ldl -lcrypt$/;"	m
 LDFLAGS	libubox/Makefile	/^LDFLAGS=-ljson$/;"	m
@@ -120,16 +127,17 @@ LH_PRIME	json/linkhash.h	22;"	d
 LIST_HEAD	libubox/list.h	48;"	d
 LIST_HEAD	libubox/list.h	49;"	d
 LIST_HEAD_INIT	libubox/list.h	47;"	d
-LOG_ERR	uhttpd.h	64;"	d
-LOG_INFO	uhttpd.h	66;"	d
-LOG_TRACE	uhttpd.h	67;"	d
-LOG_VERBOSE	uhttpd.h	68;"	d
-LOG_WARN	uhttpd.h	65;"	d
+LOG_ERR	uhttpd.h	65;"	d
+LOG_INFO	uhttpd.h	67;"	d
+LOG_TRACE	uhttpd.h	68;"	d
+LOG_VERBOSE	uhttpd.h	69;"	d
+LOG_WARN	uhttpd.h	66;"	d
 LT_OBJDIR	json/config.h	86;"	d
 LUA_DIR	Makefile	/^LUA_DIR=$(DIR)\/libubox$/;"	m
 LUA_DIR	libubox/Makefile	/^LUA_DIR=$(DIR)\/lua$/;"	m
 LUA_DIR	ubus/Makefile	/^LUA_DIR=$(DIR)\/libubox$/;"	m
 MAX_STACK_BUFLEN	libubox/ustream.c	429;"	d	file:
+MAX_VARLEN	json/example/jshn.c	29;"	d	file:
 MAX_VARLEN	libubox/jshn/jshn.c	10;"	d	file:
 MC_ABORT	json/debug.h	32;"	d
 MC_ABORT	json/debug.h	40;"	d
@@ -147,7 +155,9 @@ MC_SET_SYSLOG	json/debug.h	31;"	d
 MC_SET_SYSLOG	json/debug.h	39;"	d
 METANAME	ubus/lua/ubus.c	21;"	d	file:
 MIPS_INC	Makefile	/^MIPS_INC=${ROOT}\/include\/$/;"	m
+MIPS_INC	json/example/Makefile	/^MIPS_INC=${ROOT}\/include\/$/;"	m
 MIPS_LIB	Makefile	/^MIPS_LIB= ${ROOT}\/lib $/;"	m
+MIPS_LIB	json/example/Makefile	/^MIPS_LIB= ${ROOT}\/lib $/;"	m
 MODNAME	ubus/lua/ubus.c	20;"	d	file:
 NO	dt_uhttpd_utils.h	5;"	d
 OBJS	Makefile	/^OBJS  = $(patsubst $(SRC_DIR)\/%.c, $(OBJ_DIR)\/%.o, $(wildcard $(SRC_DIR)\/*.c))$/;"	m
@@ -155,6 +165,7 @@ OBJS	libubox/Makefile	/^OBJS  = $(patsubst $(SRC_DIR)\/%.c, $(OBJ_DIR)\/%.o, $(w
 OBJS	ubus/Makefile	/^OBJS  = $(patsubst $(SRC_DIR)\/%.c, $(OBJ_DIR)\/%.o, $(wildcard $(SRC_DIR)\/*.c))$/;"	m
 OBJ_DIR	Makefile	/^OBJ_DIR=\/d\/dt_net_obj$/;"	m
 OBJ_DIR	Makefile	/^OBJ_DIR=\/tmp\/uhttpdobj$/;"	m
+OBJ_DIR	json/example/Makefile	/^OBJ_DIR=\/tmp\/json_obj$/;"	m
 OBJ_DIR	libubox/Makefile	/^OBJ_DIR=$(DIR)obj$/;"	m
 OBJ_DIR	libubox/Makefile	/^OBJ_DIR=\/d\/dt_net_obj$/;"	m
 OBJ_DIR	ubus/Makefile	/^OBJ_DIR=$(DIR)obj$/;"	m
@@ -171,10 +182,12 @@ PRINTBUF_DEBUG	json/printbuf.h	23;"	d
 READ_BLOCKED_FULL	libubox/ustream.h	/^	READ_BLOCKED_FULL = (1 << 1),$/;"	e	enum:read_blocked_reason
 READ_BLOCKED_USER	libubox/ustream.h	/^	READ_BLOCKED_USER = (1 << 0),$/;"	e	enum:read_blocked_reason
 ROOT	Makefile	/^ROOT=\/home\/tww\/xRouter_Generic_Build20131223_V1.1.1.1\/staging_dir\/toolchain-mipsel_r2_gcc-4.6-linaro_uClibc-0.9.33.2$/;"	m
-SOL_TCP	uhttpd.h	58;"	d
+ROOT	json/example/Makefile	/^ROOT=$(shell echo ${HOME})\/bin\/mipsroot$/;"	m
+SOL_TCP	uhttpd.h	59;"	d
 SRC_DIR	Makefile	/^SRC_DIR=$(DIR)$/;"	m
 SRC_DIR	libubox/Makefile	/^SRC_DIR=$(DIR)$/;"	m
 SRC_DIR	ubus/Makefile	/^SRC_DIR=$(DIR)$/;"	m
+STAGING_DIR	json/example/Makefile	/^export STAGING_DIR=$(shell dirname $(shell readlink -f $(ROOT)))$/;"	m
 STATIC_IOV	ubus/libubus.c	28;"	d	file:
 STDC_HEADERS	json/config.h	107;"	d
 TARGET	Makefile	/^TARGET=$(shell uname -o)$/;"	m
@@ -233,22 +246,22 @@ UH_HTTP_MSG_POST	uhttpd.h	/^	UH_HTTP_MSG_POST,$/;"	e	enum:http_method
 UH_HTTP_VER_0_9	uhttpd.h	/^	UH_HTTP_VER_0_9,$/;"	e	enum:http_version
 UH_HTTP_VER_1_0	uhttpd.h	/^	UH_HTTP_VER_1_0,$/;"	e	enum:http_version
 UH_HTTP_VER_1_1	uhttpd.h	/^	UH_HTTP_VER_1_1,$/;"	e	enum:http_version
-UH_LIMIT_CLIENTS	uhttpd.h	87;"	d
-UH_LIMIT_HEADERS	uhttpd.h	86;"	d
-UH_LIMIT_MSGHEAD	uhttpd.h	85;"	d
+UH_LIMIT_CLIENTS	uhttpd.h	88;"	d
+UH_LIMIT_HEADERS	uhttpd.h	87;"	d
+UH_LIMIT_MSGHEAD	uhttpd.h	86;"	d
 UH_LUA_CALLBACK	uhttpd-lua.h	31;"	d
 UH_LUA_ERR_PARAM	uhttpd-lua.h	35;"	d
 UH_LUA_ERR_TIMEOUT	uhttpd-lua.h	33;"	d
 UH_LUA_ERR_TOOBIG	uhttpd-lua.h	34;"	d
 UH_UBUS_MAX_POST_SIZE	uhttpd-ubus.h	29;"	d
-UH_UBUS_SA_OBJECTS	uhttpd-ubus.c	/^	UH_UBUS_SA_OBJECTS,$/;"	e	enum:__anon7	file:
-UH_UBUS_SA_SID	uhttpd-ubus.c	/^	UH_UBUS_SA_SID,$/;"	e	enum:__anon7	file:
-UH_UBUS_SG_KEYS	uhttpd-ubus.c	/^	UH_UBUS_SG_KEYS,$/;"	e	enum:__anon6	file:
-UH_UBUS_SG_SID	uhttpd-ubus.c	/^	UH_UBUS_SG_SID,$/;"	e	enum:__anon6	file:
-UH_UBUS_SI_SID	uhttpd-ubus.c	/^	UH_UBUS_SI_SID,$/;"	e	enum:__anon4	file:
-UH_UBUS_SN_TIMEOUT	uhttpd-ubus.c	/^	UH_UBUS_SN_TIMEOUT,$/;"	e	enum:__anon3	file:
-UH_UBUS_SS_SID	uhttpd-ubus.c	/^	UH_UBUS_SS_SID,$/;"	e	enum:__anon5	file:
-UH_UBUS_SS_VALUES	uhttpd-ubus.c	/^	UH_UBUS_SS_VALUES,$/;"	e	enum:__anon5	file:
+UH_UBUS_SA_OBJECTS	uhttpd-ubus.c	/^	UH_UBUS_SA_OBJECTS,$/;"	e	enum:__anon18	file:
+UH_UBUS_SA_SID	uhttpd-ubus.c	/^	UH_UBUS_SA_SID,$/;"	e	enum:__anon18	file:
+UH_UBUS_SG_KEYS	uhttpd-ubus.c	/^	UH_UBUS_SG_KEYS,$/;"	e	enum:__anon17	file:
+UH_UBUS_SG_SID	uhttpd-ubus.c	/^	UH_UBUS_SG_SID,$/;"	e	enum:__anon17	file:
+UH_UBUS_SI_SID	uhttpd-ubus.c	/^	UH_UBUS_SI_SID,$/;"	e	enum:__anon15	file:
+UH_UBUS_SN_TIMEOUT	uhttpd-ubus.c	/^	UH_UBUS_SN_TIMEOUT,$/;"	e	enum:__anon14	file:
+UH_UBUS_SS_SID	uhttpd-ubus.c	/^	UH_UBUS_SS_SID,$/;"	e	enum:__anon16	file:
+UH_UBUS_SS_VALUES	uhttpd-ubus.c	/^	UH_UBUS_SS_VALUES,$/;"	e	enum:__anon16	file:
 ULOOP_BLOCKING	libubox/uloop.h	50;"	d
 ULOOP_EDGE_TRIGGER	libubox/uloop.h	49;"	d
 ULOOP_MAX_EVENTS	libubox/uloop.c	48;"	d	file:
@@ -267,25 +280,25 @@ USOCK_TCP	libubox/usock.h	4;"	d
 USOCK_UDP	libubox/usock.h	5;"	d
 USOCK_UNIX	libubox/usock.h	13;"	d
 VERSION	json/config.h	110;"	d
-WATCH_ID	ubus/example/ubus-example.c	/^	WATCH_ID,$/;"	e	enum:__anon10	file:
-WATCH_ID	ubus/libubus.c	/^	WATCH_ID,$/;"	e	enum:__anon15	file:
-WATCH_NOTIFY	ubus/libubus.c	/^	WATCH_NOTIFY,$/;"	e	enum:__anon15	file:
+WATCH_ID	ubus/example/ubus-example.c	/^	WATCH_ID,$/;"	e	enum:__anon9	file:
+WATCH_ID	ubus/libubus.c	/^	WATCH_ID,$/;"	e	enum:__anon7	file:
+WATCH_NOTIFY	ubus/libubus.c	/^	WATCH_NOTIFY,$/;"	e	enum:__anon7	file:
 WIN32_LEAN_AND_MEAN	json/json_util.c	38;"	d	file:
 YES	dt_uhttpd_utils.h	6;"	d
 _AVL_H	libubox/avl.h	42;"	d
 _BLOB_H__	libubox/blob.h	20;"	d
-_BSD_SOURCE	uhttpd.h	21;"	d
 _DEBUG_H_	json/debug.h	13;"	d
+_DEFAULT_SOURCE	uhttpd.h	21;"	d
 _LINUX_LIST_H_	libubox/list.h	30;"	d
 _ULOOP_H__	libubox/uloop.h	21;"	d
-_XOPEN_SOURCE	uhttpd.h	22;"	d
+_XOPEN_SOURCE	uhttpd.h	23;"	d
 __AVL_CMP_H	libubox/avl-cmp.h	17;"	d
 __BIG_ENDIAN	libubox/blob.h	57;"	d
 __BLOBMSG_H	libubox/blobmsg.h	17;"	d
 __BLOBMSG_JSON_H	libubox/blobmsg_json.h	17;"	d
 __BLOBMSG_TYPE_LAST	libubox/blobmsg.h	/^	__BLOBMSG_TYPE_LAST,$/;"	e	enum:blobmsg_type
 __BYTE_ORDER	libubox/blob.h	54;"	d
-__HELLO_MAX	ubus/example/ubus-example.c	/^	__HELLO_MAX$/;"	e	enum:__anon9	file:
+__HELLO_MAX	ubus/example/ubus-example.c	/^	__HELLO_MAX$/;"	e	enum:__anon8	file:
 __LIBUBOX_VLIST_H	libubox/vlist.h	18;"	d
 __LIBUBUS_H	ubus/libubus.h	15;"	d
 __LIST_COMPAT_H	libubox/list_compat.h	2;"	d
@@ -297,14 +310,14 @@ __UBUSMSG_H	ubus/ubusmsg.h	15;"	d
 __UBUS_COMMON_H	ubus/ubus_common.h	15;"	d
 __UBUS_MSG_LAST	ubus/ubusmsg.h	/^	__UBUS_MSG_LAST,$/;"	e	enum:ubus_msg_type
 __UBUS_STATUS_LAST	ubus/ubusmsg.h	/^	__UBUS_STATUS_LAST$/;"	e	enum:ubus_msg_status
-__UH_UBUS_SA_MAX	uhttpd-ubus.c	/^	__UH_UBUS_SA_MAX,$/;"	e	enum:__anon7	file:
-__UH_UBUS_SG_MAX	uhttpd-ubus.c	/^	__UH_UBUS_SG_MAX,$/;"	e	enum:__anon6	file:
-__UH_UBUS_SI_MAX	uhttpd-ubus.c	/^	__UH_UBUS_SI_MAX,$/;"	e	enum:__anon4	file:
-__UH_UBUS_SN_MAX	uhttpd-ubus.c	/^	__UH_UBUS_SN_MAX,$/;"	e	enum:__anon3	file:
-__UH_UBUS_SS_MAX	uhttpd-ubus.c	/^	__UH_UBUS_SS_MAX,$/;"	e	enum:__anon5	file:
+__UH_UBUS_SA_MAX	uhttpd-ubus.c	/^	__UH_UBUS_SA_MAX,$/;"	e	enum:__anon18	file:
+__UH_UBUS_SG_MAX	uhttpd-ubus.c	/^	__UH_UBUS_SG_MAX,$/;"	e	enum:__anon17	file:
+__UH_UBUS_SI_MAX	uhttpd-ubus.c	/^	__UH_UBUS_SI_MAX,$/;"	e	enum:__anon15	file:
+__UH_UBUS_SN_MAX	uhttpd-ubus.c	/^	__UH_UBUS_SN_MAX,$/;"	e	enum:__anon14	file:
+__UH_UBUS_SS_MAX	uhttpd-ubus.c	/^	__UH_UBUS_SS_MAX,$/;"	e	enum:__anon16	file:
 __USTREAM_H	libubox/ustream.h	20;"	d
-__WATCH_MAX	ubus/example/ubus-example.c	/^	__WATCH_MAX$/;"	e	enum:__anon10	file:
-__WATCH_MAX	ubus/libubus.c	/^	__WATCH_MAX$/;"	e	enum:__anon15	file:
+__WATCH_MAX	ubus/example/ubus-example.c	/^	__WATCH_MAX$/;"	e	enum:__anon9	file:
+__WATCH_MAX	ubus/libubus.c	/^	__WATCH_MAX$/;"	e	enum:__anon7	file:
 __avl_find_element	libubox/avl.h	/^__avl_find_element(const struct avl_tree *tree, const void *key, size_t offset, enum avl_find_mode mode) {$/;"	f
 __blob_for_each_attr	libubox/blob.h	285;"	d
 __init	ubus/ubus_common.h	26;"	d
@@ -342,9 +355,13 @@ _to_json_string	json/json_object_private.h	/^  json_object_to_json_string_fn *_t
 _uh_log	uhttpd.c	/^void _uh_log(unsigned int level, $/;"	f
 acl_policy	uhttpd-ubus.c	/^static const struct blobmsg_policy acl_policy[__UH_UBUS_SA_MAX] = {$/;"	v	typeref:struct:blobmsg_policy	file:
 acls	uhttpd-ubus.h	/^	struct avl_tree acls;$/;"	m	struct:uh_ubus_session	typeref:struct:uh_ubus_session::avl_tree
+add_json_array	json/example/jshn.c	/^static int add_json_array(struct array_list *a)$/;"	f	file:
 add_json_array	libubox/jshn/jshn.c	/^static int add_json_array(struct array_list *a)$/;"	f	file:
+add_json_element	json/example/jshn.c	/^static int add_json_element(const char *key, json_object *obj)$/;"	f	file:
 add_json_element	libubox/jshn/jshn.c	/^static int add_json_element(const char *key, json_object *obj)$/;"	f	file:
+add_json_object	json/example/jshn.c	/^static int add_json_object(json_object *obj)$/;"	f	file:
 add_json_object	libubox/jshn/jshn.c	/^static int add_json_object(json_object *obj)$/;"	f	file:
+add_json_string	json/example/jshn.c	/^static void add_json_string(const char *str)$/;"	f	file:
 add_json_string	libubox/jshn/jshn.c	/^static void add_json_string(const char *str)$/;"	f	file:
 add_separator	libubox/blobmsg_json.c	/^static void add_separator(struct strbuf *s)$/;"	f	file:
 addr	uhttpd.h	/^	struct sockaddr_in6 addr;$/;"	m	struct:listener	typeref:struct:listener::sockaddr_in6
@@ -539,9 +556,9 @@ buf	json/printbuf.h	/^  char *buf;$/;"	m	struct:printbuf
 buf	libubox/blob.h	/^	void *buf;$/;"	m	struct:blob_buf
 buf	libubox/blobmsg_json.c	/^	char *buf;$/;"	m	struct:strbuf	file:
 buf	ubus/lua/ubus.c	/^	struct blob_buf buf;$/;"	m	struct:ubus_lua_connection	typeref:struct:ubus_lua_connection::blob_buf	file:
-buf	uhttpd-cgi.h	/^		char buf[UH_LIMIT_MSGHEAD];$/;"	m	struct:uh_cgi_state::__anon1
+buf	uhttpd-cgi.h	/^		char buf[UH_LIMIT_MSGHEAD];$/;"	m	struct:uh_cgi_state::__anon13
 buf	uhttpd-ubus.h	/^	struct blob_buf buf;$/;"	m	struct:uh_ubus_state	typeref:struct:uh_ubus_state::blob_buf
-buf	uhttpd.h	/^		char buf[UH_LIMIT_MSGHEAD + 16];$/;"	m	struct:client::__anon2
+buf	uhttpd.h	/^		char buf[UH_LIMIT_MSGHEAD + 16];$/;"	m	struct:client::__anon12
 buffer_len	libubox/ustream.h	/^	int buffer_len;$/;"	m	struct:ustream_buf_list
 buffers	libubox/ustream.h	/^	int buffers;$/;"	m	struct:ustream_buf_list
 buflen	libubox/blob.h	/^	int buflen;$/;"	m	struct:blob_buf
@@ -556,7 +573,7 @@ canonpath	uhttpd-utils.c	/^static char * canonpath(const char *path, char *path_
 cb	libubox/uloop.h	/^	uloop_fd_handler cb;$/;"	m	struct:uloop_fd
 cb	libubox/uloop.h	/^	uloop_process_handler cb;$/;"	m	struct:uloop_process
 cb	libubox/uloop.h	/^	uloop_timeout_handler cb;$/;"	m	struct:uloop_timeout
-cb	ubus/example/cli.c	/^	int (*cb)(struct ubus_context *ctx, int argc, char **argv);$/;"	m	struct:__anon11	file:
+cb	ubus/example/cli.c	/^	int (*cb)(struct ubus_context *ctx, int argc, char **argv);$/;"	m	struct:__anon10	file:
 cb	ubus/libubus.c	/^	ubus_lookup_handler_t cb;$/;"	m	struct:ubus_lookup_request	file:
 cb	ubus/libubus.h	/^	ubus_event_handler_t cb;$/;"	m	struct:ubus_event_handler
 cb	ubus/libubus.h	/^	ubus_watch_handler_t cb;$/;"	m	struct:ubus_watch_object
@@ -564,7 +581,7 @@ cb	uhttpd.h	/^	bool (*cb)(struct client *);$/;"	m	struct:client
 cert	uhttpd.h	/^	char *cert;$/;"	m	struct:config
 cgi_prefix	uhttpd.h	/^	char *cgi_prefix;$/;"	m	struct:config
 char_offset	json/json_tokener.h	/^  int depth, is_double, st_pos, char_offset;$/;"	m	struct:json_tokener
-cl	dt_uhttpd_select.c	/^	struct  client *cl;$/;"	m	struct:__anon8	typeref:struct:__anon8::client	file:
+cl	dt_uhttpd_select.c	/^	struct  client *cl;$/;"	m	struct:__anon1	typeref:struct:__anon1::client	file:
 clearenv	uhttpd-utils.h	/^static inline void clearenv(void)$/;"	f
 client	libubox/examples/ustream-example.c	/^struct client {$/;"	s	file:
 client	ubus/ubusd_obj.h	/^	struct ubus_client *client;$/;"	m	struct:ubus_object	typeref:struct:ubus_object::ubus_client
@@ -580,7 +597,7 @@ clients	ubus/ubusd_proto.c	/^static struct avl_tree clients;$/;"	v	typeref:struc
 clock_gettime	uhttpd-ubus.c	/^static void clock_gettime(int type, struct timespec *tv)$/;"	f	file:
 cmp_ptr	libubox/avl.h	/^  void *cmp_ptr;$/;"	m	struct:avl_tree
 collisions	json/linkhash.h	/^	int collisions;$/;"	m	struct:lh_table
-commands	ubus/example/cli.c	/^} commands[] = {$/;"	v	typeref:struct:__anon11
+commands	ubus/example/cli.c	/^} commands[] = {$/;"	v	typeref:struct:__anon10
 comp	libubox/avl.h	/^  avl_tree_comp comp;$/;"	m	struct:avl_tree
 complete_cb	ubus/libubus.h	/^	ubus_complete_handler_t complete_cb;$/;"	m	struct:ubus_request
 conf	uhttpd.h	/^	struct config *conf;$/;"	m	struct:listener	typeref:struct:listener::config
@@ -612,8 +629,8 @@ data	json/json_object_private.h	/^  union data {$/;"	u	struct:json_object
 data	libubox/blob.h	/^	char data[];$/;"	m	struct:blob_attr
 data	libubox/ustream.h	/^	char *data;$/;"	m	struct:ustream_buf
 data	ubus/libubus.c	/^	struct blob_attr data[];$/;"	m	struct:ubus_pending_data	typeref:struct:ubus_pending_data::blob_attr	file:
-data	ubus/libubus.h	/^		char data[UBUS_MAX_MSGLEN];$/;"	m	struct:ubus_context::__anon16
-data	ubus/ubusd.h	/^		struct blob_attr data;$/;"	m	struct:ubus_client::__anon12	typeref:struct:ubus_client::__anon12::blob_attr
+data	ubus/libubus.h	/^		char data[UBUS_MAX_MSGLEN];$/;"	m	struct:ubus_context::__anon4
+data	ubus/ubusd.h	/^		struct blob_attr data;$/;"	m	struct:ubus_client::__anon11	typeref:struct:ubus_client::__anon11::blob_attr
 data	ubus/ubusd.h	/^	struct blob_attr *data;$/;"	m	struct:ubus_msg_buf	typeref:struct:ubus_msg_buf::blob_attr
 data	ubus/ubusd_obj.h	/^	struct blob_attr data[];$/;"	m	struct:ubus_method	typeref:struct:ubus_method::blob_attr
 data	ubus/ubusmsg.h	/^	struct blob_attr data[];$/;"	m	struct:ubus_msghdr	typeref:struct:ubus_msghdr::blob_attr
@@ -629,7 +646,7 @@ dispatched	uhttpd.h	/^	bool dispatched;$/;"	m	struct:client
 do_sigchld	libubox/uloop.c	/^static bool do_sigchld = false;$/;"	v	file:
 docroot	uhttpd.h	/^	char docroot[PATH_MAX];$/;"	m	struct:config
 dt_build_select_list	dt_uhttpd_select.c	/^static int dt_build_select_list(struct dt_uhttpd *http, fd_set *wr)$/;"	f	file:
-dt_client	dt_uhttpd_select.c	/^} dt_client;$/;"	t	typeref:struct:__anon8	file:
+dt_client	dt_uhttpd_select.c	/^} dt_client;$/;"	t	typeref:struct:__anon1	file:
 dt_destroy_clent	dt_uhttpd_select.c	/^static void dt_destroy_clent(dt_client *client)$/;"	f	file:
 dt_evt_cb	dt_uhttpd_evt.c	/^dt_evt_cb(struct uloop_fd *u, unsigned int events)$/;"	f	file:
 dt_evt_do_read	dt_uhttpd_evt.c	/^static int dt_evt_do_read(struct client *cl)$/;"	f	file:
@@ -697,10 +714,12 @@ free_fn	json/linkhash.h	/^	lh_entry_free_fn *free_fn;$/;"	m	struct:lh_table
 function	uhttpd-ubus.h	/^	char *function;$/;"	m	struct:uh_ubus_session_acl
 function	uhttpd-ubus.h	/^	const char *function;$/;"	m	struct:uh_ubus_request_data
 get_flags	libubox/uloop.c	/^static uint16_t get_flags(unsigned int flags, unsigned int mask)$/;"	f	file:
+get_keys	json/example/jshn.c	/^static char *get_keys(const char *prefix)$/;"	f	file:
 get_keys	libubox/jshn/jshn.c	/^static char *get_keys(const char *prefix)$/;"	f	file:
 get_next_connection	ubus/example/ubusd.c	/^static bool get_next_connection(int fd)$/;"	f	file:
 get_next_msg	ubus/libubus.c	/^static bool get_next_msg(struct ubus_context *ctx)$/;"	f	file:
 get_policy	uhttpd-ubus.c	/^static const struct blobmsg_policy get_policy[__UH_UBUS_SG_MAX] = {$/;"	v	typeref:struct:blobmsg_policy	file:
+get_var	json/example/jshn.c	/^static void get_var(const char *prefix, const char **name, char **var, char **type)$/;"	f	file:
 get_var	libubox/jshn/jshn.c	/^static void get_var(const char *prefix, const char **name, char **var, char **type)$/;"	f	file:
 grow	libubox/blob.h	/^	bool (*grow)(struct blob_buf *buf, int minlen);$/;"	m	struct:blob_buf
 handle_client_disconnect	ubus/example/ubusd.c	/^static void handle_client_disconnect(struct ubus_client *cl)$/;"	f	file:
@@ -708,10 +727,10 @@ handler	ubus/libubus.h	/^	ubus_handler_t handler;$/;"	m	struct:ubus_method
 handlers	ubus/ubusd_proto.c	/^static const ubus_cmd_cb handlers[__UBUS_MSG_LAST] = {$/;"	v	file:
 hash_fn	json/linkhash.h	/^	lh_hash_fn *hash_fn;$/;"	m	struct:lh_table
 hdr	ubus/libubus.c	/^	struct ubus_msghdr hdr;$/;"	m	struct:ubus_pending_invoke	typeref:struct:ubus_pending_invoke::ubus_msghdr	file:
-hdr	ubus/libubus.h	/^		struct ubus_msghdr hdr;$/;"	m	struct:ubus_context::__anon16	typeref:struct:ubus_context::__anon16::ubus_msghdr
-hdr	ubus/ubusd.h	/^		struct ubus_msghdr hdr;$/;"	m	struct:ubus_client::__anon12	typeref:struct:ubus_client::__anon12::ubus_msghdr
+hdr	ubus/libubus.h	/^		struct ubus_msghdr hdr;$/;"	m	struct:ubus_context::__anon4	typeref:struct:ubus_context::__anon4::ubus_msghdr
+hdr	ubus/ubusd.h	/^		struct ubus_msghdr hdr;$/;"	m	struct:ubus_client::__anon11	typeref:struct:ubus_client::__anon11::ubus_msghdr
 hdr	ubus/ubusd.h	/^	struct ubus_msghdr hdr;$/;"	m	struct:ubus_msg_buf	typeref:struct:ubus_msg_buf::ubus_msghdr
-hdrbuf	ubus/ubusd.h	/^	} hdrbuf;$/;"	m	struct:ubus_client	typeref:struct:ubus_client::__anon12
+hdrbuf	ubus/ubusd.h	/^	} hdrbuf;$/;"	m	struct:ubus_client	typeref:struct:ubus_client::__anon11
 head	json/linkhash.h	/^	struct lh_entry *head;$/;"	m	struct:lh_table	typeref:struct:lh_table::lh_entry
 head	libubox/blob.h	/^	struct blob_attr *head;$/;"	m	struct:blob_buf	typeref:struct:blob_buf::blob_attr
 head	libubox/ustream.h	/^	char head[];$/;"	m	struct:ustream_buf
@@ -733,8 +752,8 @@ http_setrun	dt_uhttpd_select.c	/^static int http_setrun(struct dt_uhttpd *http, 
 http_unlock	dt_uhttpd_select.c	/^static void http_unlock(struct dt_uhttpd *http)$/;"	f	file:
 http_version	uhttpd.h	/^enum http_version {$/;"	g
 http_versions	uhttpd.c	/^const char * http_versions[] = { "HTTP\/0.9", "HTTP\/1.0", "HTTP\/1.1", };$/;"	v
-httpbuf	uhttpd-cgi.h	/^	} httpbuf;$/;"	m	struct:uh_cgi_state	typeref:struct:uh_cgi_state::__anon1
-httpbuf	uhttpd.h	/^	} httpbuf;$/;"	m	struct:client	typeref:struct:client::__anon2
+httpbuf	uhttpd-cgi.h	/^	} httpbuf;$/;"	m	struct:uh_cgi_state	typeref:struct:uh_cgi_state::__anon13
+httpbuf	uhttpd.h	/^	} httpbuf;$/;"	m	struct:client	typeref:struct:client::__anon12
 id	ubus/libubus.h	/^	uint32_t id;$/;"	m	struct:ubus_object
 id	ubus/libubus.h	/^	uint32_t id;$/;"	m	struct:ubus_object_data
 id	ubus/libubus.h	/^	uint32_t id;$/;"	m	struct:ubus_object_type
@@ -756,10 +775,14 @@ interpreter	uhttpd.h	/^struct interpreter {$/;"	s
 invoke_seq	ubus/ubusd_obj.h	/^	unsigned int invoke_seq;$/;"	m	struct:ubus_object
 is_double	json/json_tokener.h	/^  int depth, is_double, st_pos, char_offset;$/;"	m	struct:json_tokener
 is_error	json/bits.h	25;"	d
+jshn_add_object_var	json/example/jshn.c	/^static void jshn_add_object_var(json_object *obj, bool array, const char *prefix, const char *name)$/;"	f	file:
 jshn_add_object_var	libubox/jshn/jshn.c	/^static void jshn_add_object_var(json_object *obj, bool array, const char *prefix, const char *name)$/;"	f	file:
+jshn_add_objects	json/example/jshn.c	/^static json_object *jshn_add_objects(json_object *obj, const char *prefix, bool array)$/;"	f	file:
 jshn_add_objects	libubox/jshn/jshn.c	/^static json_object *jshn_add_objects(json_object *obj, const char *prefix, bool array)$/;"	f	file:
 jshn_append	libubox/sh/jshn.sh	/^jshn_append() {$/;"	f
+jshn_format	json/example/jshn.c	/^static int jshn_format(bool no_newline)$/;"	f	file:
 jshn_format	libubox/jshn/jshn.c	/^static int jshn_format(bool no_newline)$/;"	f	file:
+jshn_parse	json/example/jshn.c	/^static int jshn_parse(const char *str)$/;"	f	file:
 jshn_parse	libubox/jshn/jshn.c	/^static int jshn_parse(const char *str)$/;"	f	file:
 json_add_array	libubox/sh/jshn.sh	/^json_add_array() {$/;"	f
 json_add_boolean	libubox/sh/jshn.sh	/^json_add_boolean() {$/;"	f
@@ -905,8 +928,8 @@ leader	libubox/avl.h	/^  bool leader;$/;"	m	struct:avl_node
 left	libubox/avl.h	/^  struct avl_node *left;$/;"	m	struct:avl_node	typeref:struct:avl_node::avl_node
 len	libubox/blobmsg_json.c	/^	int len;$/;"	m	struct:strbuf	file:
 len	ubus/ubusd.h	/^	int len;$/;"	m	struct:ubus_msg_buf
-len	uhttpd-cgi.h	/^		int len;$/;"	m	struct:uh_cgi_state::__anon1
-len	uhttpd.h	/^		int len;$/;"	m	struct:client::__anon2
+len	uhttpd-cgi.h	/^		int len;$/;"	m	struct:uh_cgi_state::__anon13
+len	uhttpd.h	/^		int len;$/;"	m	struct:client::__anon12
 length	json/arraylist.h	/^  int length;$/;"	m	struct:array_list
 lh_abort	json/linkhash.c	/^void lh_abort(const char *msg, ...)$/;"	f
 lh_char_equal	json/linkhash.c	/^int lh_char_equal(const void *k1, const void *k2)$/;"	f
@@ -991,6 +1014,7 @@ lua_uloop_timeout	libubox/lua/uloop.c	/^struct lua_uloop_timeout {$/;"	s	file:
 luaclose_uloop	libubox/lua/uloop.c	/^int luaclose_uloop(lua_State *L)$/;"	f
 luaopen_ubus	ubus/lua/ubus.c	/^luaopen_ubus(lua_State *L)$/;"	f
 luaopen_uloop	libubox/lua/uloop.c	/^int luaopen_uloop(lua_State *L)$/;"	f
+main	json/example/jshn.c	/^int main(int argc, char **argv)$/;"	f
 main	json/example/test1.c	/^int main(int argc, char **argv)$/;"	f
 main	json/example/test2.c	/^int main(int argc, char **argv)$/;"	f
 main	json/example/test3.c	/^main()$/;"	f
@@ -1022,7 +1046,7 @@ mimetype	uhttpd-file.h	/^struct mimetype {$/;"	s
 min	uhttpd-utils.h	40;"	d
 min_buffers	libubox/ustream.h	/^	int min_buffers;$/;"	m	struct:ustream_buf_list
 minlen	libubox/blob.h	/^	unsigned int minlen;$/;"	m	struct:blob_attr_info
-msgbuf	ubus/libubus.h	/^	} msgbuf;$/;"	m	struct:ubus_context	typeref:struct:ubus_context::__anon16
+msgbuf	ubus/libubus.h	/^	} msgbuf;$/;"	m	struct:ubus_context	typeref:struct:ubus_context::__anon4
 mtx	dt_uhttpd_select.c	/^	pthread_mutex_t mtx;$/;"	m	struct:dt_uhttpd	file:
 mtx	uhttpd.c	/^static pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;$/;"	v	file:
 n_clients	uhttpd.h	/^	int n_clients;$/;"	m	struct:listener
@@ -1032,7 +1056,7 @@ n_policy	ubus/libubus.h	/^	int n_policy;$/;"	m	struct:ubus_method
 name	json/linkhash.h	/^	const char *name;$/;"	m	struct:lh_table
 name	libubox/blobmsg.h	/^	const char *name;$/;"	m	struct:blobmsg_policy
 name	libubox/blobmsg.h	/^	uint8_t name[];$/;"	m	struct:blobmsg_hdr
-name	ubus/example/cli.c	/^	const char *name;$/;"	m	struct:__anon11	file:
+name	ubus/example/cli.c	/^	const char *name;$/;"	m	struct:__anon10	file:
 name	ubus/libubus.h	/^	const char *name;$/;"	m	struct:ubus_method
 name	ubus/libubus.h	/^	const char *name;$/;"	m	struct:ubus_object
 name	ubus/libubus.h	/^	const char *name;$/;"	m	struct:ubus_object_type
@@ -1126,17 +1150,17 @@ priv	ubus/libubus.h	/^	void *priv;$/;"	m	struct:ubus_request
 priv	uhttpd.h	/^	void *priv;$/;"	m	struct:client
 proc	uhttpd.h	/^	struct uloop_process proc;$/;"	m	struct:client	typeref:struct:client::uloop_process
 processes	libubox/uloop.c	/^static struct list_head processes = LIST_HEAD_INIT(processes);$/;"	v	typeref:struct:list_head	file:
-ptr	uhttpd-cgi.h	/^		char *ptr;$/;"	m	struct:uh_cgi_state::__anon1
-ptr	uhttpd.h	/^		char *ptr;$/;"	m	struct:client::__anon2
+ptr	uhttpd-cgi.h	/^		char *ptr;$/;"	m	struct:uh_cgi_state::__anon13
+ptr	uhttpd.h	/^		char *ptr;$/;"	m	struct:client::__anon12
 query	uhttpd-utils.h	/^	char *query;$/;"	m	struct:path_info
-queue	dt_uhttpd_select.c	/^	dt_list queue;$/;"	m	struct:__anon8	file:
+queue	dt_uhttpd_select.c	/^	dt_list queue;$/;"	m	struct:__anon1	file:
 quote_char	json/json_tokener.h	/^  char quote_char;$/;"	m	struct:json_tokener
 r	libubox/lua/uloop.c	/^	int r;$/;"	m	struct:lua_uloop_process	file:
 r	libubox/lua/uloop.c	/^	int r;$/;"	m	struct:lua_uloop_timeout	file:
 r	libubox/ustream.h	/^	struct ustream_buf_list r, w;$/;"	m	struct:ustream	typeref:struct:ustream::ustream_buf_list
 random_fd	ubus/ubusd_id.c	/^static int random_fd = -1;$/;"	v	file:
 raw_data_cb	ubus/libubus.h	/^	ubus_data_handler_t raw_data_cb;$/;"	m	struct:ubus_request
-rd	uhttpd.h	/^		char *rd;$/;"	m	struct:client::__anon2
+rd	uhttpd.h	/^		char *rd;$/;"	m	struct:client::__anon12
 read_blocked	libubox/ustream.h	/^	enum read_blocked_reason read_blocked;$/;"	m	struct:ustream	typeref:enum:ustream::read_blocked_reason
 read_blocked_reason	libubox/ustream.h	/^enum read_blocked_reason {$/;"	g
 realm	uhttpd.h	/^	char *realm;$/;"	m	struct:config
@@ -1529,6 +1553,7 @@ uh_path_match	uhttpd.c	/^static int uh_path_match(const char *prefix, const char
 uh_raw_recv	uhttpd-utils.c	/^int uh_raw_recv(int fd, char *buf, int len, int sec)$/;"	f
 uh_raw_send	uhttpd-utils.c	/^int uh_raw_send(int fd, const char *buf, int len, int sec)$/;"	f
 uh_realms	uhttpd-utils.c	/^static struct auth_realm *uh_realms = NULL;$/;"	v	typeref:struct:auth_realm	file:
+uh_realpath_match	uhttpd.c	/^static int uh_realpath_match(const char *root, const char *prefix, const char *phys)$/;"	f	file:
 uh_rpipe_cb	uhttpd.c	/^static void uh_rpipe_cb(struct uloop_fd *u, unsigned int events)$/;"	f	file:
 uh_sigterm	uhttpd.c	/^static void uh_sigterm(int sig)$/;"	f	file:
 uh_socket_bind	uhttpd.c	/^static int uh_socket_bind(const char *host, const char *port,$/;"	f	file:
@@ -1621,6 +1646,7 @@ uloop_timeout_handler	libubox/uloop.h	/^typedef void (*uloop_timeout_handler)(st
 uloop_timeout_set	libubox/uloop.c	/^int uloop_timeout_set(struct uloop_timeout *timeout, int msecs)$/;"	f
 update	libubox/vlist.h	/^	vlist_update_cb update;$/;"	m	struct:vlist_tree
 url	uhttpd.h	/^	char *url;$/;"	m	struct:http_request
+usage	json/example/jshn.c	/^static int usage(const char *progname)$/;"	f	file:
 usage	libubox/examples/ustream-example.c	/^static int usage(const char *name)$/;"	f	file:
 usage	libubox/jshn/jshn.c	/^static int usage(const char *progname)$/;"	f	file:
 usage	ubus/example/cli.c	/^static int usage(const char *prog)$/;"	f	file:
@@ -1671,6 +1697,8 @@ ustream_write_pending	libubox/ustream.c	/^bool ustream_write_pending(struct ustr
 v	json/linkhash.h	/^	const void *v;$/;"	m	struct:lh_entry
 val	json/json_object_private.h	/^	struct json_object *val;$/;"	m	struct:json_object_iter	typeref:struct:json_object_iter::json_object
 validate	libubox/blob.h	/^	bool (*validate)(const struct blob_attr_info *, struct blob_attr *);$/;"	m	struct:blob_attr_info
+var_prefix	json/example/jshn.c	/^static const char *var_prefix = "";$/;"	v	file:
+var_prefix_len	json/example/jshn.c	/^static int var_prefix_len = 0;$/;"	v	file:
 vasprintf	json/printbuf.c	/^static int vasprintf(char **buf, const char *fmt, va_list ap)$/;"	f	file:
 verbose	ubus/example/cli.c	/^static int verbose = 0;$/;"	v	file:
 version	libubox/vlist.h	/^	int version;$/;"	m	struct:vlist_node
@@ -1701,8 +1729,9 @@ watcher	ubus/ubusd_obj.h	/^	struct ubus_object *watcher, *watched;$/;"	m	struct:
 watcher_list	ubus/ubusd_obj.h	/^	struct list_head watcher_list, watched_list;$/;"	m	struct:ubus_watch	typeref:struct:ubus_watch::list_head
 watchers	ubus/ubusd_obj.h	/^	struct list_head watchers, watched;$/;"	m	struct:ubus_object	typeref:struct:ubus_object::list_head
 wpipe	uhttpd.h	/^	struct uloop_fd wpipe;$/;"	m	struct:client	typeref:struct:client::uloop_fd
-wr	uhttpd.h	/^		char *wr;$/;"	m	struct:client::__anon2
+wr	uhttpd.h	/^		char *wr;$/;"	m	struct:client::__anon12
 write	libubox/ustream.h	/^	int (*write)(struct ustream *s, const char *buf, int len, bool more);$/;"	m	struct:ustream
 write_error	libubox/ustream.h	/^	bool write_error;$/;"	m	struct:ustream
+write_key_string	json/example/jshn.c	/^static void write_key_string(const char *key)$/;"	f	file:
 write_key_string	libubox/jshn/jshn.c	/^static void write_key_string(const char *key)$/;"	f	file:
 writev_retry	ubus/libubus.c	/^static int writev_retry(int fd, struct iovec *iov, int iov_len)$/;"	f	file:

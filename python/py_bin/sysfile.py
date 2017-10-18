@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os, stat, re
+import os, stat, re, sys
 
 flg_ignorecase = 0x00000001
 
@@ -22,7 +22,7 @@ class CFind:
 					self.walk_path(cur)
 				except PermissionError:
 					import sys
-					sys.stderr.write("(Skip) Permission Denied: %s\n"%(cur))
+					sys.stderr.write("(Skip) directory: %s\n"%(cur))
 					pass
 
 		return 0
@@ -33,7 +33,13 @@ class CFind:
 
 		try:
 			self.walk_path(self._path)
+
+		except KeyboardInterrupt:
+			pass
+
 		except:
+			import traceback, sys
+			traceback.print_exc(file=sys.stderr)
 			return -1
 	
 		return 0
@@ -165,7 +171,6 @@ class CFindString(CFind):
 	def __init__(self):
 		CFind.__init__(self)
 
-
 	def parse_content(self, fl):
 		try:
 			fobj = open(fl, "r")
@@ -178,21 +183,20 @@ class CFindString(CFind):
 				if self._patt.search(ln):
 					print("%s:\033[00;32m%d\033[00;00m:%s"\
 						%(fl, n_ln, self.paint_ex(ln, "\033[00;33m").strip('\n')))
-		except FileNotFoundError:
-			print("file", fl, "not exist")
+
+		except (FileNotFoundError, PermissionError):
+			sys.stderr.write("(Skip) file: %s\n"%(fl))
 			return -1
 
-		except:
-# import sys
-#			print("Can't open file", fl)
-#, str(sys.exc_info()))
+		except UnicodeDecodeError:
+			fobj.close()
 			return -1
 		else:
 			fobj.close()
 		return 0
 
 	def handle_file(self, path, parent=None, elem=None):
-		if os.path.isfile(path):
+		if os.path.isfile(path) and not os.path.islink(path):
 			self.parse_content(path)
 
 

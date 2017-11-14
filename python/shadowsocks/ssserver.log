@@ -1,0 +1,16 @@
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 801, in __bootstrap_inner
+    self.run()
+  File "server.py", line 38, in run
+    self.obj.thread_db(self.obj)
+  File "/home/tww/shadowsocks/db_transfer.py", line 191, in thread_db
+    db_instance = obj()
+  File "/home/tww/shadowsocks/db_transfer.py", line 239, in __init__
+    self.load_cfg()
+  File "/home/tww/shadowsocks/db_transfer.py", line 245, in load_cfg
+    with open(config_path, 'r+') as f:
+IOError: [Errno 2] No such file or directory: 'usermysql.json'
+
+loaded collections.OrderedDict
+IPv6 support

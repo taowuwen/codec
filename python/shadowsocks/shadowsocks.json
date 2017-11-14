@@ -1,0 +1,13 @@
+{
+	"server":"209.141.33.9",
+	"server_port":8989,
+	"local_address": "localhost",
+	"local_port":5555,
+	"password":"ting19990321",
+	"timeout":300,
+	"method":"aes-256-cfb",
+	"fast_open": false,
+	"workers": 1,
+	"pid-file": "/tmp/gossh.pid",
+	"log-file": "/tmp/gosshlog.log"
+}

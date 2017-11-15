@@ -1,0 +1,52 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) taowuwen@gmail.com
+
+START=99
+
+USE_PROCD=1
+QUIET=""
+
+AUDIT="mpaudit"
+ROOT="/usr/audit"
+
+take_over_ports()
+{
+ 	netstat -antp | grep LISTEN | grep 9110 | awk '{print $7}' | cut -d'/' -f1 | \
+	while read pid
+	do
+		[ -n "$pid" ] && ! [ "$pid" -eq "$$" ] && kill -9 $pid
+	done
+}
+
+
+stop_service()
+{
+	killall $AUDIT
+
+	sleep 3
+
+	ps | grep "$AUDIT" | grep -Ev "mpauditd|grep|$$" | awk '{print $1}' | \
+	while read pid
+	do
+		[ -n "$pid" ] && ! [ "$pid" -eq "$$" ] && kill -9 $pid
+	done
+
+}
+
+start_service() {
+	take_over_ports
+	chmod u+x $ROOT/bin/$AUDIT
+
+	rm -rf /tmp/audit_file_*.log
+
+	procd_open_instance
+	procd_set_param command $ROOT/bin/$AUDIT -c /etc/mpaudit.cfg
+	procd_set_param respawn
+	procd_close_instance
+}
+
+reload_service()
+{
+	stop_service
+	start_service
+}

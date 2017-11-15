@@ -1,0 +1,164 @@
+Index: inc/ems_utils.h
+===================================================================
+--- inc/ems_utils.h	(revision 446)
++++ inc/ems_utils.h	(working copy)
+@@ -84,4 +84,7 @@
+ ems_cchar *ems_itoa(ems_int i);
+ ems_int    ems_atoi(ems_cchar *a);
+ 
++ems_char   *url_encode(ems_cchar *src, ems_int lstr);
++ems_char   *url_decode(ems_char *src, ems_int lstr);
++
+ #endif
+Index: src/core/ems_ctrl.c
+===================================================================
+--- src/core/ems_ctrl.c	(revision 448)
++++ src/core/ems_ctrl.c	(working copy)
+@@ -296,40 +296,35 @@
+ 
+ ems_int ems_urlencode(ems_buffer *dst, ems_buffer *src)
+ {
+-	ems_int   len, total, left;
+-	ems_char *d = buf_wr(dst);
+-	ems_char *s = buf_rd(src);
++	ems_char *buf = NULL;
++	ems_int   len  = 0, ret;
+ 
+-	left  = buf_left(dst) -1;
+-	total = buf_len(src);
++	do {
++		ret = EMS_ERR;
+ 
+-	while ((left > 0) && (total-- > 0)) {
++		buf = url_encode(buf_rd(src), buf_len(src));
+ 
+-		if ( (*s >= '0' && *s <= '9') ||
+-		     (*s >= 'a' && *s <= 'z') ||
+-		     (*s >= 'A' && *s <= 'Z') ||
+-		     (*s == '@') ||
+-		     (*s == '*') ||
+-		     (*s == '/') ||
+-		     (*s == '+')) {
+-			*d++ = *s;
+-			left--;
+-		} else {
+-			len = snprintf(d, left, "%%%x", (ems_int)(*s & 0xff));
+-			d += len;
+-			left -= len;
++		if (!buf) break;
++
++		len = ems_strlen(buf);
++
++		ems_l_trace("url encode: %s, buf_left(%d), len: %d", buf, buf_left(dst), len);
++
++		if (len >= buf_left(dst)) break;
++
++		ems_buffer_write(dst, buf, len);
++		{
++			ems_char *ch = buf_wr(dst);
++			*ch = '\0';
+ 		}
+ 
+-		s++;
+-	}
++		ret = EMS_OK;
++	} while (0);
+ 
+-	if (total > 0)
+-		return EMS_ERR;
++	if (buf)
++		ems_free(buf);
+ 
+-	*d ='\0';
+-	ems_buffer_seek_wr(dst, abs(d - buf_wr(dst)), EMS_BUFFER_SEEK_CUR);
+-
+-	return EMS_OK;
++	return ret;
+ }
+ 
+ static ems_int 
+@@ -538,6 +533,13 @@
+ 		ems_buffer_write(&arg, srcurl, strlen(srcurl));
+ 	}
+ 
++	ems_char *tmpbuf = url_encode(buf_rd(&arg), buf_len(&arg));
++	if (tmpbuf) {
++		ems_buffer_reset(&arg);
++		snprintf(buf_wr(&arg), buf_left(&arg), "auth=%s", tmpbuf);
++		ems_free(tmpbuf);
++	}
++
+ 	ems_l_trace("args: %s", buf_rd(&arg));
+ 
+ 	rtn = snprintf(buf_wr(buf), buf_left(buf),
+Index: src/utils/ems_urlcode.c
+===================================================================
+--- src/utils/ems_urlcode.c	(revision 0)
++++ src/utils/ems_urlcode.c	(working copy)
+@@ -0,0 +1,66 @@
++
++#include "ems.h"
++
++#if 0
++static ems_char from_hex(ems_char ch)
++{
++	return isdigit(ch) ? ch - '0' : tolower(ch) - 'a' + 10;
++}
++#endif
++
++static ems_char to_hex(ems_char code)
++{
++	static ems_char hex[] = "0123456789abcdef";
++	return hex[code & 15];
++}
++
++ems_char *url_encode(ems_cchar *str, ems_int lstr)
++{
++	ems_char  *buf = NULL, *pbuf, ch;
++
++	buf = (ems_char *)ems_malloc(lstr * 3 + 1);
++	if (!buf)
++		return NULL;
++
++	pbuf = buf;
++
++	while (*str && lstr-- > 0) {
++		ch = *str;
++		str++;
++
++		if (isalnum(ch) || ch == '-' || ch == '_' || ch == '.' || ch == '~') 
++			*pbuf++ = ch;
++		else if (ch == ' ')
++			*pbuf++ = '+';
++		else 
++			*pbuf++ = '%', *pbuf++ = to_hex(ch >> 4), *pbuf++ = to_hex(ch & 15);
++	}
++	*pbuf = '\0';
++
++	return buf;
++}
++
++#if 0
++ems_char *url_decode(ems_cchar *str, ems_char *buf)
++{
++	ems_char *pstr = str, *pbuf = buf;
++
++	while (*pstr) {
++		if (*pstr == '%') {
++			if (pstr[1] && pstr[2]) {
++				*pbuf++ = from_hex(pstr[1]) << 4 | from_hex(pstr[2]);
++				pstr += 2;
++			}
++		} else if (*pstr == '+') { 
++			*pbuf++ = ' ';
++		} else {
++			*pbuf++ = *pstr;
++		}
++
++		pstr++;
++	}
++	*pbuf = '\0';
++
++	return buf;
++}
++#endif

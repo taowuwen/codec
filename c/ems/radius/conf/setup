@@ -1,0 +1,81 @@
+#!/bin/sh
+
+
+[ $# -lt 1 ] && echo "missing opt" && exit 1
+
+
+update_pppoe()
+{
+	cfg='/etc/ppp/options'
+
+	sed -i -e '/lcp-echo-failure/c lcp-echo-failure 15000' -e '/lcp-echo-interval/c lcp-echo-interval 30' $cfg
+
+	[ "`uci get -P /tmp/state/ network.wan.proto`" == "pppoe" ] && {
+		/etc/init.d/network restart
+	}
+}
+
+update_dhcp()
+{
+	[ "`uci get -P /tmp/state/ dhcp.lan.leasetime`" == "2h" ] && {
+		uci set dhcp.lan.leasetime=10m
+		uci commit dhcp
+		 /etc/init.d/dnsmasq restart
+	}
+}
+
+update_config()
+{
+	update_pppoe
+	update_dhcp
+}
+
+install_ems()
+{
+	local root
+	root=/usr/ems
+
+	mkdir -p $root
+	cp -rf bin  $root
+	cp -rf conf $root
+
+	chmod u+x $root/bin/ems
+	chmod u+x $root/bin/app_setup.sh
+
+	cp -f $root/conf/emsd /etc/init.d/emsd
+
+	ln -sf ems $root/bin/ems_bwlist
+	ln -sf ems $root/bin/ems_fw
+	ln -sf ems $root/bin/ems_c
+	ln -sf ems $root/bin/ems_wireless
+	ln -sf ems $root/bin/ems_config
+	ln -sf ems $root/bin/ems_ls
+	ln -sf ems $root/bin/ems_network
+	ln -sf ems $root/bin/ems_status
+	ln -sf ems $root/bin/ems_log
+	ln -sf ems $root/bin/ems_user
+
+	chmod u+x /etc/init.d/emsd
+
+	# update version info
+	echo "$(grep "app.version" appinfo | awk -F= '{print $2}')">$root/conf/ver
+
+	update_config
+
+	/etc/init.d/emsd restart
+
+	return 0
+}
+
+
+case $1 in 
+	install)
+		shift
+		install_ems
+	;;
+
+	*)
+		echo "unknown opt"
+		exit 1
+	;;
+esac

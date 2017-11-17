@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+
+
+
+cat <<EOF
+	hello, world, current date is: `date`
+
+	echo $PATH
+EOF
+
+cat <<'EOF'
+	hello, world, current date is: `date`
+
+	echo $PATH
+EOF
+
+
+cat <<'EOF' >/tmp/tmp.txt
+	hello, world, current date is: `date`
+
+	echo $PATH
+EOF
+
+cat <<EOF >>/tmp/tmp.txt
+	----------------------------------------
+	hello, world, current date is: `date`
+
+	echo $PATH
+EOF
+
+

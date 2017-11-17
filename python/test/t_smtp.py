@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# start a local smtp server before your startup
+# python -m smtpd -n -c DebuggingServer localhost:1025
 
 
 import smtplib
@@ -78,6 +80,7 @@ def main():
 			headers={"Reply-to": "me2@example.com"})
 
 if __name__ == '__main__':
+	print("Make sure command :\n python -m smtpd -n -c DebuggingServer localhost:1025 \nbe excuted in background or another terminal")
 	main()
 
 

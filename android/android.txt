@@ -1,0 +1,8 @@
+
+# android 设计
+
+
+1. 网站选用：http://m.readnovel.com
+2. http://book.zongheng.com/book/632434.html
+
+http://www.biqiuge.com/

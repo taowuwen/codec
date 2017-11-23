@@ -4,21 +4,38 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.AbstractMap;
 import java.util.Map;
 
 
 class testJsoup {
-	private static final String FILENAME = "/tmp/bookinfo.html";
+	private static final String FILENAME = "/tmp/lastpage.html";
 
+	/*
 	private static final String tag_li_open = "<li>";
 	private static final String tag_li_close = "</li>";
+	*/
 	private static final String tag_href_open = "href=\"";
 	private static final String tag_href_close = "\"";
 
 	private static final String tag_div_pic_txt_list_open = "<div class=\"pic_txt_list\">";
 	private static final String tag_div_pic_txt_list_close = "</div>";
 
+	private	static final String tag_li_open  = "<li class=\"c3\">";
+	private	static final String tag_li_close = "</li>";
+
+
+	private static final String tag_title_open = "<h1 class=\"title1\">";
+	private static final String tag_title_close = "</h1>";
+
+	private static final String tag_div_content_open  = "<div id=\"content\">";
+	private static final String tag_div_content_close = "</div>";
+
+	private static final String tag_page_prev = "<p id=\"page_last\"";
+	private static final String tag_page_next = "<p id=\"page_next\"";
+	private static final String tag_page_menu = "<p id=\"page_dir\"";
+	private static final String tag_page_close = "</p>";
 
 	public static void main(String[] args) {
 
@@ -55,7 +72,147 @@ class testJsoup {
 			}
 		}
 
-		parse_bookinfo(html.trim());
+		parse_pageinfo(html.trim());
+	}
+
+	private static String strip_ctx(String ctx) {
+		return ctx.replaceAll("<[^>]*>", "");
+	}
+
+	public static String get_tag_href(String ctx) {
+
+		int s = ctx.indexOf(tag_href_open);
+		int e = ctx.indexOf(tag_href_close, s + tag_href_open.length());
+
+		if (s == -1 || e == -1)
+			return null;
+
+		return ctx.substring(s + tag_href_open.length(), e);
+	}
+
+
+	private static String get_page_tilte(String ctx, Map<String, String> map) {
+
+		int s = ctx.indexOf(tag_title_open);
+		int e = ctx.indexOf(tag_title_close, s + tag_title_open.length());
+
+		if (s == -1 || e == -1)
+			return null;
+
+		String val = strip_ctx(ctx.substring(s, e)).trim();
+
+		map.put("title", val);
+
+		return ctx.substring(e + tag_title_close.length());
+	}
+
+	private static String get_page_content(String ctx, Map<String, String> map) {
+		int s = ctx.indexOf(tag_div_content_open);
+		int e = ctx.indexOf(tag_div_content_close, s + tag_div_content_open.length());
+
+		if (s == -1 || e == -1)
+			return null;
+
+		String val = strip_ctx(ctx.substring(s, e).replaceAll("</p>", "\r\n\r\n").replaceAll("<p>", "    ")).trim();
+
+		map.put("content", val);
+
+		return ctx.substring(e + tag_div_content_close.length());
+	}
+
+	private static String page_info_href(String ctx, Map<String, String> map, String tag_open, String tag_close, String key) {
+		int s = ctx.indexOf(tag_open);
+		int e = ctx.indexOf(tag_close, s + tag_open.length());
+
+		if (s == -1 || e == -1)
+			return null;
+
+		String val = get_tag_href(ctx.substring(s, e));
+
+		if (val != null)
+			map.put(key, val);
+
+		return ctx.substring(e + tag_close.length());
+	}
+
+	private static String get_page_prev(String ctx, Map<String, String> map) {
+		return page_info_href(ctx, map, tag_page_prev, tag_page_close, "page_prev");
+	}
+
+	private static String get_page_menu(String ctx, Map<String, String> map) {
+		return page_info_href(ctx, map, tag_page_menu, tag_page_close, "menu");
+	}
+
+	private static String get_page_next(String ctx, Map<String, String> map) {
+		return page_info_href(ctx, map, tag_page_next, tag_page_close, "page_next");
+
+	}
+
+	public static Map <String, String> parse_pageinfo(String ctx) {
+
+		Map <String, String> map = new HashMap<String, String>();
+
+		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_tilte(ctx, map);
+		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_content(ctx, map);
+		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_prev(ctx, map);
+		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_menu(ctx, map);
+		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_next(ctx, map);
+
+		for (String key : map.keySet()) {  
+			System.out.println(key + " > " + map.get(key));  
+		}  
+
+		return map;
+	}
+
+	public static String menu_item_key(String ctx) {
+		return strip_ctx(ctx).trim();
+	}
+
+	public static String menu_item_value(String ctx) {
+
+		int s = ctx.indexOf(tag_href_open);
+		int e = ctx.indexOf(tag_href_close, s + tag_href_open.length());
+
+		if (s == -1 || e == -1)
+			return null;
+
+		return ctx.substring(s + tag_href_open.length(), e);
+	}
+
+
+	public static String menu_next_item(String ctx, Map<String, String> map) {
+
+		int s = ctx.indexOf(tag_li_open);
+		int e = ctx.indexOf(tag_li_close, s);
+
+		if (s == -1 || e == -1)
+			return null;
+
+		String item = ctx.substring(s, e);
+		String key = menu_item_key(item);
+		String val = menu_item_value(item);
+
+		if (key != null && key.length() > 0 && val != null && val.length() > 0) {
+			map.put(key, val);
+		}
+
+		return ctx.substring(e + tag_li_close.length());
+	}
+
+
+	public static void parse_menuinfo(String ctx) {
+
+		//Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new LinkedHashMap<String, String>();
+
+		while (ctx != null && ctx.length() > 0) {
+			ctx = menu_next_item(ctx, map);
+		}
+
+		for (String key : map.keySet()) {  
+			System.out.println(key + " > " + map.get(key));  
+		}
 	}
 
 	public static String get_image(String ctx, Map <String, String> map) {

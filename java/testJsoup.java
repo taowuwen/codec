@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.AbstractMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 class testJsoup {
@@ -31,6 +32,9 @@ class testJsoup {
 
 	private static final String tag_div_content_open  = "<div id=\"content\">";
 	private static final String tag_div_content_close = "</div>";
+
+	private static final String tag_script_open = "<script type=\"text/javascript\">ajax_post(";
+	private static final String tag_script_close = ")</script>";
 
 	private static final String tag_page_prev = "<p id=\"page_last\"";
 	private static final String tag_page_next = "<p id=\"page_next\"";
@@ -120,6 +124,38 @@ class testJsoup {
 		return ctx.substring(e + tag_div_content_close.length());
 	}
 
+	private static String get_page_script(String ctx, Map<String, String> map) {
+		int s = ctx.indexOf(tag_script_open);
+		int e = ctx.indexOf(tag_script_close, s + tag_script_open.length());
+
+		if (s != -1 && e != -1) {
+
+			String [] items = ctx.substring(s + tag_script_open.length(), e).replaceAll("'", "").split(",");
+
+			for (int i = 0; i < items.length; i++) {
+				//items[i] = items[i].replaceAll("'", "");
+				System.out.println(items[i]);
+			}
+
+			map.put("script_url", "c=" + items[0] + "&a=" + items[1]);
+
+			String script_data = "";
+
+			for (int i = 2; i < items.length; i+=2) {
+				script_data = script_data + "&" + items[i] + "=" + items[i+1];
+			}
+
+			script_data = script_data + "&rndval=" + TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis());
+			script_data = script_data.substring(1, script_data.length() -3);
+
+			map.put("script_data", script_data);
+
+			return ctx.substring(e + tag_script_close.length());
+		}
+
+		return ctx;
+	}
+
 	private static String page_info_href(String ctx, Map<String, String> map, String tag_open, String tag_close, String key) {
 		int s = ctx.indexOf(tag_open);
 		int e = ctx.indexOf(tag_close, s + tag_open.length());
@@ -154,6 +190,7 @@ class testJsoup {
 
 		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_tilte(ctx, map);
 		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_content(ctx, map);
+		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_script(ctx, map);
 		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_prev(ctx, map);
 		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_menu(ctx, map);
 		if (ctx == null || ctx.length() <= 0) return null; ctx = get_page_next(ctx, map);

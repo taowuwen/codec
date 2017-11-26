@@ -27,9 +27,10 @@ def the_other_decorator(func):
 
 
 @my_docorator
-def do_print(info = None):
-	print(info == None and "list comprehention, world" or info)
-	num_list = [ n for n in range(0, 10000) ]
+def do_print(info=None):
+	print(info is None and "list comprehention, world" or info)
+	print("list comprehention, world" if info is None else info)
+	num_list = [n for n in range(0, 10000)]
 
 
 @my_docorator
@@ -51,8 +52,8 @@ def env_prepare(*pres):
 		@wraps(func)
 		def wrapper(*args, **kwargs):
 			global request
-			if request == None:
-				stop,*c = pres
+			if request is None:
+				stop, *c = pres
 				request = [n for n in range(stop)]
 
 			return func(*args, **kwargs)

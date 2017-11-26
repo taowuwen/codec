@@ -3,7 +3,4 @@
 import os
 import sys
 
-
-
-print("hello, glob testing");
-
+print("hello, glob testing")

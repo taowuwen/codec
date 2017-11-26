@@ -14,12 +14,13 @@ class TimedEvent:
 	def ready(self):
 		return self.endtime <= datetime.datetime.now()
 
+
 class Timer:
 	def __init__(self):
 		self.events = []
 
 	def call_after(self, delay, callback):
-		end_time = datetime.datetime.now() + datetime.timedelta(seconds = delay)
+		end_time = datetime.datetime.now() + datetime.timedelta(seconds=delay)
 
 		self.events.append(TimedEvent(end_time, callback))
 
@@ -33,21 +34,23 @@ class Timer:
 
 			time.sleep(0.5)
 
-				
-
 
 def format_time(msg, *args):
 	now = datetime.datetime.now().strftime("%I:%M:%S")
 	print(msg.format(*args, now=now))
 
+
 def one(timer):
 	format_time("{now}: called ONE")
+
 
 def two(timer):
 	format_time("{now}: called TWO")
 
+
 def three(timer):
 	format_time("{now}: called THREE")
+
 
 class Repeater:
 	def __init__(self):
@@ -74,7 +77,6 @@ def main():
 	repeater = Repeater()
 
 	timer.call_after(5, repeater.repeater)
-
 
 	format_time("{now}: starting")
 

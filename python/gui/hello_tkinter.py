@@ -181,12 +181,15 @@ class DirList:
         self.last = self.cwd.get()
         self.dirs.config(selectbackground='red')
 
-        check = self.dirs.get(self.dirs.curselection())
-        if not check:
-            check = os.getcwd()
+        index = self.dirs.curselection()
 
-        self.cwd.set(check)
-        self.do_ls()
+        if index[0] >= 0:
+            check = self.dirs.get(index)
+            if not check:
+                check = os.getcwd()
+
+            self.cwd.set(check)
+            self.do_ls()
 
     def do_ls(self, ev=None):
         error = None
@@ -225,7 +228,7 @@ class DirList:
 
         self.dirl.config(text=os.getcwd())
         self.dirs.delete(0, tkinter.END)
-        self.dirs.insert(tkinter.END, os.getcwd())
+        self.dirs.insert(tkinter.END, os.curdir)
         self.dirs.insert(tkinter.END, os.pardir)
 
         for fl in dirlist:

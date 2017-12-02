@@ -171,7 +171,7 @@ class DirList:
         self.bfm.pack()
 
         if initdir:
-            self.cwd.set(os.curdir)
+            self.cwd.set(os.getcwd())
             self.do_ls()
 
     def cls_dir(self, ev=None):
@@ -183,7 +183,7 @@ class DirList:
 
         check = self.dirs.get(self.dirs.curselection())
         if not check:
-            check = os.curdir
+            check = os.getcwd()
 
         self.cwd.set(check)
         self.do_ls()
@@ -193,7 +193,7 @@ class DirList:
         tdir = self.cwd.get()
 
         if not tdir:
-            tdir = os.curdir
+            tdir = os.getcwd()
 
         if not os.path.exists(tdir):
             error = tdir + ': No such file'
@@ -208,7 +208,7 @@ class DirList:
             sleep(2)
 
             if not (hasattr(self, 'last') and self.last):
-                self.last = os.curdir
+                self.last = os.getcwd()
 
             self.cwd.set(self.last)
             self.dirs.config(selectbackground='LightSkyBlue')
@@ -225,19 +225,19 @@ class DirList:
 
         self.dirl.config(text=os.getcwd())
         self.dirs.delete(0, tkinter.END)
-        self.dirs.insert(tkinter.END, os.curdir)
+        self.dirs.insert(tkinter.END, os.getcwd())
         self.dirs.insert(tkinter.END, os.pardir)
 
         for fl in dirlist:
             self.dirs.insert(tkinter.END, fl)
 
-        self.cwd.set(os.curdir)
+        self.cwd.set(os.getcwd())
         self.dirs.config(selectbackground='LightSkyBlue')
 
 
 @only_one_run
 def test_dirlist(top):
-    DirList(top, os.curdir)
+    DirList(top, os.getcwd())
 
 
 def main():

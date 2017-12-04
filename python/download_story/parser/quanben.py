@@ -43,6 +43,17 @@ class Quanben(HTTPDownload):
         print("Quanben GET: " + ctx)
         raise MethodNotImpletion()
 
+    def _do_get_(self, tag_open, tag_close, ctx):
+        assert tag_open != None and len(tag_open) > 0, "tag_open NULL"
+        assert tag_close != None and len(tag_close) > 0, "tag_close NULL"
+        assert ctx != None, "Content NULL"
+
+        s = ctx.index(tag_open)
+        e = ctx.index(tag_close, s + len(tag_open))
+
+        return (ctx[s+len(tag_open):e], ctx[e+len(tag_close):])
+
+
         
 class QuanbenPage(Quanben):
     def parse_post(self, ctx):
@@ -80,16 +91,6 @@ class QuanbenPage(Quanben):
             return info
 
         return None
-
-    def _do_get_(self, tag_open, tag_close, ctx):
-        assert tag_open != None and len(tag_open) > 0, "tag_open NULL"
-        assert tag_close != None and len(tag_close) > 0, "tag_close NULL"
-        assert ctx != None, "Content NULL"
-
-        s = ctx.index(tag_open)
-        e = ctx.index(tag_close, s + len(tag_open))
-
-        return (ctx[s+len(tag_open):e], ctx[e+len(tag_close):])
 
 
     def _do_get_data(self, tag_open, tag_close):

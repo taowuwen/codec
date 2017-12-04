@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from httpdownload import HTTPDownload
+from urllib.parse import urljoin
+import sys
+import re
+
+class TitleNotFound(Exception):
+    pass
+
+
+class PageContentNotFound(Exception):
+    pass
+
+
+class PageScriptNotFound(Exception):
+    pass
+
+
+class InvalidPageInfo(Exception):
+    pass
+
+class MethodNotImpletion(Exception):
+    pass
+
+
+class Quanben(HTTPDownload):
+    _url_root = "http://www.quanben5.com"
+
+    def http_get(self, url):
+        return super(Quanben, self).http_get(urljoin(self._url_root, url))
+
+    def http_post(self, url, data):
+        return super(Quanben, self).http_post(
+                     urljoin(self._url_root, url), data)
+
+    def parse_post(self, ctx):
+        print("Quanben POST: " + ctx)
+        raise MethodNotImpletion()
+
+    def parse_get(self, ctx):
+        print("Quanben GET: " + ctx)
+        raise MethodNotImpletion()
+
+        
+class QuanbenPage(Quanben):
+    def parse_post(self, ctx):
+        if ctx.find(u'参数错误') == -1:
+
+            val = ctx.replace("</p>", "\r\n\r\n").replace("<p>", "    ")
+            self._info["content"] = re.sub("<[^>]*>", "", val)
+        else:
+            raise InvalidPageInfo()
+
+        return self._info
+
+    def parse_get(self, ctx):
+
+        self._ctx = ctx
+        self._info = {}
+        info = self._info
+        
+        try:
+            self._get_title(info)
+            self._get_content(info)
+            self._get_script(info)
+            self._get_prev(info)
+            self._get_menu(info)
+            self._get_next(info)
+
+            if info["content"].rfind(u'如果显示不完整'):
+                self.http_post(info["script_url"], info["script_data"])
+        except Exception as e:
+            print(e)
+            return None
+        else:
+            for key in info.keys():
+                print("{} -> {}".format(key, info[key]))
+            return info
+
+        return None
+
+    def _do_get_(self, tag_open, tag_close, ctx):
+        assert tag_open != None and len(tag_open) > 0, "tag_open NULL"
+        assert tag_close != None and len(tag_close) > 0, "tag_close NULL"
+        assert ctx != None, "Content NULL"
+
+        s = ctx.index(tag_open)
+        e = ctx.index(tag_close, s + len(tag_open))
+
+        return (ctx[s+len(tag_open):e], ctx[e+len(tag_close):])
+
+
+    def _do_get_data(self, tag_open, tag_close):
+        val, self._ctx = self._do_get_(tag_open, tag_close, self._ctx)
+        return val.strip()
+
+
+    def _get_title(self, info):
+
+        try:
+            info["title"] = self._do_get_data('<h1 class="title1">', '</h1>')
+        except ValueError:
+            raise TitleNotFound()
+
+
+    def _get_content(self, info):
+        try:
+            val = self._do_get_data(
+                    '<div id="content">', '</div>'
+                    ).replace("</p>", "\r\n\r\n").replace("<p>", "    ")
+
+            self._info["content"] = re.sub("<[^>]*>", "", val)
+
+        except ValueError:
+            raise PageContentNotFound()
+
+    def _get_script(self, info):
+        import time
+        try:
+            data = { "_type":"ajax", "rndval":round(time.time()*1000)}
+
+            ajax = eval(self._do_get_data(
+                    '<script type="text/javascript">ajax_post', 
+                    '</script>'
+                    ))
+
+            data.update(dict(zip(ajax[2::2], ajax[3::2])))
+
+            info["script_url"] = "/index.php?c={0}&a={1}".format(ajax[0], ajax[1])
+            info["script_data"] = data
+
+        except ValueError:
+            pass
+
+    def get_href(self, ctx):
+
+        try:
+            val, *c = self._do_get_('href="', '"', ctx)
+        except ValueError:
+            return ""
+        else:
+            return val.strip()
+
+
+    def _get_prev(self, info):
+        try:
+            info["page_prev"] = self.get_href(
+                    self._do_get_data('<p id="page_last"', '</p>')
+                )
+        except ValueError:
+            pass
+
+
+    def _get_menu(self, info):
+        try:
+            info["menu"] = self.get_href(
+                    self._do_get_data( '<p id="page_dir"' , '</p>')
+                )
+        except ValueError:
+            pass
+
+    def _get_next(self, info):
+        try:
+            info["page_next"] = self.get_href(
+                    self._do_get_data('<p id="page_next"' , '</p>')
+                )
+        except ValueError:
+            pass
+
+
+
+
+class QuanbenMenu(Quanben):
+    def parse_get(self, ctx):
+        print("Menu Info: " + ctx)
+        return ctx
+
+class QuanbenBookInfo(Quanben):
+    def parse_get(self, ctx):
+        print("BookInfo: " + ctx)
+        return ctx
+
+def _main():
+
+    page = QuanbenPage()
+    page.http_get("/n/jiuzhuanhunchunjue/27535.html")
+#   page.http_post("http://localhost:8000/cgi-bin/hello.py", {"foo":"bar"})
+#   menu = QuanbenMenu()
+#   menu.http_get('/n/jiuzhuanhunchunjue/xiaoshuo.html')
+#   book = QuanbenBookInfo()
+#   book.http_get('n/jiuzhuanhunchunjue/')
+
+
+if __name__ == '__main__':
+    _main()

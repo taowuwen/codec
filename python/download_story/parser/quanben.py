@@ -53,8 +53,16 @@ class Quanben(HTTPDownload):
 
         return (ctx[s+len(tag_open):e], ctx[e+len(tag_close):])
 
+    def get_href(self, ctx):
 
-        
+        try:
+            val, *c = self._do_get_('href="', '"', ctx)
+        except ValueError:
+            return ""
+        else:
+            return val.strip()
+
+
 class QuanbenPage(Quanben):
     def parse_post(self, ctx):
         if ctx.find(u'参数错误') == -1:
@@ -135,15 +143,6 @@ class QuanbenPage(Quanben):
         except ValueError:
             pass
 
-    def get_href(self, ctx):
-
-        try:
-            val, *c = self._do_get_('href="', '"', ctx)
-        except ValueError:
-            return ""
-        else:
-            return val.strip()
-
 
     def _get_prev(self, info):
         try:
@@ -171,12 +170,35 @@ class QuanbenPage(Quanben):
             pass
 
 
-
-
 class QuanbenMenu(Quanben):
     def parse_get(self, ctx):
-        print("Menu Info: " + ctx)
-        return ctx
+        from collections import OrderedDict
+
+        self._ctx = ctx
+        self._items = OrderedDict()
+
+        while self._ctx and len(self._ctx) > 0:
+            self.get_next_item()
+
+        for key in self._items.keys():
+            print(" {} : {} ".format(key, self._items[key]))
+
+        return self._items
+
+    def get_next_item(self):
+
+        try:
+            val, self._ctx = self._do_get_(
+                    '<li class="c3">', '</li>', self._ctx)
+        except ValueError:
+            self._ctx = None
+            return None
+        else:
+            _k = re.sub("<[^>]*>", "", val)
+            _v = self.get_href(val)
+            self._items[_k] = _v.strip()
+
+
 
 class QuanbenBookInfo(Quanben):
     def parse_get(self, ctx):
@@ -185,11 +207,11 @@ class QuanbenBookInfo(Quanben):
 
 def _main():
 
-    page = QuanbenPage()
-    page.http_get("/n/jiuzhuanhunchunjue/27535.html")
+#    page = QuanbenPage()
+#    page.http_get("/n/jiuzhuanhunchunjue/27535.html")
 #   page.http_post("http://localhost:8000/cgi-bin/hello.py", {"foo":"bar"})
-#   menu = QuanbenMenu()
-#   menu.http_get('/n/jiuzhuanhunchunjue/xiaoshuo.html')
+    menu = QuanbenMenu()
+    menu.http_get('/n/jiuzhuanhunchunjue/xiaoshuo.html')
 #   book = QuanbenBookInfo()
 #   book.http_get('n/jiuzhuanhunchunjue/')
 

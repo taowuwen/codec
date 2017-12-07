@@ -4,19 +4,18 @@
 import sys
 import os
 
+import tasks
+
 
 def main():
     print("hello, story downloader, by taowuwen")
 
     '''
-    parse arguments
-    create taskpool, queue
-    create task class
-    double linked task queue
-
+        parse arguments
+        create taskpool, queue
+        create task class
+        double linked task queue
     '''
-
-
 
     pass
 

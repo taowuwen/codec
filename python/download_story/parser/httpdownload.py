@@ -15,7 +15,7 @@ class HTTPDownload:
             data = urlencode(data).encode('utf-8') if data != None else None
         )
 
-        req.add_header('User-Agent', 'Stories Downloader(By TWW)')
+        req.add_header('User-Agent', 'Firefox 3.12')
 
         try:
             rsp = request.urlopen(req)

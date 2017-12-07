@@ -133,7 +133,8 @@ def test_urlparse():
 		'http://netloc/path/index?query=arg#frag',
 		'http://netloc/path/index?query=arg&a=b',
 		'http://www.quanben5.com/n/zuiqiangbaijiazi/12210.html',
-		'http://user:pwd@NetLoc:80/path;param?query=arg#frag'
+		'http://user:pwd@NetLoc:80/path;param?query=arg#frag',
+                '/a/b/c.html'
 	)
 
 	for method in (urlparse, urlsplit, urldefrag):
@@ -167,9 +168,9 @@ def main():
 	print("system default coding: ".format(sys.getdefaultencoding()))
 
 	test_urlparse()
-	test_urljoin()
-	test_urlencode()
-	test_request()
+#	test_urljoin()
+#	test_urlencode()
+#	test_request()
 
 
 if __name__ == '__main__':

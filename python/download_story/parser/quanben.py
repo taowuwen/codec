@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from httpdownload import HTTPDownload
+from parser.httpdownload import HTTPDownload
 from urllib.parse import urljoin
 import sys
 import re
@@ -63,7 +63,7 @@ class Quanben(HTTPDownload):
             return val.strip()
 
 
-class QuanbenPage(Quanben):
+class PageDownload(Quanben):
     def parse_post(self, ctx):
         if ctx.find(u'参数错误') == -1:
 
@@ -170,7 +170,7 @@ class QuanbenPage(Quanben):
             pass
 
 
-class QuanbenMenu(Quanben):
+class MenuDownload(Quanben):
     def parse_get(self, ctx):
         from collections import OrderedDict
 
@@ -200,19 +200,19 @@ class QuanbenMenu(Quanben):
 
 
 
-class QuanbenBookInfo(Quanben):
+class BookInfoDownload(Quanben):
     def parse_get(self, ctx):
         print("BookInfo: " + ctx)
         return ctx
 
 def _main():
 
-#    page = QuanbenPage()
+#    page = PageDownload()
 #    page.http_get("/n/jiuzhuanhunchunjue/27535.html")
 #   page.http_post("http://localhost:8000/cgi-bin/hello.py", {"foo":"bar"})
-    menu = QuanbenMenu()
+    menu = MenuDownload()
     menu.http_get('/n/jiuzhuanhunchunjue/xiaoshuo.html')
-#   book = QuanbenBookInfo()
+#   book = BookInfoDownload()
 #   book.http_get('n/jiuzhuanhunchunjue/')
 
 

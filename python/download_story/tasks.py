@@ -70,9 +70,7 @@ class Task:
         _n._next = None
         _n._pool = None
         _n._ctx  = None
-
-        # maybe delete _n here, no need to use anymore
-        del _n
+        _n.status = st_closed
 
 
 class TaskHttp(Task):
@@ -99,9 +97,9 @@ class TaskMenuDownload(TaskHttp):
     def task_run(self):
         print("Download Menu from {}".format(self._url))
         menu = self._cls.http_get(self._url)
+        self._ctx = ""
         if menu:
             self._data = menu
-            self._ctx = ""
 
             if self._pool._head._url_path:
                 # remove unused items
@@ -118,6 +116,10 @@ class TaskMenuDownload(TaskHttp):
             for key in menu.keys():
                 self._pool.task_append(TaskPageDownload(menu[key]))
 
+            return 0
+
+        return 1
+
 
 class TaskPageDownload(TaskHttp):
     def __init__(self, url, cls="quanben"):
@@ -128,7 +130,7 @@ class TaskPageDownload(TaskHttp):
         page = self._cls.http_get(self._url)
         if page:
             self._data = page
-            self._ctx = "\r\n{title}\r\n{content}".format(
+            self._ctx = "\n{title}\n{content}".format(
                             title=page["title"],
                             content=page["content"]
                         )
@@ -200,6 +202,7 @@ class TaskPool:
                 task = self._task_pool.get(block=False)
             except queue.Empty:
                 if self._current == 0:
+                    print("do exit here")
                     # here flush TaskFileWrite maybe
                     return
                 pass
@@ -207,36 +210,42 @@ class TaskPool:
                 self._add_running_task(task)
 
 
-    def task_run(self, task, mtx, retry):
+    def _task_run(self, task, retry):
 
-        print("task for : {} started".format(task))
+        print("task for : {} started, current {}".format(task, self._current))
 
         task.status = st_running
         ret = 1
 
-        while ret and retry:
-            ret = task.task_run()
+        while retry:
             retry -= 1
+            ret = task.task_run()
+            if ret == 0:
+                break
+
 
         task.status = st_done
 
         if ret == 1:
-            task._ctx = "----------failed On:  {}----\r\n".format(task)
+            task._ctx = "----------failed On:  {}----\n".format(task)
+
         print("task for : {} done, status: {}".format(task, ret))
 
-        with mtx:
-            while task._next is not task._pool._head and \
-                    task._next.status == st_done:
-                print("task merge next task: {}".format(task))
-                task.task_merge_next(task._next)
-                self._current -= 1
+        with self._mtx:
 
-            if task._prev is task._pool._head and \
-                    task._prev.status == st_done:
-                print("task merge SELF: {}".format(task))
+            if task._prev is self._head:
+
+                while task._next is not self._head and \
+                        task._next.status == st_done:
+                    print("task merge next task: {}".format(task))
+                    task.task_merge_next(task._next)
+
+                print("task merge SELF: {}, current {}".format(task, self._current))
                 task._prev.task_merge_next(task)
-                self._current -= 1
 
+            self._current -= 1
+
+        print("thread exit ... current: {}".format(self._current))
 
     def _add_running_task(self, task):
         '''
@@ -248,7 +257,7 @@ class TaskPool:
             self._current += 1
             task._pool = self
 
-            threading.Thread(target=self.task_run, args=(task, self._mtx, self._retry)).start()
+        threading.Thread(target=self._task_run, args=(task, self._retry)).start()
 
     def task_append(self, task):
         print("add task {}".format(task))
@@ -261,7 +270,7 @@ class TaskPool:
 
 
 if __name__ == '__main__':
-    tp = TaskPool(num=10)
+    tp = TaskPool(num=20)
 
     tp.task_append(TaskPageDownload("/n/jiuzhuanhunchunjue/27535.html"))
     tp.start()

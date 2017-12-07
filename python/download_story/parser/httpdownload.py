@@ -18,7 +18,7 @@ class HTTPDownload:
         req.add_header('User-Agent', 'Firefox 3.12')
 
         try:
-            rsp = request.urlopen(req)
+            rsp = request.urlopen(req, timeout=30)
         except Exception as e:
             print(e)
         else:

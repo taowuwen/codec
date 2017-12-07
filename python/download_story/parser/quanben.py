@@ -67,7 +67,7 @@ class PageDownload(Quanben):
     def parse_post(self, ctx):
         if ctx.find(u'参数错误') == -1:
 
-            val = ctx.replace("</p>", "\r\n\r\n").replace("<p>", "    ")
+            val = ctx.replace("</p>", "\n\n").replace("<p>", "    ")
             self._info["content"] = re.sub("<[^>]*>", "", val)
         else:
             raise InvalidPageInfo()
@@ -94,8 +94,8 @@ class PageDownload(Quanben):
             print(e)
             return None
         else:
-            for key in info.keys():
-                print("{} -> {}".format(key, info[key]))
+           # for key in info.keys():
+           #     print("{} -> {}".format(key, info[key]))
             return info
 
         return None
@@ -118,7 +118,7 @@ class PageDownload(Quanben):
         try:
             val = self._do_get_data(
                     '<div id="content">', '</div>'
-                    ).replace("</p>", "\r\n\r\n").replace("<p>", "    ")
+                    ).replace("</p>", "\n\n").replace("<p>", "    ")
 
             self._info["content"] = re.sub("<[^>]*>", "", val)
 
@@ -180,8 +180,8 @@ class MenuDownload(Quanben):
         while self._ctx and len(self._ctx) > 0:
             self.get_next_item()
 
-        for key in self._items.keys():
-            print(" {} : {} ".format(key, self._items[key]))
+       # for key in self._items.keys():
+       #     print(" {} : {} ".format(key, self._items[key]))
 
         return self._items
 

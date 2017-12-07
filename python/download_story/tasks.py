@@ -198,6 +198,9 @@ class TaskPool:
                 time.sleep(0.5)
                 continue
 
+            if self._current == 0 and self._task_pool.empty():
+                break
+
             try:
                 task = self._task_pool.get(block=False)
             except queue.Empty:
@@ -205,7 +208,6 @@ class TaskPool:
                     print("do exit here")
                     # here flush TaskFileWrite maybe
                     return
-                pass
             else:
                 self._add_running_task(task)
 
@@ -219,10 +221,14 @@ class TaskPool:
 
         while retry:
             retry -= 1
-            ret = task.task_run()
-            if ret == 0:
-                break
+            try:
+                ret = task.task_run()
+            except Exception as e:
+                print(e)
 
+            else:
+                if ret == 0:
+                    break
 
         task.status = st_done
 

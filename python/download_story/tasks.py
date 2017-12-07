@@ -149,7 +149,7 @@ class TaskFileWrite(Task):
         pass
 
     def task_merge_next(self, task):
-        if not self._url_path:
+        if not self._url_path and task._data:
             self._pool.task_append(TaskMenuDownload(task._data["menu"]))
 
         self._url_path = urlparse(task._url).path

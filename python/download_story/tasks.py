@@ -149,14 +149,14 @@ class TaskFileWrite(Task):
         pass
 
     def task_merge_next(self, task):
-        if not self._url_path and task._data:
+
+        if not self._url_path and hasattr(task, '_data'):
             self._pool.task_append(TaskMenuDownload(task._data["menu"]))
 
         self._url_path = urlparse(task._url).path
 
         super(TaskFileWrite, self).task_merge_next(task)
 
-        print("write downloaded pages into file")
         with open(self._fl, "a+") as fl:
             fl.write(self._ctx)
 
@@ -194,27 +194,24 @@ class TaskPool:
         
         while True:
 
-            if self._current >= self._max_child or self._task_pool.empty():
+            if self._current >= self._max_child:
                 time.sleep(0.5)
                 continue
-
-            if self._current == 0 and self._task_pool.empty():
-                break
 
             try:
                 task = self._task_pool.get(block=False)
             except queue.Empty:
                 if self._current == 0:
-                    print("do exit here")
+                    print("No more tasks, and no running tasks, do exit...")
                     # here flush TaskFileWrite maybe
                     return
+
+                time.sleep(0.5)
             else:
                 self._add_running_task(task)
 
 
     def _task_run(self, task, retry):
-
-        print("task for : {} started, current {}".format(task, self._current))
 
         task.status = st_running
         ret = 1
@@ -235,15 +232,13 @@ class TaskPool:
         if ret == 1:
             task._ctx = "----------failed On:  {}----\n".format(task)
 
-        print("task for : {} done, status: {}".format(task, ret))
-
         with self._mtx:
 
             if task._prev is self._head:
 
                 while task._next is not self._head and \
                         task._next.status == st_done:
-                    print("task merge next task: {}".format(task))
+                    print("task merge task: {}".format(task))
                     task.task_merge_next(task._next)
 
                 print("task merge SELF: {}, current {}".format(task, self._current))
@@ -251,7 +246,7 @@ class TaskPool:
 
             self._current -= 1
 
-        print("thread exit ... current: {}".format(self._current))
+        print("thread exit {} current: {}".format(task, self._current))
 
     def _add_running_task(self, task):
         '''

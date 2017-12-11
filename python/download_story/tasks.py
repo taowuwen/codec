@@ -126,7 +126,6 @@ class TaskPageDownload(TaskHttp):
         super(TaskPageDownload, self).__init__(url, _get_parser(cls).PageDownload)
 
     def task_run(self):
-        print("Download Page from {}".format(self._url))
         page = self._cls.http_get(self._url)
         if page:
             self._data = page
@@ -215,6 +214,7 @@ class TaskPool:
 
         task.status = st_running
         ret = 1
+        print("***START*** {} current: {}".format(task, self._current))
 
         while retry:
             retry -= 1
@@ -230,6 +230,7 @@ class TaskPool:
         task.status = st_done
 
         if ret == 1:
+            print("---WARNING--- failed on: {}".format(task))
             task._ctx = "----------failed On:  {}----\n".format(task)
 
         with self._mtx:
@@ -238,15 +239,12 @@ class TaskPool:
 
                 while task._next is not self._head and \
                         task._next.status == st_done:
-                    print("task merge task: {}".format(task))
                     task.task_merge_next(task._next)
 
-                print("task merge SELF: {}, current {}".format(task, self._current))
                 task._prev.task_merge_next(task)
 
             self._current -= 1
-
-        print("thread exit {} current: {}".format(task, self._current))
+            print("***DONE*** {} current: {}".format(task, self._current))
 
     def _add_running_task(self, task):
         '''

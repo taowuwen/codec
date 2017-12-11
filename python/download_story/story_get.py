@@ -7,19 +7,23 @@ import os
 import tasks
 
 
-def main():
+def main(*args):
+
     print("hello, story downloader, by taowuwen")
 
-    '''
-        parse arguments
-        create taskpool, queue
-        create task class
-        double linked task queue
-    '''
+    url, fl, *c = (args)
 
-    pass
+    tp = tasks.TaskPool(num = 20, fl=fl)
+    tp.task_append(tasks.TaskPageDownload(url))
+    tp.start()
 
 
 
+# cmd url filename
 if '__main__' == __name__:
-    main()
+
+    if len(sys.argv) < 2:
+        print(" {} url ".format(sys.argv[0]))
+        sys._exit(1)
+
+    main(*(sys.argv[1:]))

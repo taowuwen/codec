@@ -94,8 +94,6 @@ class PageDownload(Quanben):
             print(e)
             return None
         else:
-           # for key in info.keys():
-           #     print("{} -> {}".format(key, info[key]))
             return info
 
         return None
@@ -179,9 +177,6 @@ class MenuDownload(Quanben):
 
         while self._ctx and len(self._ctx) > 0:
             self.get_next_item()
-
-       # for key in self._items.keys():
-       #     print(" {} : {} ".format(key, self._items[key]))
 
         return self._items
 

@@ -70,7 +70,7 @@ class PageDownload(Quanben):
             val = ctx.replace("</p>", "\n\n").replace("<p>", "    ")
             self._info["content"] = re.sub("<[^>]*>", "", val)
         else:
-            raise InvalidPageInfo()
+            raise InvalidPageInfo("Invalid Page info")
 
         return self._info
 
@@ -91,8 +91,7 @@ class PageDownload(Quanben):
             if info["content"].rfind(u'如果显示不完整'):
                 self.http_post(info["script_url"], info["script_data"])
         except Exception as e:
-            print(e)
-            return None
+            raise
         else:
             return info
 

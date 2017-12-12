@@ -20,7 +20,7 @@ class HTTPDownload:
         try:
             rsp = request.urlopen(req, timeout=30)
         except Exception as e:
-            print(e)
+            raise
         else:
             cmd = self.parse_post if req.get_method() == 'POST' else self.parse_get
             return cmd(rsp.read().decode('utf-8'))

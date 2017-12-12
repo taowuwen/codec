@@ -17,7 +17,7 @@ def _get_parser(clsname="quanben"):
     }.get(clsname, quanben)
 
 
-(st_unkowned, st_init, st_done, st_running, st_closed) = range(5)
+(st_unkowned, st_init, st_done, st_running, st_stopped) = range(5)
 
 
 class NotSupportted(Exception): pass
@@ -70,7 +70,7 @@ class Task:
         _n._next = None
         _n._pool = None
         _n._ctx  = None
-        _n.status = st_closed
+        _n.status = st_stopped
 
 
 class TaskHttp(Task):

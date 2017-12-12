@@ -49,8 +49,7 @@ class Task:
         raise NotImplemented()
 
     def __str__(self):
-        return "{0.__class__.__name__} ---> {0._st.name}".format(self)
-
+        return "{0.__class__.__name__:<20} - {0._st.name:10}".format(self)
 
 
 class TaskHttp(Task):

@@ -269,22 +269,32 @@ class taskpool2:
 
         print(task)
 
+    def _fetch_task(self):
+        try:
+            task = self._wait.get(block=False)
+
+        except queue.Empty:
+            return None
+
+        else:
+            print("{} left: {}".format(task, self._wait.qsize()))
+            self._running.append(task)
+            return task
+
+
     def _child_main(self):
 
+        task = None
+
         while self._st is task_status.running:
+            with self._work_mtx:
+                task = self._fetch_task()
 
-            try:
-                task = self._wait.get(block=False)
-                print("{} left: {}".format(task, self._wait.qsize()))
-
-            except queue.Empty:
+            if not task:
                 time.sleep(0.5)
-
             else:
-                # make sure task is ordered
                 with self._work_mtx:
                     self._working += 1
-                    self._running.append(task)
 
                 self._task_run(task, self._retry)
 

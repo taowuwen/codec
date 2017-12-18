@@ -5,13 +5,17 @@ import urllib
 from urllib import request
 from urllib.parse import urlencode
 
+_http = "http://"
+_https = "https://"
+
+
 
 class HTTPDownload:
 
-    def _do_http_request(self, url, data = None):
+    def _do_http_request(self, url, data = None, parser=1):
         assert url != None
 
-        req = request.Request(url=url, 
+        req = request.Request(url=url,
             data = urlencode(data).encode('utf-8') if data != None else None
         )
 
@@ -22,8 +26,11 @@ class HTTPDownload:
         except Exception as e:
             raise
         else:
-            cmd = self.parse_post if req.get_method() == 'POST' else self.parse_get
-            return cmd(rsp.read().decode('utf-8'))
+            if parser:
+                cmd = self.parse_post if req.get_method() == 'POST' else self.parse_get
+                return cmd(rsp.read().decode('utf-8'))
+            else:
+                return rsp.read().decode('utf-8')
 
     def http_get(self, url):
         return self._do_http_request(url)
@@ -40,12 +47,33 @@ class HTTPDownload:
         print("IN GET", ctx)
         return ctx
 
+class url_download(HTTPDownload):
+    def __init__(self):
+        self._ctx = None
+
+    def _do_http_request(self, url, data = None):
+        self._ctx = super(url_download, self)._do_http_request(url, data, parser=0)
+        return self._ctx
+
+    @property
+    def content(self):
+        return self._ctx
+
 
 def _main():
 
     http = HTTPDownload()
     http.http_get("http://www.quanben5.com/n/jiuzhuanhunchunjue/27535.html")
-    http.http_post("http://localhost:8000/cgi-bin/hello.py", {"foo":"bar"})
+#   http.http_post("http://localhost:8000/cgi-bin/hello.py", {"foo":"bar"})
+
+#   url = url_download()
+#
+#   try:
+#       url.http_get("http://www.quanben5.com/n/jiuzhuanhunchunjue/27535.html")
+#   except Exception as e:
+#       print(e)
+#   else:
+#       print(url.content)
 
 
 if __name__ == '__main__':

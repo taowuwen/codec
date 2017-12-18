@@ -2,6 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from parser.httpdownload import HTTPDownload
+from parser.httpdownload import url_download
+from parser.httpdownload import _http
+from parser.httpdownload import _https
+
 from urllib.parse import urljoin
 import sys
 import re
@@ -26,7 +30,8 @@ class MethodNotImpletion(Exception):
 
 
 class Quanben(HTTPDownload):
-    _url_root = "http://www.quanben5.com"
+    _url_path = "www.quanben5.com"
+    _url_root = _http + _url_path
 
     def http_get(self, url):
         return super(Quanben, self).http_get(urljoin(self._url_root, url))
@@ -177,7 +182,10 @@ class MenuDownload(Quanben):
         while self._ctx and len(self._ctx) > 0:
             self.get_next_item()
 
-        return self._items
+        if self._items:
+            return self._items
+
+        raise InvalidPageInfo("Invalid Menu Page")
 
     def get_next_item(self):
 
@@ -198,6 +206,9 @@ class BookInfoDownload(Quanben):
     def parse_get(self, ctx):
         print("BookInfo: " + ctx)
         return ctx
+
+class URLDownload(url_download):
+    pass
 
 def _main():
 

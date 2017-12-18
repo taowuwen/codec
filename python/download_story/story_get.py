@@ -15,7 +15,7 @@ def use_pool2(*args):
 
     with open(fl, "a+") as fp:
         tp = taskpool2.taskpool2(num=30, output=fp)
-        tp.add_task(taskpool2.TaskPageDownload(url))
+        tp.add_task(taskpool2.TaskUrlDownload(url))
         tp.run()
 
 

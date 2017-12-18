@@ -161,14 +161,12 @@ def test_urljoin():
 	print(urljoin('http://user:pwd@NetLoc:80/path;param?query=arg#frag', "/path/to/my/page.html"))
 
 
-
-
 def main():
 	print("hello, urllib")
 	print("system default coding: ".format(sys.getdefaultencoding()))
 
 	test_urlparse()
-#	test_urljoin()
+	test_urljoin()
 #	test_urlencode()
 #	test_request()
 

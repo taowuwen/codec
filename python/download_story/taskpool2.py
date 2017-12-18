@@ -9,6 +9,9 @@ import time
 import enum
 
 from urllib.parse import urlparse
+from urllib.parse import urljoin
+from parser import get_parser
+from parser.quanben import InvalidPageInfo
 
 task_status = enum.Enum(
     value = 'task_status',
@@ -20,7 +23,6 @@ class NotImplemented(Exception):
     pass
 
 class Task:
-    task = u'task'
     def __init__(self):
         self._ctx = None
         self._st  = task_status.inited
@@ -33,15 +35,6 @@ class Task:
     def status(self, new_st):
         self._st = new_st
 
-    @staticmethod
-    def get_parser(clsname="quanben"):
-
-        from parser import quanben
-
-        return {
-                "quanben": quanben
-            }.get(clsname, quanben)
-
     def is_done(self):
         return self._st in [task_status.done, task_status.error, task_status.closed]
 
@@ -53,8 +46,6 @@ class Task:
 
 
 class TaskHttp(Task):
-
-    task = 'http'
 
     def __init__(self, url, cls):
         assert url and cls, "url and cls not null"
@@ -85,13 +76,19 @@ class TaskHttp(Task):
             assert self._ctx, "_ctx should never be None here"
             self.status = task_status.done
 
+    def parse_get(self, ctx):
+        return self._cls.parse_get(ctx)
+
+
+class TaskUrlDownload(TaskHttp):
+    def __init__(self, url):
+        super(TaskUrlDownload, self).__init__(url, get_parser(url).URLDownload)
+
 
 class TaskMenuDownload(TaskHttp):
 
-    task = 'menu'
-
-    def __init__(self, url, cls="quanben"):
-        super(TaskMenuDownload, self).__init__(url, self.get_parser(cls).MenuDownload)
+    def __init__(self, url):
+        super(TaskMenuDownload, self).__init__(url, get_parser(url).MenuDownload)
         self._cur = None
 
     def __iter__(self):
@@ -116,10 +113,8 @@ class TaskMenuDownload(TaskHttp):
 
 class TaskPageDownload(TaskHttp):
 
-    task = 'page'
-
-    def __init__(self, url, cls="quanben"):
-        super(TaskPageDownload, self).__init__(url, self.get_parser(cls).PageDownload)
+    def __init__(self, url):
+        super(TaskPageDownload, self).__init__(url, get_parser(url).PageDownload)
 
     @property
     def content(self):
@@ -135,10 +130,6 @@ class TaskPageDownload(TaskHttp):
     def menu(self):
         assert self.status is task_status.done and self._ctx, "status should be done {}".format(self)
         return self._ctx['menu']
-
-    @property
-    def current(self):
-        return self._url
 
 
 # add_tasks 
@@ -174,26 +165,27 @@ class taskpool2:
         self._succeed = 0
         self._total = 0
 
-    def consume_default(self, task):
+    def customer_default(self, task):
         print("not support for {} {}".format(task, task.task))
 
-    def consume_page(self, task):
-        assert task.task is "page", "task should be page"
+    def customer_page(self, task):
+        assert task.__class__.__name__ is TaskPageDownload.__name__, "task should be TaskMenuDownload"
         assert task.is_done(), "task should be done"
 
         if task.status is task_status.done:
             self._output.write("\n" + task.title + "\n" + task.content)
 
             if not self._last_task:
-                self.add_task(TaskMenuDownload(task.menu))
+                self.add_task(TaskMenuDownload(urljoin(task._url, task.menu)))
 
-            self._last_task = urlparse(task.current).path
+            self._last_task = urlparse(task._url).path
         else:
             self._output.write("\n------ failed {} -----\n".format(task))
 
 
-    def consume_menu(self, task):
-        assert task.task is "menu", "task should be page"
+    def customer_menu(self, task):
+        assert task.is_done(), "task should be done"
+        assert task.__class__.__name__ is TaskMenuDownload.__name__, "task should be TaskMenuDownload"
 
         if self._last_task:
             skip = 1
@@ -205,16 +197,59 @@ class taskpool2:
 
                     continue
                 else:
-                    self.add_task(TaskPageDownload(urlparse(task[item]).path))
+                    self.add_task(TaskPageDownload(
+                            urljoin(task._url, urlparse(task[item]).path)))
         else:
             for item in task:
-                self.add_task(TaskPageDownload(urlparse(task[item]).path))
+                self.add_task(TaskPageDownload(
+                        urljoin(task._url, urlparse(task[item]).path)))
+
+    def customer_url(self, task):
+        assert task.__class__.__name__ is TaskUrlDownload.__name__, "task should be TaskUrlDownload"
+
+        menu = TaskMenuDownload(task._url)
+
+        try:
+            ctx = menu.parse_get(task._ctx)
+
+        except InvalidPageInfo:
+            pass
+        except Exception as e:
+            print(e)
+        else:
+            menu.status = task_status.done
+            menu._ctx = ctx
+            self.customer_menu(menu)
+            return
+
+        page = TaskPageDownload(task._url)
+
+        retry = self._retry
+
+        while retry > 0:
+
+            try:
+                ctx = page.parse_get(task._ctx)
+            except InvalidPageInfo:
+                retry -= 1
+                continue
+            except Exception as e:
+                print(e)
+            else:
+                page.status = task_status.done
+                page._ctx = ctx
+                self.customer_page(page)
+                return
+
+        print("Error for parsing ctx for {}".format(task))
 
 
-    def get_consumer(self, task):
-        return {"page": self.consume_page,
-                "menu": self.consume_menu
-               }.get(task, self.consume_default)
+    def _customer(self, task):
+        return {
+                TaskPageDownload.__name__ : self.customer_page,
+                TaskMenuDownload.__name__ : self.customer_menu,
+                TaskUrlDownload.__name__  : self.customer_url,
+               }.get(task, self.customer_default)
 
 
     def run(self):
@@ -251,8 +286,7 @@ class taskpool2:
                 time.sleep(0.5)
 
             else:
-                consumer = self.get_consumer(task.task)
-                consumer(task)
+                self._customer(task.__class__.__name__)(task)
 
     def _task_run(self, task, retry):
         # do run task 
@@ -330,8 +364,10 @@ class taskpool2:
 if __name__ == '__main__':
 
     url = 'http://www.quanben5.com/n/jiuzhuanhunchunjue/27339.html'
+    url = 'http://www.quanben5.com/n/jiuzhuanhunchunjue/27487.html'
+    url = 'http://www.quanben5.com/n/chaonengaoshouzaidushi/xiaoshuo.html'
 
     with open("/tmp/tmp.txt", "a+") as fp:
         tp = taskpool2(num=10, output=fp)
-        tp.add_task(TaskPageDownload(url))
+        tp.add_task(TaskUrlDownload(url))
         tp.run()

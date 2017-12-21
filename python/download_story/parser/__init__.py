@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
 from urllib.parse import urlparse
 import parser.quanben as quanben
+import parser.qb5 as qb5
 import sys
 
 __all__ = ['get_parser']
 
 parser_info = {
-    quanben.Quanben._url_path : quanben
+    quanben.Quanben._url_path : quanben,
+    qb5.Qb5._url_path : qb5
 }
 
 def get_parser(url):

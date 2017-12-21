@@ -113,7 +113,7 @@ class PageDownload(Quanben):
         try:
             info["title"] = self._do_get_data('<h1 class="title1">', '</h1>')
         except ValueError:
-            raise TitleNotFound()
+            raise TitleNotFound("title not found")
 
 
     def _get_content(self, info):
@@ -125,7 +125,7 @@ class PageDownload(Quanben):
             self._info["content"] = re.sub("<[^>]*>", "", val)
 
         except ValueError:
-            raise PageContentNotFound()
+            raise PageContentNotFound("page content not found")
 
     def _get_script(self, info):
         import time

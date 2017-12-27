@@ -17,8 +17,8 @@ def separate_func(func):
 def timeit(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        print()
-        print()
+        print("")
+        print("")
         print("------------------------------------------------------")
         print("-----------{:^30}-------------".format(func.__name__))
         s = time.time()

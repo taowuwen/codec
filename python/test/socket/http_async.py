@@ -18,12 +18,11 @@ HttpStatus = enum.Enum(
 
 HttpResponseStatus = enum.Enum(
     value = "HttpResponseStatus",
-    names = ("statuscode headerinfo bodyinfo done")
+    names = ("statuscode headerinfo bodyinfo bodyinfo_lv done")
 )
 
 class InvalidHttpResponse(socket.error):
     pass
-
 
 
 def errno_from_exception(e):
@@ -34,7 +33,6 @@ def errno_from_exception(e):
         return e.args[0]
     else:
         return None
-
 
 
 class HttpRequest:
@@ -101,76 +99,104 @@ class HttpRequest:
 class HttpResponse:
     def __init__(self):
         self._info = {}
-        self._data = None
+        self._data = b''
         self._status_code = 0
         self._version = None
         self._st = HttpResponseStatus.statuscode
         self._ctx = b''
         self._content_length = 0
-        self._received = 0
 
     def add_header(self, key, value):
         self._header[key] = value
 
+    def get_next_content(self):
+        sep = b'\r\n'
+
+        ctx = self._ctx
+
+        pos = ctx.find(sep)
+        if pos == -1:
+            raise InvalidHttpResponse('Http Content invalid')
+
+        line = ctx[:pos]
+        ctx = ctx[pos + len(sep):]
+
+        try:
+            _l = int(line, 16)
+
+        except Exception as e:
+            raise InvalidHttpResponse('http Content invalid')
+
+        else:
+            print("next content length {}".format(_l))
+
+            if _l <= len(ctx):
+                _d = ctx[:_l]
+                self._ctx = ctx[_l + len(sep):]
+
+                if _l == 0:
+                    self._st = HttpResponseStatus.done
+                    print('Http Received Finished....LV')
+                return _d
+
+        return None
+
+    def handle_body(self):
+
+        if self._st is HttpResponseStatus.bodyinfo:
+
+            self._data += self._ctx
+            self._ctx = b''
+
+            if len(self._data) >= self._content_length:
+                self._st = HttpResponseStatus.done
+                print('Http Received Finished')
+        else:
+            assert self._st is HttpResponseStatus.bodyinfo_lv
+
+            while len(self._ctx) >= 2:
+
+                _d = self.get_next_content()
+
+                if _d:
+                    self._data += _d
+
+                else:
+                    break
+
+                if self._st is HttpResponseStatus.done:
+                    break
+
+
     def handle_rsp(self):
 
         sep = b'\r\n'
+        if self._st in (HttpResponseStatus.bodyinfo,
+                        HttpResponseStatus.bodyinfo_lv):
 
-        if self._st == HttpResponseStatus.bodyinfo:
-            if len(self._ctx) >= self._content_length:
-                self._st = HttpResponseStatus.done
-                print('Http Received Finished --- 1')
-            return 0
+            return self.handle_body()
 
 
         while self._st != HttpResponseStatus.bodyinfo:
 
             pos = self._ctx.find(sep)
-
             line = self._ctx[:pos]
             self._ctx = self._ctx[pos + len(sep):]
 
             if pos == 0:
+
+                assert self._st == HttpResponseStatus.headerinfo
+
                 if self._st != HttpResponseStatus.headerinfo:
                     raise InvalidHttpResponse('Invalid Http Response Info')
 
-                self._st = HttpResponseStatus.bodyinfo
+                self._st = HttpResponseStatus.bodyinfo_lv
 
                 if 'Content-Length' in self._info:
                     self._content_length = int(self._info['Content-Length'])
+                    self._st = HttpResponseStatus.bodyinfo
 
-                    print('Content length = {}, current length: {}'.format(self._content_length, len(self._ctx)))
-
-                    if len(self._ctx) >= self._content_length:
-                        self._st = HttpResponseStatus.done
-                        print('Http Received Finished --- 0')
-                        return 0
-
-                else:
-                    raise InvalidHttpResponse('We are not support http response without Content-Length for now')
-
-                    while True:
-
-                        if len(self._ctx) > 0:
-                            pos = self._ctx.find(sep)
-                            
-                            if pos <= 0:
-                                raise InvalidHttpResponse('Http Content-Length did not supply')
-
-                            line = self._ctx[:pos]
-
-                            self._ctx = self._ctx[pos + len(sep):]
-
-                            _l = int(line, 16)
-                            if _l == 0:
-                                print('Http Received Finished....2')
-                                break
-
-                            self._content_length += _l
-                            if self._content_length >= len(self._ctx):
-                                self._received = self._content_length - len(self._ctx)
-                                break
-                return 0
+                return self.handle_body()
 
             line = line.decode('utf-8')
 
@@ -196,13 +222,11 @@ class HttpResponse:
 
                 self._info[_k] = _v
 
-
-
     def recv(self, sock):
 
         while True:
-            _data = sock.recv(1024)
-            self._ctx += _data
+            _d = sock.recv(1024)
+            self._ctx += _d
             self.handle_rsp()
 
             if self._st is HttpResponseStatus.done:
@@ -376,7 +400,7 @@ class HttpDownloader:
 
     @property
     def body(self):
-        return self._rsp._ctx
+        return self._rsp._data
 
     @property
     def info(self):
@@ -401,10 +425,10 @@ if __name__ == '__main__':
     print(jobj)
     print(jobj['status'])
 
-    del http
-
-    url='http://www.quanben5.com/n/wodemeinvzongcailaopo/66454.html'
-    http = HttpDownloader(url)
-    http.run()
-    print(http.info)
-    print(http.body.decode())
+#   del http
+#
+#   url='http://www.quanben5.com/n/wodemeinvzongcailaopo/66454.html'
+#   http = HttpDownloader(url)
+#   http.run()
+#   print(http.info)
+#   print(http.body.decode())

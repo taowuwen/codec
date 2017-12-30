@@ -180,6 +180,9 @@ class HttpResponse:
         while self._st != HttpResponseStatus.bodyinfo:
 
             pos = self._ctx.find(sep)
+            if pos == -1:
+                raise InvalidHttpResponse('Http Content invalid' + self._ctx.decode())
+
             line = self._ctx[:pos]
             self._ctx = self._ctx[pos + len(sep):]
 
@@ -226,11 +229,15 @@ class HttpResponse:
 
         while True:
             _d = sock.recv(1024)
-            self._ctx += _d
-            self.handle_rsp()
+            if _d:
+                self._ctx += _d
+                self.handle_rsp()
 
-            if self._st is HttpResponseStatus.done:
-                break
+                if self._st is HttpResponseStatus.done:
+                    break
+
+            else:
+                raise InvalidHttpResponse('Connection down {}'.format(sock))
 
 
 class HttpDownloader:
@@ -409,7 +416,10 @@ class HttpDownloader:
 if __name__ == '__main__':
     print('hello, test http download')
 
-    url ='http://restapi.amap.com/v3/weather/weatherInfo?city=110101&key=2383d460b0c9def51819247bdaa18c41'
+    #510100
+    citycode=510100
+    url ='http://restapi.amap.com/v3/weather/weatherInfo?city={city}&key=2383d460b0c9def51819247bdaa18c41'.format(city=citycode)
+#    url = 'http://www.baidu.com'
 
     http = HttpDownloader(url)
 

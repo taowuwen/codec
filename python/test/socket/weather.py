@@ -1,44 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import socket
 import sys
-import binascii
+import json
+from http_async import HttpDownloader
+from http_async import InvalidHttpResponse
+
+import argparse
 
 
-REQUEST = '''GET /v3/weather/weatherInfo?city={city}&key={key}&extensions=all HTTP/1.1\r
-Host: {host}\r
-User-Agent: Mozilla/5.0 Firefox/45.0\r
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r
-Accept-Encoding: gizp, deflate\r
-Cache-Control: no-cache\r
-\r
-'''
-
-# http://restapi.amap.com/v3/weather/weatherInfo?city=110101&key=<用户key>
-
-KEY = u'2383d460b0c9def51819247bdaa18c41'
-HOST = u"restapi.amap.com"
-CITY = u"110101"
+CITY_CODE=510100    # chengdu
+KEY_SECRECT="2383d460b0c9def51819247bdaa18c41"
+URL='http://restapi.amap.com/v3/weather/weatherInfo?city={city}&key={key}'
 
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-try:
-    s.connect((HOST, 80))
-    request = REQUEST.format(host=HOST, city=CITY, key=KEY)
-    print(request)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="this is my argparse test")
 
-    s.sendall(request.encode('utf-8'))
+    parser.add_argument('-k', '--key', action='store', dest='key', default=KEY_SECRECT)
+    parser.add_argument('-c', '--citycode', action='store', dest='city', default=CITY_CODE)
 
-    while True:
-        chunk = s.recv(1024)
+    argument = parser.parse_args()
 
-        if chunk:
-            print('{}'.format(chunk.decode('utf-8')))
-        else:
-            break
+    http = HttpDownloader(URL.format(city=argument.city, key=argument.key))
 
-except socket.error as msg:
-    print(msg)
-finally:
-    s.close()
+    http.run()
+
+    if http.body:
+        body = http.body.decode()
+        jobj = json.loads(body)
+
+        print(jobj)
+
+
+

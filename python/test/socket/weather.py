@@ -30,6 +30,7 @@ if __name__ == '__main__':
         body = http.body.decode()
         jobj = json.loads(body)
 
+        print(json.dumps(jobj, separators=(',', ':'), sort_keys=True, indent=8))
         print(jobj)
 
 

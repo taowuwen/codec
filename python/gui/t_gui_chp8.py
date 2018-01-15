@@ -8,6 +8,7 @@ import tkinter.messagebox as msgbox
 from tkinter.filedialog import askopenfilename
 from tkinter.colorchooser import askcolor
 from tkinter.simpledialog import askfloat
+import glob
 
 
 class HelloButton(tkinter.Button):
@@ -514,9 +515,10 @@ from PIL import Image
 from PIL.ImageTk import PhotoImage
 
 
-image_root=u'/home/tww/Downloads'
+image_root=u'/home/tww/Pictures'
 
-image_fl=image_root + u'/cat/cat_a1.gif'
+class NoPictureInDirectory(Exception): pass
+
 
 class TestPhotoImage:
 
@@ -532,22 +534,31 @@ class TestPhotoImage:
         self.test_1()
 
     def test_1(self):
+        self.pictures = glob.glob(os.path.join(image_root, u'*.jpg'))
+        self._cur = 0
 
-        #img = tkinter.PhotoImage(file=image_fl)
-        img = PhotoImage(file='/home/tww/Pictures/9.jpg')
+        if len(self.pictures) <= 0:
+            raise NoPictureInDirectory(image_root)
+
+        self.img = PhotoImage(file=self.pictures[self._cur%len(self.pictures)])
+        self.btn = tkinter.Button(self.top, image=self.img, command=self.next_picture)
+        self.btn.pack()
 
         #label = tkinter.Label(self.top, image=img)
         #label.image = img
         #label.pack()
 
-        #btn = tkinter.Button(self.top, image=img)
-        #btn.image = img
-        #btn.pack()
+#	can = tkinter.Canvas(self.top)
+#	can.pack(fill=tkinter.BOTH)
+#       can.create_image(2, 2, image=img, anchor=tkinter.NW)
+#       can.image=img
 
-        can = tkinter.Canvas(self.top)
-        can.pack(fill=tkinter.BOTH)
-        can.create_image(2, 2, image=img, anchor=tkinter.NW)
-        can.image=img
+    def next_picture(self):
+        self._cur += 1
+
+        self.img = PhotoImage(file=self.pictures[self._cur%len(self.pictures)])
+        self.btn.config(image=self.img)
+
 
 
 if __name__ == '__main__':
@@ -575,7 +586,7 @@ if __name__ == '__main__':
 #    TestRadiobutton(root)
 #    TestScale(root)
     TestPhotoImage(root)
-    HelloButton(root, text='QUIT').pack(fill=tkinter.X)
+    HelloButton(root, text='QUIT').pack(expand=tkinter.NO, fill=tkinter.X)
 
     root.mainloop()
 

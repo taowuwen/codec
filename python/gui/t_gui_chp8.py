@@ -508,6 +508,47 @@ class TestScale:
         print(self.var.get())
 
 
+#from tkinter import PhotoImage
+
+from PIL import Image
+from PIL.ImageTk import PhotoImage
+
+
+image_root=u'/home/tww/Downloads'
+
+image_fl=image_root + u'/cat/cat_a1.gif'
+
+class TestPhotoImage:
+
+    def __init__(self, top=None):
+
+        self.top = top
+
+        frame = tkinter.Frame(self.top)
+        frame.pack(expand=tkinter.YES, fill=tkinter.BOTH)
+
+        self.top=frame
+
+        self.test_1()
+
+    def test_1(self):
+
+        #img = tkinter.PhotoImage(file=image_fl)
+        img = PhotoImage(file='/home/tww/Pictures/9.jpg')
+
+        #label = tkinter.Label(self.top, image=img)
+        #label.image = img
+        #label.pack()
+
+        #btn = tkinter.Button(self.top, image=img)
+        #btn.image = img
+        #btn.pack()
+
+        can = tkinter.Canvas(self.top)
+        can.pack(fill=tkinter.BOTH)
+        can.create_image(2, 2, image=img, anchor=tkinter.NW)
+        can.image=img
+
 
 if __name__ == '__main__':
     print('hello, test for chp8')
@@ -532,7 +573,8 @@ if __name__ == '__main__':
 #    HelloButton(root, text='ASK', command=lambda: ask_v1(root)).pack(fill=tkinter.X)
 #    TestCheckbutton(root)
 #    TestRadiobutton(root)
-    TestScale(root)
+#    TestScale(root)
+    TestPhotoImage(root)
     HelloButton(root, text='QUIT').pack(fill=tkinter.X)
 
     root.mainloop()

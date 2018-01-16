@@ -74,5 +74,15 @@ if __name__ == '__main__':
 
     root.bind('m', menu_visible)
 
+    import os
+    def content_show(event):
+        txt = st.gettext().split(os.linesep)
+        print(type(txt), txt)
+
+        for l in txt:
+            print(l)
+
+    root.bind('<Key-Escape>', content_show)
+
     root.mainloop()
 

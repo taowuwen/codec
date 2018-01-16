@@ -10,37 +10,42 @@ from context import Context
 
 class Chapter:
 
-    def __init__(self, text='', file=None):
+    def __init__(self, text='', file=None, lines=None):
 
         self.chapter = []
-        self.update_chapter(text, file)
+        self.update_chapter(text, file=file, lines=lines)
         self._cur = 0
 
-    def update_chapter(self, text='', file=None):
+    def reset(self):
+        del self.chapter[:]
+        self._cur = 0
+
+    def update_chapter(self, text='', file=None, lines=None):
 
         if file:
-            return self.load_file(file)
+            with open(file, 'r') as f:
+                self.load_file(f)
+        elif lines:
+            self.load_file(lines)
         else:
             ctx = Context()
             ctx.update(text)
             self.chapter.append((u"Unknown", ctx))
 
-    def load_file(self, file):
+    def load_file(self, lines):
 
         re_chpater = re.compile(u'^第.*章.*$', re.UNICODE)
 
         ctx = Context()
         self.chapter.append((u"Unknown", ctx))
 
-        with open(file, 'r') as f:
+        for l in lines:
 
-            for l in f:
-
-                if re_chpater.search(l):
-                    ctx = Context()
-                    self.chapter.append((l, ctx))
-                else:
-                    ctx.update(l)
+            if re_chpater.search(l):
+                ctx = Context()
+                self.chapter.append((l, ctx))
+            else:
+                ctx.update(l)
 
 
     @property
@@ -53,24 +58,40 @@ class Chapter:
 
     @property
     def total(self):
-
-        if not hasattr(self, '_total'):
-            self._total = sum([ var[1].total for var in self.chapter ])
-
-        return self._total
+        return sum([ var[1].total for var in self.chapter ])
 
     @property
     def current_chapter(self):
-        return self._cur
+
+        if self._cur >= self.total_chapter:
+            return self._cur, ""
+
+        return self._cur + 1, self.chapter[self._cur][0]
 
     @property
     def total_chapter(self):
         return len(self.chapter)
 
+    def next_chunk(self, chunksize=5):
+
+        if self._cur >= self.total_chapter:
+            return 0, None
+
+        ctx = self.chapter[self._cur]
+
+        n, data = ctx[1].next_chunk(chunksize)
+
+        if n > 0:
+            return n, data
+
+        self._cur += 1
+        return self.next_chunk(chunksize)
+
+
 
 if __name__ == '__main__':
 
-    chp = Chapter(text='hello, world', file=u'/home/tww/a.txt')
+    chp = Chapter(text='hello, world', file=u'/home/tww/b.txt')
 
     for ind, v in enumerate(chp.chapters):
         print("{} ==> {}".format(ind, v))
@@ -83,3 +104,11 @@ if __name__ == '__main__':
     print(chp.total)
     print(chp.current_chapter)
     print(chp.total_chapter)
+
+    while True:
+        n, data = chp.next_chunk(10)
+
+        print(n, data)
+
+        if n <= 0:
+            break

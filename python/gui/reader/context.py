@@ -19,13 +19,6 @@ class Context:
                 for ln in f:
                     self.update(ln.strip())
 
-    def _counting_line(self, ln):
-
-        for ch in ln:
-            print(self._total, ch)
-            if is_english(ch) or is_digits(ch) or is_chinese(ch):
-                self._total += 1
-
     def update(self, ln):
             l = Line(ln)
 
@@ -81,7 +74,7 @@ class Context:
 
 if __name__ == '__main__':
 
-    ctx = Context("/home/tww/stories/tmp.txt")
+    ctx = Context("/home/tww/b.txt")
 #    ctx = Context()
 
 #    ctx.update('hello, world, 是我了啦')

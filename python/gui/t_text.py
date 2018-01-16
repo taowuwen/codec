@@ -56,7 +56,10 @@ if __name__ == '__main__':
 
 
     def show(event):
-        print(repr(st.gettext()))
+        txt = st.gettext()
+        for l in txt:
+            print(l)
+        #print(repr(st.gettext()))
 
     root.bind('<Key-Escape>', show)
     root.mainloop()

@@ -155,8 +155,29 @@ class App:
         if fl:
             self.scroll_text.settext(file=fl)
 
+    def make_setting_widgets(self, top):
+
+        tkinter.Label(top, text='Hello, not yet Implemented').pack(fill=tkinter.X)
+        tkinter.Entry(top, text='Input something').pack(fill=tkinter.X)
+
+
+
+
     def setting(self):
-        pass
+
+        win = tkinter.Toplevel(self.top)
+        win.geometry('500x300')
+        win.title('setting...')
+
+        frame = tkinter.Frame(win)
+        frame.pack(expand=tkinter.YES, fill=tkinter.BOTH)
+        self.make_setting_widgets(frame)
+
+        tkinter.Button(win, text='OK', command=win.destroy).pack(side=tkinter.BOTTOM)
+
+        win.focus_set()
+        win.grab_set()
+        win.wait_window()
 
     def command_cb(self, menu):
         menu.add_command(label='import file', command=self.import_file)

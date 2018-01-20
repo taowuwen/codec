@@ -148,11 +148,11 @@ class FastReading(tkinter.Frame):
         self._event_cb(inspect.currentframe().f_code.co_name)
 
     def _chunk_size_plus(self, event):
-        self._chunk_size += 1
+        self.chunk += 1
         self._event_cb(inspect.currentframe().f_code.co_name)
 
     def _chunk_size_minus(self, event):
-        self._chunk_size -= 1
+        self.chunk -= 1
         self._event_cb(inspect.currentframe().f_code.co_name)
 
     def start(self):
@@ -172,6 +172,7 @@ class FastReading(tkinter.Frame):
             if self._after_id:
                 self.after_cancel(self._after_id)
 
+            self.update_content()
             self._after_id = self.after(self.timeout, self.update_content)
 
     def _do_run(self, event):

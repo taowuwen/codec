@@ -5,6 +5,7 @@ import tkinter
 import sys
 import os
 import time
+import inspect
 
 
 # first page
@@ -121,17 +122,38 @@ class FastReading(tkinter.Frame):
 
         self.var.set(u'Hello, FastReading is here')
 
+        self._font_size = 40
         self._chunk_size = 5
         self._speed = 1500
         self._run   = False
         self._after_id = None
         self._event_cb = event_cb
 
+    def _font_larger(self, event):
+        self._font_size += 1
+        self.label.config(font = ('DejaVu Sans Mono', self._font_size, 'bold'))
+        self._event_cb(inspect.currentframe().f_code.co_name)
+
+    def _font_smaller(self, event):
+        self._font_size -= 1
+        self.label.config(font = ('DejaVu Sans Mono', self._font_size, 'bold'))
+        self._event_cb(inspect.currentframe().f_code.co_name)
+
     def _speed_up(self, event):
         self.speed += 10
+        self._event_cb(inspect.currentframe().f_code.co_name)
 
     def _speed_down(self, event):
         self.speed -= 10
+        self._event_cb(inspect.currentframe().f_code.co_name)
+
+    def _chunk_size_plus(self, event):
+        self._chunk_size += 1
+        self._event_cb(inspect.currentframe().f_code.co_name)
+
+    def _chunk_size_minus(self, event):
+        self._chunk_size -= 1
+        self._event_cb(inspect.currentframe().f_code.co_name)
 
     def start(self):
         self._run = True
@@ -207,6 +229,19 @@ class FastReading(tkinter.Frame):
             self._speed = 10
 
         self._timeout()
+
+    @property
+    def font_size(self):
+        return self._font_size
+
+    @font_size.setter
+    def font_size(self, v):
+        self._font_size = v
+
+        if self._font_size <= 10:
+            self._font_size = 10
+
+        self.label.config(font = ('DejaVu Sans Mono', self._font_size, 'bold'))
 
     @property
     def run(self):

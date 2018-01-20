@@ -121,8 +121,8 @@ class FastReading(tkinter.Frame):
 
         self.var.set(u'Hello, FastReading is here')
 
-        self._chunk_size = 10
-        self._speed = 1000
+        self._chunk_size = 5
+        self._speed = 1500
         self._run   = False
         self._after_id = None
         self._event_cb = event_cb

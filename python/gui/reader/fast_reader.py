@@ -165,14 +165,14 @@ class FastReading(tkinter.Frame):
         if self._after_id:
             self.after_cancel(self._after_id)
 
-    def _timeout(self):
+    def _timeout(self, next_time=True):
         self.timeout = int(60000 * self._chunk_size / self._speed)
 
         if self._run:
             if self._after_id:
                 self.after_cancel(self._after_id)
 
-            self.update_content()
+            if not next_time: self.update_content()
             self._after_id = self.after(self.timeout, self.update_content)
 
     def _do_run(self, event):
@@ -216,7 +216,7 @@ class FastReading(tkinter.Frame):
         if self._chunk_size <= 1:
             self._chunk_size = 1
 
-        self._timeout()
+        self._timeout(False)
 
     @property
     def speed(self):

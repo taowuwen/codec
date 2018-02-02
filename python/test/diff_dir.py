@@ -51,13 +51,15 @@ class FileNode:
     def __str__(self):
 
         smb = {
-                CompareResult.new: '+',
-                CompareResult.missing: '-',
+                CompareResult.new: '\033[01;32m+',
+                CompareResult.missing: '\033[00;31m-',
                 CompareResult.equal: '=',
-                CompareResult.diff: 'X'
+                CompareResult.diff: '\033[01;31mX'
             }
 
-        return "{} {}".format(smb.get(self._st, 'X'), self._name)
+       # [\033[01;32m\] \[033[00m\]
+
+        return "{} {}\033[00m".format(smb.get(self._st, 'X'), self._name)
 
     def __iter__(self):
         self._cur = iter(self._child)
@@ -92,18 +94,18 @@ class DirectoryContainer:
 
         for item in os.listdir(path):
 
-            filetype = get_file_type("{}/{}".format(path, item))
+            filetype = get_file_type("{}{}{}".format(path, os.sep, item))
 
             key = item
 
             if filetype is FileType.directory:
-                key += "/"
+                key += os.sep
 
             parent[key] = FileNode(item, parent=parent, filetype=filetype)
 
         for key, node in parent.items():
             if node._type is FileType.directory:
-                self.update(node, "{}/{}".format(path, node._name))
+                self.update(node, "{}{}{}".format(path, os.sep, node._name))
 
 
     def load(self, path='.'):
@@ -125,7 +127,7 @@ class DirectoryContainer:
 
             key = node._name
             if node._type is FileType.directory:
-                key += "/"
+                key += os.sep
 
             n_root[key] = FileNode(node._name, 
                                    parent = n_root,
@@ -189,20 +191,23 @@ class DirectoryContainer:
 
     def _dir_node_str(self, node, deepth=1, sep='\t'):
 
-        _str = os.linesep + (deepth-1)*sep + '[' + os.linesep
+        _str = os.linesep + (deepth-1)*sep + '|--> [' + os.linesep
 
-        for _k, _n in node.items():
+        def _local_func(a):
+            print(a)
 
-            _str += deepth*sep + " "
+        for _k, _n in sorted(node.items(), key=(lambda a: a[1]._type.value)):
+
+            _str += deepth*sep + "|--> "
             _str += str(_n)
 
             if _n._type is FileType.directory:
-                _str += "/"
+                _str += os.sep
                 _str += "{}".format(self._dir_node_str(_n, deepth + 1))
 
             _str += os.linesep
 
-        _str += (deepth-1) * sep + ']'
+        _str += (deepth-1) * sep + '|--> ]'
 
         return _str
 

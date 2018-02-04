@@ -27,6 +27,13 @@ class FileNode:
         self._st     = st
         self._name   = name
 
+#    def __len__(self):
+#        return len(self._child)
+    
+    @property
+    def len(self):
+        return len(self._child)
+
     def __setitem__(self, key, value):
 
         assert self._type is FileType.directory, "current type should be directory"
@@ -191,10 +198,10 @@ class DirectoryContainer:
 
     def _dir_node_str(self, node, deepth=1, sep='\t'):
 
-        _str = os.linesep + (deepth-1)*sep + '|--> [' + os.linesep
+        if not node.len:
+            return ""
 
-        def _local_func(a):
-            print(a)
+        _str = os.linesep + (deepth-1)*sep + '|--> [' + os.linesep
 
         for _k, _n in sorted(node.items(), key=(lambda a: a[1]._type.value)):
 
@@ -251,8 +258,6 @@ if __name__ == '__main__':
 #        print(items[0])
 
     roots = [ item[0] for item in dirs.values() ]
-
-    print(len(roots))
 
     #print("comparing result: ")
     print(roots[0] - roots[1])

@@ -34,7 +34,7 @@ if '__main__' == __name__:
 
     if len(sys.argv) < 2:
         print(" {} url ".format(sys.argv[0]))
-        sys._exit(1)
+        sys.exit(1)
 
     print("hello, story downloader, by taowuwen")
 #    use_pool(*(sys.argv[1:]))

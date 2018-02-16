@@ -75,7 +75,7 @@ class PageDownload(Quanben):
             val = ctx.replace("</p>", "\n\n").replace("<p>", "    ")
             self._info["content"] = re.sub("<[^>]*>", "", val)
         else:
-            raise InvalidPageInfo("Invalid Page info")
+            raise InvalidPageInfo("Invalid Page info {}".format(ctx))
 
         return self._info
 
@@ -129,15 +129,18 @@ class PageDownload(Quanben):
 
     def _get_script(self, info):
         import time
+        from collections import OrderedDict
         try:
-            data = { "_type":"ajax", "rndval":round(time.time()*1000)}
+            data = OrderedDict()
+            data.update({ "_type":"ajax"})
 
             ajax = eval(self._do_get_data(
                     '<script type="text/javascript">ajax_post', 
                     '</script>'
                     ))
 
-            data.update(dict(zip(ajax[2::2], ajax[3::2])))
+            data.update(OrderedDict(zip(ajax[2::2], ajax[3::2])))
+            data.update({"rndval":round(time.time()*1000)})
 
             info["script_url"] = "/index.php?c={0}&a={1}".format(ajax[0], ajax[1])
             info["script_data"] = data
@@ -212,11 +215,12 @@ class URLDownload(url_download):
 
 def _main():
 
-#    page = PageDownload()
-#    page.http_get("/n/jiuzhuanhunchunjue/27535.html")
+    url='/n/doupocangqiong/60.html'
+    page = PageDownload()
+    page.http_get(url)
 #   page.http_post("http://localhost:8000/cgi-bin/hello.py", {"foo":"bar"})
-    menu = MenuDownload()
-    menu.http_get('/n/jiuzhuanhunchunjue/xiaoshuo.html')
+#    menu = MenuDownload()
+#    menu.http_get('/n/jiuzhuanhunchunjue/xiaoshuo.html')
 #   book = BookInfoDownload()
 #   book.http_get('n/jiuzhuanhunchunjue/')
 

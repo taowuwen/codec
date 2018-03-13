@@ -247,7 +247,199 @@
 
 	<p> <a href="#top"> To TOP</a></p>
 
+	<hr/>
+
+	<h1> Images </h1>
+
+
+	<p> Images goes from here , img, src, alt, title</p>
+
+	<h2> img </h2>
+	<img src="images/121926.jpg" alt="picutes show up here" title="this is the description for image" />
+
+	<h2> img height and width control </h2>
+	<p> 
+		absolute length: 
+	<img src="images/121926.jpg" alt="picutes show up here" title="this is the description for image" width=500 height=300 />
+	</p>
+	<p>
+		relative length:
+	<img src="images/121926.jpg" alt="picutes show up here" title="this is the description for image" width=50% height=50%/>
+	</p>
+
+	<p>
+		relative length and align left:
+	<img src="images/121926.jpg" alt="picutes show up here" title="this is the description for image" width=50% height=50% align="left" />
+	</p>
+
+	<p>
+		relative length and align right:
+	<img src="images/121926.jpg" alt="picutes show up here" title="this is the description for image" width=50% height=50% align="right" />
+	</p>
+
+	<p>
+		relative length and align top:
+	<img src="images/121926.jpg" alt="picutes show up here" title="this is the description for image" width=50% height=50% align="top" />
+	</p>
+
+	<p>
+		relative length and align middle:
+	<img src="images/121926.jpg" alt="picutes show up here" title="this is the description for image" width=50% height=50% align="middle" />
+	</p>
+
+	<p>
+		relative length and align bottom:
+	<img src="images/121926.jpg" alt="picutes show up here" title="this is the description for image" width=50% height=50% align="bottom" />
+	</p>
+
+	<h2> figure and figure caption </h2>
+
+	<figure>
+		<img src="images/121926.jpg" alt="picutes show up here" title="this is the description for image" width=50% height=50% />
+		<br/>
+		<figurecaption>
+		this is the description for figurecaption
+		</figurecaption>
+
+	</figure>
+
+	<hr/>
+
+	<h1> tables </h1>
+	<h2> basic table structure </h2>
+	<table>
+		<tr> 
+			<th scope="col"> </th>
+			<th scope="col"> num2 </th>
+			<th scope="col"> num3 </th>
+		</tr>
+		<tr> 
+			<td scope="row"> 1 </td>
+			<td> 2 </td>
+			<td> 3 </td>
+		</tr>
+		<tr> 
+			<td scope="row"> 4 </td>
+			<td> 5 </td>
+			<td> 6 </td>
+		</tr>
+		<tr> 
+			<td scope="row"> 7 </td>
+			<td> 8 </td>
+			<td> 9 </td>
+		</tr>
+	</table>
+
+	<h2> spanning colums </h2>
+	<table>
+		<tr> 
+			<th scope="col"> </th>
+			<th scope="col"> num2 </th>
+			<th scope="col"> num3 </th>
+			<th scope="col"> num4 </th>
+			<th scope="col"> num5 </th>
+			<th scope="col"> num6 </th>
+		</tr>
+		<tr> 
+			<td scope="row"> 1 </td>
+			<td colspan=4> 2 </td>
+			<td> 3 </td>
+		</tr>
+		<tr> 
+			<td scope="row"> 4 </td>
+			<td colspan=3> 5 </td>
+			<td colspan=2> 6 </td>
+		</tr>
+		<tr> 
+			<td scope="row"> 7 </td>
+			<td> 8 </td>
+			<td colspan=1> 9 </td>
+		</tr>
+	</table>
+
+	<h2> spanning rows </h2>
+	<table>
+		<tr> 
+			<th scope="col"> </th>
+			<th scope="col"> num2 </th>
+			<th scope="col"> num3 </th>
+			<th scope="col"> num4 </th>
+			<th scope="col"> num5 </th>
+			<th scope="col"> num6 </th>
+		</tr>
+		<tr> 
+			<td scope="row"> 1 </td>
+			<td rowspan=2> 2 </td>
+			<td> 3 </td>
+		</tr>
+		<tr> 
+			<td scope="row"> 4 </td>
+			<td colspan=2> 6 </td>
+		</tr>
+		<tr> 
+			<td scope="row"> 7 </td>
+			<td> 8 </td>
+			<td colspan=1> 9 </td>
+		</tr>
+	</table>
+
+	<h2> long tables </h2>
+	<table>
+		<thead>
+			<tr>
+				<th>Date</th>
+				<th>Income</th>
+				<th>Expenditure</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<th> 1st January</th>
+				<td> 250</td>
+				<td> 36</td>
+			</tr>
+			<tr>
+				<th> 2nd January</th>
+				<td> 251</td>
+				<td> 37</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td> </td>
+				<td> aaa </td>
+				<td> bbb </td>
+			</tr>
+		</tfoot>
+	</table>
+
+	<h2> width and space  and border and bgcolor</h2>
+	<table width=400 cellpadding=10 cellspacing=5 border=1 bgcolor="#bbaacc">
+		<tr> 
+			<th scope="col" width=150> </th>
+			<th scope="col"> num2 </th>
+			<th scope="col" bgcolor="#ccbbaa"> num3 </th>
+		</tr>
+		<tr> 
+			<td scope="row"> 1 </td>
+			<td> 2 </td>
+			<td> 3 </td>
+		</tr>
+		<tr> 
+			<td scope="row"> 4 </td>
+			<td> 5 </td>
+			<td> 6 </td>
+		</tr>
+		<tr> 
+			<td scope="row"> 7 </td>
+			<td> 8 </td>
+			<td> 9 </td>
+		</tr>
+	</table>
+
+	<hr/>
 	<h1 id="the_end"></h1>
 	<a href="#the_top">Top</a> <br/>
+
 </body>
 </html>

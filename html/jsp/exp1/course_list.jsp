@@ -3,25 +3,24 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Insert title here</title>
+	<title>课程信息列表</title>
 </head>
 
 <body>
 
-<table border="1">
-
-<%
-int i = 1;
-int j = 1;
-
-for (i = 1; i <= 9; i++) {
-	out.println("<tr>");
-	for (j = 1; j <= i; j++) {
-		out.println("<td>" + i + "*" + j + "=" + (i*j) + "</td>");
-	}
-	out.println("<br/></tr>");
-}
-%>
+<table width=100%>
+	<tr> 
+		<th col=span=7> 课程信息列表 </th>
+	</tr>
+	<tr> 
+		<th>名称</th>
+		<th>性质</th>
+		<th>学分</th>
+		<th>开设年级</th>
+		<th>开设专业</th>
+		<th></th>
+		<th></th>
+	</tr>
 
 </table>
 

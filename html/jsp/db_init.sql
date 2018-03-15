@@ -28,8 +28,6 @@ insert into t_course(name, type, credit, grade,major) values('JSP程序设计', 
 insert into t_course(name, type, credit, grade,major) values('OS', 5, 2, 2016, 1);
 insert into t_course(name, type, credit, grade,major) values('Data Struct', 5, 2, 2016, 2);
 
-
-
 insert into t_score(stu_id, course_id, score) values(1, 1, 85);
 insert into t_score(stu_id, course_id, score) values(1, 2, 90);
 insert into t_score(stu_id, course_id, score) values(3, 3, 95);

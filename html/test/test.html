@@ -503,7 +503,7 @@ function check(){
 	frm.submit();
 }
 	</script>
-	<form id="my_form" action="course_add.html">
+	<form id="my_form" action="course_add.html" method="POST">
 	<table width="600" align="center" border=1>
 		<tr> <td colspan=2>课程信息录入, *为必填选项 </td>
 		</tr>
@@ -540,6 +540,33 @@ function check(){
 				<textarea name="textarea"  cols="40"></textarea>200个字以内
 			</td>
 		</tr>
+
+		<tr> 
+			<td width=100> Checkbox </td>
+			<td> 
+				<input type="checkbox" name="service" value="itunes" checked="checked" />iTunes
+				<input type="checkbox" name="service" value="lastfm" />Last.fm
+				<input type="checkbox" name="service" value="spotify" />Spotify
+			</td>
+		</tr>
+
+		<tr> 
+			<td width=100> select multiple </td>
+			<td>
+				<select name="instruments" size="3" multiple="multiple"> 
+					<option value="guitar" selected="selected">Guitar</option>
+					<option value="drums" >Drums</option>
+					<option value="keyboard" >Keyboard</option>
+					<option value="bass" >Bass</option>
+				</select>
+			</td>
+		</tr>
+
+		<tr> 
+			<td width=100> file upload </td>
+			<td> <input type="file" name="user-song" /> <br/> </td>
+		</tr>
+
 		<tr align="center">
 			<td colspan=2> <button type="button" onClick="javascript:check()">提交</button> </td>
 		</tr>

@@ -4,11 +4,12 @@ package exp3;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.lang.*;
 
 public class DBConnection {
-	private Connection con = null;
+	private static Connection con = null;
 
-	public static Connection getConnection() {
+	public static Connection getConnection() throws Exception {
 		if (con != null)
 			return con;
 
@@ -28,7 +29,7 @@ public class DBConnection {
 		return con;
 	}
 
-	public static void closeConnection() {
+	public static void closeConnection() throws Exception {
 		if (con != null) {
 			con.close();
 			con = null;

@@ -9,16 +9,16 @@ public class UserDB {
 
 	private Connection con = null;
 
-	public UserInfo getUserByName(String name) {
+	public UserInfo getUserByName(String name) throws Exception {
 		System.out.println("getUserByName " + name );
 		UserInfo user = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 
 		try {
 			con = DBConnection.getConnection();
 
-			stmt = con.prepareStatment("select * from t_user where name=?");
-			stmp.setString(1, name);
+			stmt = con.prepareStatement("select * from t_user where name=?");
+			stmt.setString(1, name);
 
 			ResultSet res = stmt.executeQuery();
 

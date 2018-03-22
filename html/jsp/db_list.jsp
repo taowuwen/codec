@@ -18,7 +18,7 @@
 		Connection con = null;
 		String url = "jdbc:mysql://localhost:3306/db_student";
 		Class.forName("com.mysql.jdbc.Driver").newInstance();
-		con = DriverManager.getConnection(url, "root", "icedcoffee");
+		con = DriverManager.getConnection(url, "root", "123456");
 
 		if (!con.isClosed()) {
 			out.println("connect success");

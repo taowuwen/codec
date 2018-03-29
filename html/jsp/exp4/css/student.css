@@ -1,0 +1,62 @@
+.td8 {
+	BACKGROUND-COLOR: #f1fbf1; BORDER-BOTTOM: #a1a1a1 1pt solid
+}
+BODY {
+	COLOR: #000000; FONT-FAMILY: 宋体; FONT-SIZE: 9pt
+}
+TD {
+	FONT-FAMILY: 宋体; FONT-SIZE: 9pt; LINE-HEIGHT: 15pt
+}
+INPUT {
+	FONT-FAMILY: 宋体; FONT-SIZE: 9pt
+}
+.nav {
+	COLOR: #e51585; FONT-FAMILY: 宋体; FONT-SIZE: 9pt
+}
+A:link {
+	COLOR: #5b2222; TEXT-DECORATION: none
+}
+A:visited {
+	COLOR: #5b2222; TEXT-DECORATION: none
+}
+A:active {
+	TEXT-DECORATION: underline
+}
+A:hover {
+	TEXT-DECORATION: underline
+}
+.p6 {
+	FONT-SIZE: 18px; FONT-WEIGHT: bolder; LETTER-SPACING: 6pt
+}
+.td1 {
+	BACKGROUND-COLOR: #e6e6e6
+}
+.td_header {
+	BACKGROUND-COLOR: #e6e6e6; COLOR: #000000
+}
+.td_1 {
+	BACKGROUND-COLOR: #f8fbfb; COLOR: #000000
+}
+.td_2 {
+	BACKGROUND-COLOR: #deecec; COLOR: #000000
+}
+.td3 {
+	BACKGROUND-COLOR: #a3d1d2; COLOR: black
+}
+.underline {
+	BORDER-BOTTOM: #c4c4c4 1pt solid; BORDER-LEFT: #c4c4c4; BORDER-RIGHT: #c4c4c4; BORDER-TOP: #c4c4c4
+}
+.button {
+	border:1px solid black;
+	background-color:white;
+	cursor:hand;
+}
+.star {
+	COLOR: red
+}
+.tb_showall
+{
+background:#0078B7;	
+font-size: 18px;
+font-weight: bold;
+}

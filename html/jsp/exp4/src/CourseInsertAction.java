@@ -16,12 +16,21 @@ public class CourseInsertAction extends HttpServlet {
 		CourseInfo course = new CourseInfo();
 
 		String name = request.getParameter("name");
+		float credit = request.getParameter("credit");
 		int property = request.getParameter("property");
+		int major    = request.getParameter("major");
+		int grade    = request.getParameter("grade");
+		String detail = request.getParameter("detail");
 
 		course.setName(name);
+		course.setCredit(credit);
+		course.setType(property);
+		course.setMajor(major);
+		course.setDetail(detail);
+		course.setGrade(grade);
 
-
-
+		CourseDB db = new CourseDB();
+		db.insertCourseInfo(course);
 		response.sendRedirect(request.getContextPath() + MyTools.prefix_path() + "/course_list.jsp");
 	}
 

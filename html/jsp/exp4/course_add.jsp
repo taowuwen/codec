@@ -36,7 +36,7 @@ if (frm.grade.value.length != 4 || !IsInt(frm.grade.value)) {
 frm.submit();
 }
 </script>
-<form id="my_form" action="/CourseAddAction" method=POST>
+<form id="my_form" action="/CourseInsertAction" method=POST>
 <table width="600" align="center" border=1>
 	<tr> <td colspan=2>课程信息录入, *为必填选项 </td>
 	</tr>

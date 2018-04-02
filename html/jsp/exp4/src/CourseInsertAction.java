@@ -16,22 +16,27 @@ public class CourseInsertAction extends HttpServlet {
 		CourseInfo course = new CourseInfo();
 
 		String name = request.getParameter("name");
-		float credit = request.getParameter("credit");
-		int property = request.getParameter("property");
-		int major    = request.getParameter("major");
-		int grade    = request.getParameter("grade");
+		float credit = Float.parseFloat(request.getParameter("credit"));
+		int property = Integer.parseInt(request.getParameter("property"));
+		int major    = Integer.parseInt(request.getParameter("major"));
+		int grade    = Integer.parseInt(request.getParameter("grade"));
 		String detail = request.getParameter("detail");
 
-		course.setName(name);
+		course.setName(MyTools.toChinese(name));
 		course.setCredit(credit);
 		course.setType(property);
 		course.setMajor(major);
-		course.setDetail(detail);
+		course.setDetail(MyTools.toChinese(detail));
 		course.setGrade(grade);
 
 		CourseDB db = new CourseDB();
-		db.insertCourseInfo(course);
-		response.sendRedirect(request.getContextPath() + MyTools.prefix_path() + "/course_list.jsp");
+		try {
+			db.insertCourseInfo(course);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		response.sendRedirect(request.getContextPath() + "/CourseListAction");
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException {

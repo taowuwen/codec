@@ -66,7 +66,7 @@ public class CourseDB {
 			stmt.setFloat(3, course.getCredit());
 			stmt.setInt(4, course.getGrade());
 			stmt.setInt(5, course.getMajor());
-			stmt.setInt(6, course.getDetail());
+			stmt.setString(6, course.getDetail());
 
 			stmt.executeUpdate();
 
@@ -80,9 +80,6 @@ public class CourseDB {
 			con = null;
 		}
 
-		System.out.println("insert update: " + res);
-
 		return res;
-
 	}
 }

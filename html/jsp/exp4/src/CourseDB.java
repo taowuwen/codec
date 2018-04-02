@@ -12,18 +12,20 @@ public class CourseDB {
 	public ArrayList<CourseInfo> getAll() throws Exception {
 
 		CourseInfo course = null;
-		PreparedStatement stmt = null;
 
 		ArrayList <CourseInfo> course_list = new ArrayList<CourseInfo>();
 
 		try {
 			con = DBConnection.getConnection();
 
-			stmt = con.prepareStatement("select * from t_course");
-
-			ResultSet res = stmt.executeQuery();
+			String sql = "select * from t_course";
+			
+			PreparedStatement stmt = con.prepareStatement(sql);
+			//Statement stmt = con.createStatement();
+			ResultSet res = stmt.executeQuery(sql);
 
 			while (res.next()) {
+
 				course = new CourseInfo();
 
 				course.setID(res.getInt("id"));
@@ -32,10 +34,9 @@ public class CourseDB {
 				course.setCredit(res.getFloat("credit"));
 				course.setGrade(res.getInt("grade"));
 				course.setMajor(res.getInt("major"));
-				course.setDetail(res.getString("pass"));
+				course.setDetail(res.getString("detail"));
 
 				course_list.add(course);
-
 			}
 
 			res.close();

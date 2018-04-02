@@ -7,4 +7,8 @@ public class MyTools {
 	public static String change(String str) {
 		return str.replace("<", "&lt;").replace(">", "&gt;");
 	}
+
+	public static String prefix_path() {
+		return "/codec/jsp/exp4";
+	}
 }

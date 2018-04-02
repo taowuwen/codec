@@ -30,7 +30,7 @@ public class CourseInfo {
 		return this.credit;
 	}
 
-	public void setCredit(int credit) {
+	public void setCredit(float credit) {
 		this.credit = credit;
 	}
 

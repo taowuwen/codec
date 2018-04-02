@@ -1,4 +1,7 @@
 <%@page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
+<%@page import="exp4.*" %>
+<%@page import="java.util.*" %>
+<%@page import="java.io.*" %>
 
 <html>
 <head>
@@ -24,33 +27,29 @@
 	</tr>
 	</thead>
 	<tbody align="left">
-	<tr> 
-		<th align="left">Java程序设计</th>
-		<th>专业必修课</th>
-		<th>3</th>
-		<th>2015</th>
-		<th>软件工程</th>
-		<th align="right"><a href="course_edit.jsp">编辑</a></th>
-		<th align="left"><a href="course_del.jsp">删除</a></th>
-	</tr>
-	<tr> 
-		<th align="left">Web应用程序设计</th>
-		<th>专业必修课</th>
-		<th>3</th>
-		<th>2015</th>
-		<th>软件工程</th>
-		<th align="right"><a href="course_edit.jsp">编辑</a></th>
-		<th align="left"><a href="course_del.jsp">删除</a></th>
-	</tr>
-	<tr> 
-		<th align="left">Web应用程序设计</th>
-		<th>专业必修课</th>
-		<th>3</th>
-		<th>2015</th>
-		<th>软件工程</th>
-		<th align="right"><a href="course_edit.jsp">编辑</a></th>
-		<th align="left"><a href="course_del.jsp">删除</a></th>
-	</tr>
+	<%
+		ArrayList <CourseInfo> course_list = (ArrayList<CourseInfo>)session.getAttribute("CourseList");
+		CourseInfo info = null;
+
+		if (course_list != null) {
+			for (int i = 0; i < course_list.size(); i++) {
+				info = course_list.get(i);
+
+				String type = (info.getType() == 5)?"专业必修课":"公共课" ;
+				String major = (info.getMajor() == 1)?"软件工程":"通信工程";
+out.println("<tr> ");
+out.println("	<th align=\"left\">" +info.getName() + "</th>");
+out.println("	<th>" + type + "</th>");
+out.println("	<th>" + info.getCredit() + "</th>");
+out.println("	<th>" + info.getGrade() + "</th>");
+out.println("	<th>" + major + "</th>");
+out.println("	<th align=\"right\"><a href=\"course_edit.jsp\">编辑</a></th>");
+out.println("	<th align=\"left\"><a href=\"course_del.jsp\">删除</a></th>");
+out.println("</tr>");
+			}
+		} else 
+			out.println("<tr><th colspan=7>NULL</th></tr>");
+	%>
 	</tbody>
 
 	<tfoot align="left">

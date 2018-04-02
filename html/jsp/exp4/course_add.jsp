@@ -36,41 +36,41 @@ if (frm.grade.value.length != 4 || !IsInt(frm.grade.value)) {
 frm.submit();
 }
 </script>
-<form id="my_form" action="course_list.jsp">
+<form id="my_form" action="/CourseAddAction" method=POST>
 <table width="600" align="center" border=1>
 	<tr> <td colspan=2>课程信息录入, *为必填选项 </td>
 	</tr>
 	<tr> 
 		<td width=100>名称 </td>
-		<td> <input id="name" type="text" name="username" />*20位字符</td>
+		<td> <input id="name" type="text" name="name" />*20位字符</td>
 	</tr>
 	<tr> 
 		<td width=100>性质 </td>
 		<td>
 		<select name="property">
-			<option value="2">公共课必修课</option>
-			<option value="1">专业课必修课</option>
+			<option value=2>公共课必修课</option>
+			<option value=1>专业课必修课</option>
 		</select>*
 		</td>
 			
 	</tr>
 	<tr> 
 		<td width=100>学分</td>
-		<td> <input id="credit" type="text" name="username"  />*数值</td>
+		<td> <input id="credit" type="text" name="credit"  />*数值</td>
 	</tr>
 	<tr> 
 		<td width=100>开设年级</td>
-		<td> <input id="grade" type="text" name="username"  />*4位数年份</td>
+		<td> <input id="grade" type="text" name="grade"  />*4位数年份</td>
 	</tr>
 	<tr> 
 		<td width=100>开设专业</td>
-		<td> <input type="radio" name="major" value="software" checked="checked" />软件工程
-		<input type="radio" name="major" value="space" />空间线性</td>
+		<td> <input type="radio" name="major" value=4 checked="checked" />软件工程
+		<input type="radio" name="major" value=5 />空间线性</td>
 	</tr>
 	<tr> 
 		<td width=100>备注</td>
 		<td>
-			<textarea name="textarea"  cols="40"></textarea>200个字以内
+			<textarea name="detail"  cols="40"></textarea>200个字以内
 		</td>
 	</tr>
 	<tr align="center">

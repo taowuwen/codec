@@ -46,8 +46,43 @@ public class CourseDB {
 			e.printStackTrace();
 		} finally {
 			DBConnection.closeConnection();
+			con = null;
 		}
 
 		return course_list;
+	}
+
+	public int insertCourseInfo(CourseInfo course) throws Exception {
+		int res = 0;
+
+		try {
+			con = DBConnection.getConnection();
+
+			String sql = "insert into t_course(name, type, credit, grade, major, detail) values(?, ?, ?, ?, ?, ?)";
+
+			PreparedStatement stmt = con.prepareStatement(sql);
+			stmt.setString(1, course.getName());
+			stmt.setInt(2, course.getType());
+			stmt.setFloat(3, course.getCredit());
+			stmt.setInt(4, course.getGrade());
+			stmt.setInt(5, course.getMajor());
+			stmt.setInt(6, course.getDetail());
+
+			stmt.executeUpdate();
+
+			stmt.close();
+
+		} catch(Exception e) {
+			e.printStackTrace();
+			res = -1;
+		} finally {
+			DBConnection.closeConnection();
+			con = null;
+		}
+
+		System.out.println("insert update: " + res);
+
+		return res;
+
 	}
 }

@@ -36,7 +36,7 @@
 				info = course_list.get(i);
 
 				String type = (info.getType() == 5)?"专业必修课":"公共课" ;
-				String major = (info.getMajor() == 1)?"软件工程":"通信工程";
+				String major = (info.getMajor() == 1)?"软件工程":"空间线性";
 out.println("<tr> ");
 out.println("	<th align=\"left\">" +info.getName() + "</th>");
 out.println("	<th>" + type + "</th>");
@@ -58,7 +58,7 @@ out.println("</tr>");
 		<th></th>
 		<th></th>
 		<th></th>
-		<th><a href="reload.html">刷新数据列表</a></th>
+		<th><a href="/CourseListAction">刷新数据列表</a></th>
 		<th></th>
 		<th></th>
 	</tr>

@@ -12,7 +12,17 @@ public class CourseInsertAction extends HttpServlet {
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException {
-		response.setContentType("text/html");
+		
+		CourseInfo course = new CourseInfo();
+
+		String name = request.getParameter("name");
+		int property = request.getParameter("property");
+
+		course.setName(name);
+
+
+
+		response.sendRedirect(request.getContextPath() + MyTools.prefix_path() + "/course_list.jsp");
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException {

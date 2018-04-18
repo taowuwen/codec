@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 	scanf("%d", &n);
 	printf("The number is n=%d\n", n);
 
-	for (i = 3; i < n; i++) {
+	for (i = 21; i < n; i+=21) {
 		if (i % 21 == 0) {
 			sum += (double)i;
 			number++;

@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+
+#Date: <day-name>, <day> <month> <year> <hour>:<minute>:<second> GMT
+
+
+new_ticket()
+{
+	dd if=/dev/random of=/dev/stdout bs=16 count=2 2>/dev/null| md5sum | awk '{print $1}'
+}
+
+# 10 mins
+next_expires() {
+	timeout=$(expr `date +%s` + 600)
+	eval "date --date='@$timeout' -R | sed 's/+.*$/GMT/g'"
+}
+
+do_test() 
+{
+	ticket=`new_ticket`
+	to=`next_expires`
+	echo -en "Set-Cookie: ticket=$ticket; Expires=$to\r\n"
+	echo -en "Content-Type: text/html\r\n\r\n"
+
+	echo "$ticket"
+	echo $to
+	echo $0, $*
+	env
+}
+
+logfile=/tmp/web.log
+
+print_404_not_found()
+{
+        echo -en "Status: 404 Not Found\r\n"
+        echo -en "Content-Type: text/html\r\n\r\n"
+        echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
+}
+
+do_main()
+{
+        echo -en "Status: 404 Not Found\r\n"
+}
+
+do_login()
+{
+        echo -en "Status: 404 Not Found\r\n"
+}
+
+do_registry()
+{
+        echo -en "Status: 404 Not Found\r\n"
+}
+
+
+
+main() {
+	CMD=`basename $0`
+
+	echo -ne "\n`date`--------- $cmd ----${REMOTE_ADDR}:${REMOTE_PORT} start ($$)\n" >>$logfile
+
+
+	case $CMD in
+	task_main)
+		do_main
+		;;
+
+	login)
+		do_login
+		;;
+
+	registry)
+		do_registry
+		;;
+
+	*)
+		print_404_not_found
+		;;
+	esac
+
+	echo -ne "\n`date`--------- $cmd ----${REMOTE_ADDR}:${REMOTE_PORT} end ($$)\n" >>$logfile
+
+	return $?
+}
+
+main
+exit $?

@@ -167,7 +167,7 @@ def main():
 
 	test_urlparse()
 	test_urljoin()
-#	test_urlencode()
+	test_urlencode()
 #	test_request()
 
 

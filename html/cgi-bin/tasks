@@ -3,6 +3,20 @@
 
 #Date: <day-name>, <day> <month> <year> <hour>:<minute>:<second> GMT
 
+cgi_root=$(dirname `realpath $0`)
+
+
+do_get_params()
+{
+	local request
+	[ "${REQUEST_METHOD}" == "POST" ] && {
+		request=`$cgi_root/http_read_post_text.py`
+	} || {
+		request=${QUERY_STRING}
+	}
+
+	echo $request | $cgi_root/http_url_decode.py
+}
 
 new_ticket()
 {
@@ -30,6 +44,11 @@ do_test()
 
 logfile=/tmp/web.log
 
+log_trace()
+{
+	echo "`date`----- $*" >>$logfile
+}
+
 print_404_not_found()
 {
         echo -en "Status: 404 Not Found\r\n"
@@ -37,21 +56,84 @@ print_404_not_found()
         echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
 }
 
+do_redirect_login ()
+{
+	echo -en "Status: 302 Moved Temporarily\r\n"
+	echo -en "Location: http://${SERVER_ADDR}:${SERVER_PORT}/tasks/login.html\r\n"
+	echo -en "Content-Type: text/html\r\n\r\n"
+}
+
+load_user_info()
+{
+	local fl
+
+	fl=/tmp/$1
+
+	[ -f $fl ] || return 1
+
+
+	# get user id and connect to db to get lastest userinfo
+	# connect to db
+	# get expired info
+}
+
+cookie_expired()
+{
+	return 1
+
+}
+
+do_load_user_main_page()
+{
+	return 1
+}
+
 do_main()
 {
+	local cookie ticket
         echo -en "Status: 404 Not Found\r\n"
+
+	cookie=${HTTP_COOKIE}
+	[ -n "$cookie" ] && eval "$cookie" 
+
+	log_trace "got request cookie is $cookie"
+
+	[ -z $cookie ] && {
+		do_redirect_login
+		return 0
+	}
+
+	load_user_info $ticket || {
+		do_redirect_login
+		return 0
+	}
+
+	cookie_expired && { 
+		do_redirect_login
+		return 0 
+	}
+
+	do_load_user_main_page
 }
 
 do_login()
 {
         echo -en "Status: 404 Not Found\r\n"
+        echo -en "Content-Type: text/html\r\n\r\n"
+        echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
+	env
+
+	do_get_params
 }
 
-do_registry()
+do_register()
 {
         echo -en "Status: 404 Not Found\r\n"
+        echo -en "Content-Type: text/html\r\n\r\n"
+        echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
+	env
+	do_get_params
 }
-
 
 
 main() {
@@ -69,8 +151,8 @@ main() {
 		do_login
 		;;
 
-	registry)
-		do_registry
+	register)
+		do_register
 		;;
 
 	*)

@@ -4,18 +4,41 @@
 #Date: <day-name>, <day> <month> <year> <hour>:<minute>:<second> GMT
 
 cgi_root=$(dirname `realpath $0`)
+PARAMETERS=
 
+source $cgi_root/db/db.inc
+
+#key 
+get_params()
+{
+	[ -z "$PARAMETERS" ] && {
+		do_get_params  || return 1
+	}
+
+	echo $PARAMETERS |
+	awk -v key="$1" -F\& '{
+		for ( i = 1; i <= NF; i++) {
+			split($i, ary, "=")
+			if (ary[1] == key) {
+				printf("%s ", ary[2])
+			}
+		}
+	}' |
+	$cgi_root/http_url_decode.py
+}
 
 do_get_params()
 {
 	local request
 	[ "${REQUEST_METHOD}" == "POST" ] && {
-		request=`$cgi_root/http_read_post_text.py`
+		request=`$cgi_root/http_read_post_text.py` || return 1
 	} || {
 		request=${QUERY_STRING}
 	}
 
-	echo $request | $cgi_root/http_url_decode.py
+	export PARAMETERS="$request"
+
+	echo $PARAMETERS
 }
 
 new_ticket()
@@ -71,7 +94,6 @@ load_user_info()
 
 	[ -f $fl ] || return 1
 
-
 	# get user id and connect to db to get lastest userinfo
 	# connect to db
 	# get expired info
@@ -80,7 +102,6 @@ load_user_info()
 cookie_expired()
 {
 	return 1
-
 }
 
 do_load_user_main_page()
@@ -123,7 +144,11 @@ do_login()
         echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
 	env
 
-	do_get_params
+	get_params username
+	get_params password
+
+	log_trace `get_params username`
+	log_trace `get_params password`
 }
 
 do_register()
@@ -132,16 +157,29 @@ do_register()
         echo -en "Content-Type: text/html\r\n\r\n"
         echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
 	env
-	do_get_params
+	get_params username
+	get_params password
+	get_params email
 }
 
+do_reset()
+{
+	echo -en "Content-Type: text/html\r\n\r\n"
+	cat << EOF
+<html> 
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body> <h1 align="center"> Success !!!</h1> 
+`reset_db`
+</body> </html>
+EOF
+}
 
 main() {
 	CMD=`basename $0`
 
 	echo -ne "\n`date`--------- $cmd ----${REMOTE_ADDR}:${REMOTE_PORT} start ($$)\n" >>$logfile
-
-
 	case $CMD in
 	task_main)
 		do_main
@@ -155,6 +193,9 @@ main() {
 		do_register
 		;;
 
+	install|init|reset|restore)
+		do_reset
+		;;
 	*)
 		print_404_not_found
 		;;

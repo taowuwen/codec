@@ -8,42 +8,44 @@
 <body bgcolor="#aabbcc">
 
 <script type="text/javascript">
-//<script language="JavaScript">
 
-function checkPassword(str)
-{
-// at least one number, one lowercase and one uppercase letter
-// at least six characters that are letters, numbers or the underscore
-	var re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\w{6,}$/;
+function checkNumber(str) {
+	var re = new RegExp("^[1-9][0-9]\{10\}$");
 	return re.test(str);
 }
 
-function check_form(){
+function check_form(frm){
 
 	var frm = document.getElementById("frm_reg");
 
-	var re = new RegExp('^\w+$');
+	var re = new RegExp('^[a-zA-Z0-9_]\+$');
 	//var re = "/^\w+$/";
-	if(!re.test(frm.username.value)) {
+	if(!re.test(frm.user.value)) {
 		alert("Error: Username must contain only letters, numbers and underscores!");
-		form.username.focus();
+		frm.user.focus();
 		return false;
 	}
 
-	if (frm.password.value != frm.password_confirm.vlaue) {
+	if (frm.pass1.value == frm.pass2.vlaue) {
+		// do nothing
+	} else {
 		alert("Error: password not match!!!");
-		form.password.focus();
+		frm.pass1.focus();
 		return false;
 	}
 
-	if (!checkPassword(frm.password.value)) {
-		alert("Error: length in (6, 20)");
-		form.password.focus();
+	if ((frm.pass1.value.length < 6) || (frm.pass1.value.length >20)){
+		alert("Error: length should be from 6 to  20");
+		frm.pass1.focus();
 		return false;
 	}
 
+	if (!checkNumber(frm.tel.value)) {
+		alert("Invalid Telephone Number");
+		frm.tel.focus();
+		return false;
+	}
 
-	//frm.submit();
 	return true;
 }
 
@@ -52,18 +54,18 @@ function check_form(){
 
 
 	<table width=600 align=center>
-	<form id="frm_reg" action="/tasks/register" method=POST onsubmit="return check_form();" >
+	<form id="frm_reg" action="/tasks/register" method=POST onsubmit="return check_form(this);" >
 		<tr>
 			<td><label for="username"> 用户名: </label> </td>
-			<td><input type="text" name="username" required="reqired" /> </td>
+			<td><input type="text" id="user" name="username" required="reqired" /> </td>
 		</tr>
 		<tr> 
 			<td><label for="password"> 密码: </label> </td>
-			<td><input type="password" name="password" required="reqired" /></td>
+			<td><input type="password" id="pass1" name="password" required="reqired" /></td>
 		</tr>
 		<tr> 
 			<td><label for="password"> 确认密码: </label> </td>
-			<td><input type="password" name="password_confirm" required="reqired" /></td>
+			<td><input type="password" id="pass2" name="password" required="reqired" /></td>
 		</tr>
 
 		<!--
@@ -80,11 +82,11 @@ function check_form(){
 
 		<tr>
 			<td><label for="email"> 用户邮箱: </label> </td>
-			<td><input type="email" name="email" required="reqired" /></td>
+			<td><input type="email" id="email" name="email" required="reqired" /></td>
 		</tr>
 		<tr>
 			<td><label for="Telephone">电话号码: </label> </td>
-			<td><input type="text" name="telephone" /></td>
+			<td><input type="text" id="tel" name="telephone" /></td>
 		</tr>
 
 		<tr>

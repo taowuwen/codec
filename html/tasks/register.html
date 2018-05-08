@@ -6,27 +6,90 @@
 </head>
 
 <body bgcolor="#aabbcc">
+
+<script type="text/javascript">
+//<script language="JavaScript">
+
+function checkPassword(str)
+{
+// at least one number, one lowercase and one uppercase letter
+// at least six characters that are letters, numbers or the underscore
+	var re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\w{6,}$/;
+	return re.test(str);
+}
+
+function check_form(){
+
+	var frm = document.getElementById("frm_reg");
+
+	var re = new RegExp('^\w+$');
+	//var re = "/^\w+$/";
+	if(!re.test(frm.username.value)) {
+		alert("Error: Username must contain only letters, numbers and underscores!");
+		form.username.focus();
+		return false;
+	}
+
+	if (frm.password.value != frm.password_confirm.vlaue) {
+		alert("Error: password not match!!!");
+		form.password.focus();
+		return false;
+	}
+
+	if (!checkPassword(frm.password.value)) {
+		alert("Error: length in (6, 20)");
+		form.password.focus();
+		return false;
+	}
+
+
+	//frm.submit();
+	return true;
+}
+
+</script>
+
+
+
 	<table width=600 align=center>
-
-
-	<form action="/tasks/register" method=POST>
+	<form id="frm_reg" action="/tasks/register" method=POST onsubmit="return check_form();" >
 		<tr>
-			<td><label for="username"> UserName: </label> </td>
+			<td><label for="username"> 用户名: </label> </td>
 			<td><input type="text" name="username" required="reqired" /> </td>
 		</tr>
 		<tr> 
-			<td><label for="password"> Password: </label> </td>
+			<td><label for="password"> 密码: </label> </td>
 			<td><input type="password" name="password" required="reqired" /></td>
 		</tr>
+		<tr> 
+			<td><label for="password"> 确认密码: </label> </td>
+			<td><input type="password" name="password_confirm" required="reqired" /></td>
+		</tr>
+
+		<!--
+		<div class="fieldWrapper">
+			<label for="pass1">Password:</label>
+			<input name="pass1" id="pass1" type="password">
+		</div>
+			<div class="fieldWrapper">
+			<label for="pass2">Confirm Password:</label>
+			<input name="pass2" id="pass2" onkeyup="checkPass(); return false;" type="password">
+			<span id="confirmMessage" class="confirmMessage"></span>
+		</div>
+		-->
 
 		<tr>
-			<td><label for="email"> Email: </label> </td>
+			<td><label for="email"> 用户邮箱: </label> </td>
 			<td><input type="email" name="email" required="reqired" /></td>
+		</tr>
+		<tr>
+			<td><label for="Telephone">电话号码: </label> </td>
+			<td><input type="text" name="telephone" /></td>
 		</tr>
 
 		<tr>
 			<td> </td>
-			<td> <input type="submit" value="确定">
+			<td> <input type="submit" value="确定"/>
 			</td>
 		</tr>
 	</form>

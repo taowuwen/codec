@@ -11,9 +11,9 @@ source $cgi_root/db/db.inc
 #key 
 get_params()
 {
-	[ -z "$PARAMETERS" ] && {
-		do_get_params  || return 1
-	}
+	[ -z "$PARAMETERS" ] && return 1
+
+	log_trace $PARAMETERS, key=$1
 
 	echo $PARAMETERS |
 	awk -v key="$1" -F\& '{
@@ -27,7 +27,7 @@ get_params()
 	$cgi_root/http_url_decode.py
 }
 
-do_get_params()
+prepare_params()
 {
 	local request
 	[ "${REQUEST_METHOD}" == "POST" ] && {
@@ -38,7 +38,7 @@ do_get_params()
 
 	export PARAMETERS="$request"
 
-	echo $PARAMETERS
+	log_trace $PARAMETERS
 }
 
 new_ticket()
@@ -144,6 +144,7 @@ do_login()
         echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
 	env
 
+	prepare_params
 	get_params username
 	get_params password
 
@@ -153,13 +154,75 @@ do_login()
 
 do_register()
 {
-        echo -en "Status: 404 Not Found\r\n"
-        echo -en "Content-Type: text/html\r\n\r\n"
-        echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
-	env
-	get_params username
-	get_params password
-	get_params email
+	local user pass email tel
+
+	prepare_params
+	user="`get_params username`"
+	pass="`get_params password`"
+	email="`get_params email`"
+	tel="`get_params telephone`"
+
+	log_trace "$user, $pass, $email, $tel"
+
+	[ -z "$user" -o -z "$pass" -o -z "$email" ] && {
+		print_404_not_found
+		return 1
+	}
+
+	# update password with md5 hash
+	pass=`echo $pass | md5sum | awk '{print $1}'`
+
+	# check user's status
+	# check email's status
+	# check telephone status
+
+	[ -n "`get_user_by_name $user`" ] && {
+
+		# user exist
+		log_trace "username already exist, $user"
+		echo -en "Status: 404 Not Found\r\n"
+		echo -en "Content-Type: text/html\r\n\r\n"
+		cat <<EOF
+<html> <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"> </head> <body> <h1 align="center">用户名已经存在!! </h1> </body> </html>
+EOF
+		return 1
+	}
+
+	[ -n "`get_user_by_email $email`" ] && {
+		# email already exist
+		log_trace "email already exist, $email"
+		echo -en "Status: 404 Not Found\r\n"
+		echo -en "Content-Type: text/html\r\n\r\n"
+		cat <<EOF
+<html> <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"> </head> <body> <h1 align="center">用户邮箱已经存在!! </h1> </body> </html>
+EOF
+		return 1
+	}
+
+	[ -n "$tel" -a -n "`get_user_by_telephone $tel`" ] && {
+		# telephone number already binded
+		log_trace "telephone already exist, $tel"
+		echo -en "Status: 404 Not Found\r\n"
+		echo -en "Content-Type: text/html\r\n\r\n"
+		cat <<EOF
+<html> <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"> </head> <body> <h1 align="center">用户手机已经存在!! </h1> </body> </html>
+EOF
+		return 1
+	}
+
+	add_user $user $pass $email $tel && {
+		log_trace "add user success $user, $pass, $email, $tel"
+		echo -en "Content-Type: text/html\r\n\r\n"
+
+		cat <<EOF
+<html> <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"> </head> <body> <h1 align="center"> 成功，请 <a href="http://${SERVER_ADDR}:${SERVER_PORT}/tasks/login.html">登录</a>!!!  </h1> </body> </html>
+EOF
+	} || {
+		log_trace "add user failed $user, $pass, $email, $tel"
+		echo -en "Status: 404 Not Found\r\n"
+		echo -en "Content-Type: text/html\r\n\r\n"
+		echo -en "<html> <body> <h1 align=\"center]\"> Opps!!! 404: add user failed </h1> </body> </html>"
+	}
 }
 
 do_reset()

@@ -26,9 +26,10 @@ function check_form(frm){
 		return false;
 	}
 
-	if (frm.pass1.value == frm.pass2.vlaue) {
-		// do nothing
-	} else {
+	var pass1 = frm.pass1.value;
+	var pass2 = frm.pass2.value;
+
+	if (pass1 != pass2 ){
 		alert("Error: password not match!!!");
 		frm.pass1.focus();
 		return false;
@@ -41,7 +42,7 @@ function check_form(frm){
 	}
 
 	if (!checkNumber(frm.tel.value)) {
-		alert("Invalid Telephone Number");
+		alert("Invalid Telephone Number, should be 11 bytes");
 		frm.tel.focus();
 		return false;
 	}
@@ -65,7 +66,7 @@ function check_form(frm){
 		</tr>
 		<tr> 
 			<td><label for="password"> 确认密码: </label> </td>
-			<td><input type="password" id="pass2" name="password" required="reqired" /></td>
+			<td><input type="password" id="pass2" name="password1" required="reqired" /></td>
 		</tr>
 
 		<!--

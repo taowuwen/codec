@@ -51,7 +51,33 @@ get_user_by_user_pass()
 	get_user_info name="\"$1\"" and pass="\"$2\""
 }
 
-add_user() {
+db_list_all_users()
+{
+	sqlite3 $DB 'select * from t_user'
+}
+
+
+db_set_user_lock()
+{
+	local uid=$1
+	eval "sqlite3 $DB 'update t_user set state=0 where id=$uid;'"
+}
+
+db_set_user_unlock()
+{
+	local uid=$1
+	eval "sqlite3 $DB 'update t_user set state=1 where id=$uid;'"
+}
+
+db_set_user_delete()
+{
+	local uid=$1
+	eval "sqlite3 $DB 'delete from t_user where id=$uid';"
+}
+
+
+add_user() 
+{
 	local user pass email telphone
 
 	user="$1"

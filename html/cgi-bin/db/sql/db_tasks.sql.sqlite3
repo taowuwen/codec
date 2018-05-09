@@ -97,7 +97,7 @@ create table t_type_user (
 );
 
 insert into t_repeat(id, name) values(1, "每周一"),(2, "每周二"),(3, "每周三"), (4, "每周四"), (5, "每周五"), (6, "每周六"), (7, "每周日");
-insert into t_user(name, pass, email) values("admin", "21232f297a57a5a743894a0e4a801fc3", "taowuwen@126.com");
+insert into t_user(name, pass, email, isadmin) values("admin", "21232f297a57a5a743894a0e4a801fc3", "taowuwen@126.com", 1);
 
 insert into t_type(name, bgcolor) values("Default", "#ffffff");
 insert into t_type(name, bgcolor) values("Red", "#aa0000");

@@ -42,7 +42,7 @@ body {
 <div class="topnav">
   <a class="active" href="#home">主页</a>
   <a href="#news">消息</a>
-  <a href="/tasks/setting">设置</a>
+  <a href="/tasks/setting">${USER_NAME}</a>
   <a href="/tasks/logout">退出</a>
 </div>
 

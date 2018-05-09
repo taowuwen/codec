@@ -42,7 +42,6 @@ build_cookie()
 
 encrypt_password()
 {
-	log_trace "encrypt key:-$1-"
 	echo -n "$1" | md5sum -| awk '{print $1}'
 }
 
@@ -50,8 +49,6 @@ encrypt_password()
 get_params()
 {
 	[ -z "$PARAMETERS" ] && return 1
-
-	log_trace $PARAMETERS, key=$1
 
 	echo $PARAMETERS |
 	awk -v key="$1" -F\& '{
@@ -79,7 +76,7 @@ prepare_params()
 	cookie=${HTTP_COOKIE}
 	[ -n "$cookie" ] && eval "$cookie"  && export USER_COOKIE=$ticket
 
-	log_trace $PARAMETERS
+	log_trace "REQUEST: COOKIE: ${USER_COOKIE}, params: $PARAMETERS"
 }
 
 new_ticket()
@@ -166,23 +163,56 @@ cookie_expired()
 	[ -z "${USER_COOKIE_EXPIRE}" -o  `date +%s` -ge $USER_COOKIE_EXPIRE ] && return 0 || return 1
 }
 
+cmd_user()
+{
+	local uid action
+
+	action="$1"
+
+	[ 1 -eq ${USER_ISADMIN} ] || {
+		print_500_error "Permission Denied!!!" 
+		return 1 
+	}
+
+	uid=`get_params userid`
+
+	[ -z "$uid" ] && {
+		print_500_error "Invalid UserID"
+		return 1
+	}
+
+	db_set_$1 $uid
+}
+
+cmd_delete_user()
+{
+	local uid
+
+	[ 1 -eq ${USER_ISADMIN} ] || {
+		print_500_error "Permission Denied!!!" 
+		return 1 
+	}
+
+	uid=`get_params userid`
+
+	[ -z "$uid" ] && {
+		print_500_error "Invalid UserID"
+		return 1
+	}
+
+	db_delete_user_with_id $uid
+}
+
 
 do_main()
 {
-	local cookie ticket
-
-	cookie=${HTTP_COOKIE}
-	[ -n "$cookie" ] && eval "$cookie" 
-
-	log_trace "REQUEST COOKIE: $cookie"
-
-	[ -z $cookie ] && {
+	[ -z ${USER_COOKIE} ] && {
 		do_redirect_login
 		return 0
 	}
 
-	load_user_info $ticket || {
-		log_trace "load user info failed for $ticket"
+	load_user_info ${USER_COOKIE} || {
+		log_trace "load user info failed for $USER_COOKIE"
 		do_redirect_login
 		return 0
 	}
@@ -193,7 +223,22 @@ do_main()
 		return 0 
 	}
 
-	do_load_user_main_page
+	action=`get_params action`
+
+	[ -z "$action" ] && do_load_user_main_page || {
+
+		log_trace "user action: $action"
+
+		case $action in 
+		user_lock|user_unlock|user_delete)
+			cmd_user $action
+			;;
+		group_create)
+			do_load_page load_group_create && return 0
+			;;
+		esac
+		do_redirect "$WEBROOT"
+	}
 }
 
 do_login()
@@ -312,12 +357,14 @@ do_logout() {
 	do_redirect_login
 }
 
+
 main() {
 	CMD=`basename $0`
 
 	echo -ne "\n`date`--------- $cmd ----${REMOTE_ADDR}:${REMOTE_PORT} start ($$)\n" >>$logfile
 	case $CMD in
 	task_main)
+		prepare_params
 		do_main
 		;;
 

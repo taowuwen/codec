@@ -46,6 +46,11 @@ get_user_by_telephone()
 	[ -n "$1" ] && get_user_info telphone="\"$1\""
 }
 
+get_user_by_user_pass()
+{
+	get_user_info name="\"$1\"" and pass="\"$2\""
+}
+
 add_user() {
 	local user pass email telphone
 

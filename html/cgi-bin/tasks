@@ -5,8 +5,46 @@
 
 cgi_root=$(dirname `realpath $0`)
 PARAMETERS=
+WEBROOT="http://${SERVER_ADDR}:${SERVER_PORT}/tasks"
+tasks_root=$(cd $cgi_root/../tasks; pwd)
+
+cookie_root=/tmp/cookies
+[ -d $cookie_root ] || mkdir -p $cookie_root
 
 source $cgi_root/db/db.inc
+source $tasks_root/lib/load_user_main_page.inc
+source $tasks_root/lib/http.inc
+
+
+update_env()
+{
+	local userinfo="$1"
+
+	echo USER_ID=`echo $userinfo | cut -d\| -f1`
+	echo USER_NAME=`echo $userinfo | cut -d\| -f2`
+	echo USER_PASS=`echo $userinfo | cut -d\| -f3`
+	echo USER_EMAIL=`echo $userinfo | cut -d\| -f4`
+	echo USER_TELPHONE=`echo $userinfo | cut -d\| -f5`
+	echo USER_STATE=`echo $userinfo | cut -d\| -f6`
+	echo USER_ISADMIN=`echo $userinfo | cut -d\| -f7`
+	echo USER_ENABLE_NOTIFY=`echo $userinfo | cut -d\| -f8`
+	echo USER_COOKIE_EXPIRE=`echo $userinfo | cut -d\| -f9`
+}
+
+
+# cookie userinfo
+build_cookie()
+{
+	update_env "$2" >$cookie_root/$1 || return 1
+
+	. $cookie_root/$1
+}
+
+encrypt_password()
+{
+	log_trace "encrypt key:-$1-"
+	echo -n "$1" | md5sum -| awk '{print $1}'
+}
 
 #key 
 get_params()
@@ -20,7 +58,7 @@ get_params()
 		for ( i = 1; i <= NF; i++) {
 			split($i, ary, "=")
 			if (ary[1] == key) {
-				printf("%s ", ary[2])
+				printf("%s\n", ary[2])
 			}
 		}
 	}' |
@@ -38,6 +76,9 @@ prepare_params()
 
 	export PARAMETERS="$request"
 
+	cookie=${HTTP_COOKIE}
+	[ -n "$cookie" ] && eval "$cookie"  && export USER_COOKIE=$ticket
+
 	log_trace $PARAMETERS
 }
 
@@ -46,16 +87,27 @@ new_ticket()
 	dd if=/dev/random of=/dev/stdout bs=16 count=2 2>/dev/null| md5sum | awk '{print $1}'
 }
 
-# 10 mins
-next_expires() {
-	timeout=$(expr `date +%s` + 600)
-	eval "date --date='@$timeout' -R | sed 's/+.*$/GMT/g'"
+# next N seconds
+next_n_seconds() {
+	local sec=${1:600}
+	timeout=$(expr `date +%s` + $sec)
 }
+
+# to
+build_expired()
+{
+	local to=$1
+
+	# 1hr
+	[ -z "$to" ] && to=`next_n_seconds 3600`
+	eval "date --date='@$to' -R | sed 's/+.*$/GMT/g'"
+}
+
 
 do_test() 
 {
 	ticket=`new_ticket`
-	to=`next_expires`
+	to="`build_expired`"
 	echo -en "Set-Cookie: ticket=$ticket; Expires=$to\r\n"
 	echo -en "Content-Type: text/html\r\n\r\n"
 
@@ -79,45 +131,50 @@ print_404_not_found()
         echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
 }
 
+# url
+do_redirect()
+{
+	local url=$1
+
+	[ -z "$url" ] && url="$WEBROOT/login.html"
+
+	log_trace "REDIRECT TO: $url"
+	echo -en "Status: 302 Moved Temporarily\r\n"
+	echo -en "Location: $url\r\n"
+	echo -en "Content-Type: text/html\r\n\r\n"
+}
+
 do_redirect_login ()
 {
-	echo -en "Status: 302 Moved Temporarily\r\n"
-	echo -en "Location: http://${SERVER_ADDR}:${SERVER_PORT}/tasks/login.html\r\n"
-	echo -en "Content-Type: text/html\r\n\r\n"
+	do_redirect "$WEBROOT/login.html"
 }
 
 load_user_info()
 {
-	local fl
+	[ -f $cookie_root/$1 ] || return 1
+	. $cookie_root/$1 2>/dev/null || return 1
 
-	fl=/tmp/$1
+	[ -n "${USER_ID}" ] || return 1
 
-	[ -f $fl ] || return 1
-
-	# get user id and connect to db to get lastest userinfo
+	# maybe get userinfo for one more time, or just update user info here
 	# connect to db
 	# get expired info
 }
 
 cookie_expired()
 {
-	return 1
+	[ -z "${USER_COOKIE_EXPIRE}" -o  `date +%s` -ge $USER_COOKIE_EXPIRE ] && return 0 || return 1
 }
 
-do_load_user_main_page()
-{
-	return 1
-}
 
 do_main()
 {
 	local cookie ticket
-        echo -en "Status: 404 Not Found\r\n"
 
 	cookie=${HTTP_COOKIE}
 	[ -n "$cookie" ] && eval "$cookie" 
 
-	log_trace "got request cookie is $cookie"
+	log_trace "REQUEST COOKIE: $cookie"
 
 	[ -z $cookie ] && {
 		do_redirect_login
@@ -125,11 +182,13 @@ do_main()
 	}
 
 	load_user_info $ticket || {
+		log_trace "load user info failed for $ticket"
 		do_redirect_login
 		return 0
 	}
 
 	cookie_expired && { 
+		log_trace "cookied expired $USER_COOKIE_EXPIRE"
 		do_redirect_login
 		return 0 
 	}
@@ -139,24 +198,40 @@ do_main()
 
 do_login()
 {
-        echo -en "Status: 404 Not Found\r\n"
-        echo -en "Content-Type: text/html\r\n\r\n"
-        echo -en "<html> <body> <h1 align="center"> Opps!!! 404: Not Found </h1> </body> </html>"
-	env
+	local user pass
 
-	prepare_params
-	get_params username
-	get_params password
+	user="`get_params username`"
+	pass="`get_params password`"
 
-	log_trace `get_params username`
-	log_trace `get_params password`
+	pass=`encrypt_password "$pass"`
+
+	user_info=`get_user_by_user_pass $user $pass`
+	[ -z "$user_info" ] && {
+		# user login failed
+		echo -en "Content-Type: text/html\r\n\r\n"
+
+		cat <<EOF
+<html> <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"> </head> <body> <h1 align="center"> 错误，用户名或密码错误。请<a href="http://${SERVER_ADDR}:${SERVER_PORT}/tasks/login.html">重新登录</a>!!!  </h1> </body> </html>
+EOF
+		return 1
+	}
+
+	ticket="`new_ticket`"
+	to="`next_n_seconds`"
+
+	user_info=$user_info"|$to"
+
+	echo -en "Set-Cookie: ticket=$ticket; Expires=$to\r\n"
+
+	build_cookie "$ticket" "$user_info"
+
+	do_load_user_main_page
 }
 
 do_register()
 {
 	local user pass email tel
 
-	prepare_params
 	user="`get_params username`"
 	pass="`get_params password`"
 	email="`get_params email`"
@@ -170,45 +245,39 @@ do_register()
 	}
 
 	# update password with md5 hash
-	pass=`echo $pass | md5sum | awk '{print $1}'`
+	pass=`encrypt_password "$pass"`
 
 	# check user's status
 	# check email's status
 	# check telephone status
 
 	[ -n "`get_user_by_name $user`" ] && {
-
-		# user exist
 		log_trace "username already exist, $user"
-		echo -en "Status: 404 Not Found\r\n"
+
 		echo -en "Content-Type: text/html\r\n\r\n"
-		cat <<EOF
-<html> <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"> </head> <body> <h1 align="center">用户名已经存在!! </h1> </body> </html>
-EOF
+		cat $tasks_root/register.html | sed '/<script/a alert("用户名已经存在");' 
 		return 1
 	}
 
 	[ -n "`get_user_by_email $email`" ] && {
 		# email already exist
 		log_trace "email already exist, $email"
-		echo -en "Status: 404 Not Found\r\n"
+
 		echo -en "Content-Type: text/html\r\n\r\n"
-		cat <<EOF
-<html> <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"> </head> <body> <h1 align="center">用户邮箱已经存在!! </h1> </body> </html>
-EOF
+		cat $tasks_root/register.html | sed '/<script/a alert("用户邮箱已经存在");' 
 		return 1
 	}
 
 	[ -n "$tel" -a -n "`get_user_by_telephone $tel`" ] && {
 		# telephone number already binded
 		log_trace "telephone already exist, $tel"
-		echo -en "Status: 404 Not Found\r\n"
+
 		echo -en "Content-Type: text/html\r\n\r\n"
-		cat <<EOF
-<html> <head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"> </head> <body> <h1 align="center">用户手机已经存在!! </h1> </body> </html>
-EOF
+		cat $tasks_root/register.html | sed '/<script/a alert("用户手机已经存在");' 
 		return 1
 	}
+
+	log_trace "do add user $user, $pass, $email, $tel"
 
 	add_user $user $pass $email $tel && {
 		log_trace "add user success $user, $pass, $email, $tel"
@@ -219,9 +288,8 @@ EOF
 EOF
 	} || {
 		log_trace "add user failed $user, $pass, $email, $tel"
-		echo -en "Status: 404 Not Found\r\n"
 		echo -en "Content-Type: text/html\r\n\r\n"
-		echo -en "<html> <body> <h1 align=\"center]\"> Opps!!! 404: add user failed </h1> </body> </html>"
+		cat $tasks_root/register.html | sed '/<script/a alert("添加用户失败");' 
 	}
 }
 
@@ -239,6 +307,11 @@ do_reset()
 EOF
 }
 
+do_logout() {
+	[ -n "$USER_COOKIE" ] && rm -f $cookie_root/$USER_COOKIE 2>/dev/null
+	do_redirect_login
+}
+
 main() {
 	CMD=`basename $0`
 
@@ -249,11 +322,18 @@ main() {
 		;;
 
 	login)
+		prepare_params
 		do_login
 		;;
 
 	register)
+		prepare_params
 		do_register
+		;;
+
+	logout)
+		prepare_params
+		do_logout
 		;;
 
 	install|init|reset|restore)

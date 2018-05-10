@@ -339,7 +339,10 @@ load_user_details()
 {
 	_user_detail() {
 		cat <<EOF
+	<div style="width:80%; margin:  0px auto;">
+		<p> user details </p>
 		<p> user details........</p>
+	</div>
 EOF
 	}
 	do_load_page _user_detail 0 setting

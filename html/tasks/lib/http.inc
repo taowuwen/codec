@@ -1,6 +1,9 @@
 
+# active node
 http_main_head()
 {
+	local active_${1:-nothing}=1
+
 	cat <<EOF
 <html>
 <head>
@@ -18,7 +21,7 @@ body {
 }
 
 .topnav a {
-  float: right;
+  float: left;
   color: #f2f2f2;
   text-align: center;
   padding: 14px 16px;
@@ -40,9 +43,9 @@ body {
 <body>
 
 <div class="topnav">
-  <a class="active" href="#home">主页</a>
-  <a href="#news">消息</a>
-  <a href="/tasks/setting">${USER_NAME}</a>
+  <a `[ "$active_home" = "1" ] && echo "class=\"active\""` href="/tasks/task_main">主页</a>
+  <a `[ "$active_notify" = "1" ] && echo "class=\"active\""` href="/tasks/task_main?action=notification">消息</a>
+  <a `[ "$active_setting" = "1" ] && echo "class=\"active\""` href="/tasks/task_main?action=setting">`[ $USER_ISADMIN -eq 1 ] && echo "管理员" || echo "普通用户"`(${USER_NAME})</a>
   <a href="/tasks/logout">退出</a>
 </div>
 
@@ -59,12 +62,11 @@ http_main_tail()
 
 <div style="padding-left:16px">
 	<p align="center"> Developped by taowuwen@gmail.com</p>
-</dif>
+</div>
 
 </body>
 </html>
 EOF
 
 }
-
 

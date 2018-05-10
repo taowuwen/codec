@@ -88,3 +88,30 @@ add_user()
 	eval "sqlite3 $DB 'insert into t_user(name, pass, email, telphone) values(\"$user\",\"$pass\", \"$email\", \"${4:null}\");'"
 }
 
+db_list_group()
+{
+	sqlite3 $DB 'select * from t_group'
+}
+
+db_group_add()
+{
+	local grp
+	grp="$1"
+
+	eval "sqlite3 $DB 'insert into t_group(name) values(\"$grp\"); select last_insert_rowid();'"
+}
+
+db_group_get_by_name()
+{
+	[ -n "$1" ] && eval "sqlite3 $DB 'select * from t_group where name=\"$1\";'"
+}
+
+db_group_get_by_id()
+{
+	[ -n "$1" ] && eval "sqlite3 $DB 'select * from t_group where id=\"$1\";'"
+}
+
+db_group_del_by_id()
+{
+	[ -n "$1" ] && eval "sqlite3 $DB 'delete from t_group where id=$1'"
+}

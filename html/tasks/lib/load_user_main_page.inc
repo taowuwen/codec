@@ -6,7 +6,7 @@ load_user_task()
 	cat <<EOF
 <div >
 	<fieldset style="width:80%; margin:  0px auto;">
-	<legend align="center"> <h2>用户任务事项</h2> </legend>
+	<legend align="center"> <h2>${USER_NAME}的个人任务事项</h2> </legend>
 	<table width=100% align=center border=1> 
 		<thead>
 			<tr>
@@ -46,6 +46,18 @@ EOF
 
 load_groups_in_db()
 {
+	db_list_group |
+	awk  -v ticket=$USER_COOKIE -v webroot="$WEBROOT/task_main" -F\| '{
+		printf("<tr>\n")
+		printf("\t<td>%s</td>\n", $1)
+		printf("\t<td>%s</td>\n", $2)
+		printf("\t<td>")
+		printf("<a href=\"%s?action=group_detail&grpid=%d\">编辑</a>", webroot, $1);
+		printf("|<a href=\"%s?action=group_delete&grpid=%d\">删除</a>", webroot, $1);
+		printf("\t</td>\n")
+		printf("</tr\n");
+	'}
+
 	return 0;
 }
 
@@ -56,7 +68,11 @@ load_groups()
 	<fieldset style="width:80%; margin:  0px auto;">
 	<legend align="center"> <h2>组信息列表</h2> </legend>
 
-	<p> <button type="button" onClick="window.location.href='/tasks/task_main?action=group_create&userid=${USER_ID}'">创建组</button> </p>
+	<div>
+	<input type="image" src="images/plus.png" width=20 height=20 onClick="window.location.href='/tasks/task_main?action=group_create&userid=${USER_ID}'" /> 添加组
+	</div>
+
+	<div>
 	<table width=100% align=center border=1> 
 		<thead>
 			<tr>
@@ -71,6 +87,7 @@ load_groups()
 		<tfoot>
 		</tfoot>
 	</table>
+	</div>
 	</fieldset>
 </div>
 EOF
@@ -207,13 +224,23 @@ EOF
 
 do_load_page()
 {
-	local cb=${1:default_cb}
+	local cb=${1:-default_cb}
+	local goback=${2:-1}
+	local active=${3:-nothing}
 
 	echo -en "Content-Type: text/html\r\n\r\n"
 
-	http_main_head
+	http_main_head $active
 
 	log_trace "$USER_NAME, $USER_COOKIE, $USER_ID, $USER_ISADMIN"
+
+	[ $goback -eq 1 ] && {
+	cat <<EOF
+	<div style="width:80%; margin:  0px auto;">
+	<p><a href="javascript:history.back()"> <img src="images/go_back.jpg" width=100/></a> </p>
+	</div>
+EOF
+	}
 
 	$cb
 
@@ -235,7 +262,7 @@ do_load_user_main_page()
 		}
 	}
 
-	do_load_page load_main_page
+	do_load_page load_main_page 0 home
 
 	return 0
 }
@@ -243,8 +270,78 @@ do_load_user_main_page()
 load_group_create()
 {
 	cat <<EOF
-	<p> 输入一个组名</p>
+
+	<div>
+<script type="text/javascript">
+
+function check_form(frm){
+
+	var frm = document.getElementById("frm_reg");
+
+	//var re = new RegExp('^[a-zA-Z0-9_]\+$');
+	var re = new RegExp("^\w+$");
+	if(!re.test(frm.user.value)) {
+		alert("组名不合法");
+		frm.user.focus();
+		return false;
+	}
+
+	return true;
+}
+
+</script>
+
+	<form action="/tasks/task_main?action=group_add" method=POST onsubmit="return check_form(this);">
+	<table width=600 align="center" border=1>
+	<tr align="center"> <td colspan=2> 添加组 </td> </tr>
+	<tr> 
+		<td width=30%> 组名 </td> 
+		<td width=60%> <input id="grp_id" type="text" name="groupname" required="reqired"/>*</td>
+	</tr>
+	<tr> 
+		<td>  </td> 
+		<td> <input type="submit" value="确定"/>
+	</tr>
+	</table>
+	</form>
+	</div>
 EOF
 	return 0
 }
 
+
+load_group_detail()
+{
+	_grp_detail() {
+		cat <<EOF
+		<p> tasks....</p>
+		<p> Users </p>
+EOF
+
+	}
+	do_load_page _grp_detail
+	return 0
+}
+
+load_user_notification()
+{
+	_user_notification() {
+		cat <<EOF
+		<p> user notifications........</p>
+EOF
+
+	}
+	do_load_page _user_notification 0 notify
+	return 0
+}
+
+load_user_details()
+{
+	_user_detail() {
+		cat <<EOF
+		<p> user details........</p>
+EOF
+	}
+	do_load_page _user_detail 0 setting
+	return 0
+}

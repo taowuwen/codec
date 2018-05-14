@@ -13,7 +13,7 @@ cgi_root=$(cd `dirname $0`/../; pwd)
 load_users_in_db()
 {
 	db_list_all_users |
-	awk -v webroot="http://localhost:18880/tasks/task_main" -F\| '{
+	awk -v webroot="$WEBROOT/task_main" -F\| '{
 		printf("<tr>\n")
 		printf("\t<td>%s</td>\n", $1)
 		printf("\t<td>%s</td>\n", $2)

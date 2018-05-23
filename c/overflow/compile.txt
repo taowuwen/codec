@@ -3,3 +3,10 @@
 
 gcc test.c -z execstack -z norelro -fno-stack-protector -D_FORTIFY_SOURCE=0 -ggdb -o test
 
+
+
+create shellcode
+
+nasm -f elf shellcode.asm
+objdump -d -M intel shellcode.o
+

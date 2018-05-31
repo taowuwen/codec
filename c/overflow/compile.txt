@@ -10,3 +10,12 @@ create shellcode
 nasm -f elf shellcode.asm
 objdump -d -M intel shellcode.o
 
+
+on MACOS
+
+
+
+we need -Wl,-no_pie
+
+e.g
+cc -o test-nopie test-pie.c -Wl,-no_pie 

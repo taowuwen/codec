@@ -44,15 +44,12 @@ fi
 	gcc -o $overflow bob.c -fno-stack-protector -m32 $ARGS || exit 1
 }
 
-set -x
 
 # run by hand: objdump -s $shellcode | sed -n '/^ [0-9]\{4\}/p' | awk '{for (i = 2; i < NF; i++) printf("%s", $i)}' | sed 's/\(..\)/\\x\1/g
 # sed -n '/Contents.*.text/,/^[^ ]/p'
 SHELLCODE="`objdump -s $shellcode | $SED -n '/Contents.*.text/,/^[^ ]/p' | $SED -n '/^ [0-9]\{4\}/p' | awk '{for (i = 2; i < NF; i++) printf("%s", $i)}' | sed 's/\(..\)/\\\\\\\x\1/g'`"
 
 $SED -i '/shellcode=/c shellcode=b\"'$SHELLCODE'\"' $BUILD_ATTACK
-
-set +x
 
 cd $ROOT
 

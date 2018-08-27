@@ -5,13 +5,15 @@ from __future__ import absolute_import
 from urllib.parse import urlparse
 import parser.quanben as quanben
 import parser.qb5 as qb5
+import parser.jueshitangmen as jueshitangmen
 import sys
 
 __all__ = ['get_parser']
 
 parser_info = {
     quanben.Quanben._url_path : quanben,
-    qb5.Qb5._url_path : qb5
+    qb5.Qb5._url_path : qb5,
+    jueshitangmen.JueShiTangMen._url_path: jueshitangmen
 }
 
 def get_parser(url):

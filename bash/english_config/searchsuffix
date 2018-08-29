@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+
+
+config_dir=./
+
+word="$(echo $1 | tr 'A-Z' 'a-z')"
+[ -n "$word" ] || {
+	echo "missing word"
+	exit 1
+}
+
+do_search_root()
+{
+	local cfg
+
+	cfg=$config_dir/english_root
+
+	roots="`awk -F\| '{print $1}' $cfg | sort | uniq`"
+
+	for root in $roots
+	do
+		echo "$word" | grep -q "$root" && {
+			awk -F\| '/^'"$root"'\|/{
+
+				print ".............. ROOT ..................."
+				print $1
+				for (i = 2; i <= NF; i++) {
+					printf("\t%s\n", $i);
+				}
+			}
+			' <$cfg 
+		}
+	done
+}
+
+do_search_prefix()
+{
+	local cfg
+	cfg=$config_dir/english_prefix
+	roots="`awk -F\| '{print $1}' $cfg | sort | uniq`"
+
+	for root in $roots
+	do
+		 [ "$word" = "${word#$root}" ] || {
+			awk -F\| '/^'"$root"'\|/{
+
+				print "............... PREFIX .................."
+				print $1
+				for (i = 2; i <= NF; i++) {
+					printf("\t%s\n", $i);
+				}
+			}
+			' <$cfg 
+		}
+	done
+}
+
+
+do_search_suffix()
+{
+	local cfg
+	cfg=$config_dir/english_suffix
+	roots="`awk -F\| '{print $1}' $cfg | sort | uniq`"
+
+	for root in $roots
+	do
+		 [ "$word" = "${word%$root}" ] || {
+			awk -F\| '/^'"$root"'\|/{
+
+				print ".................. SUFFIX ..............."
+				print $1
+				for (i = 2; i <= NF; i++) {
+					printf("\t%s\n", $i);
+				}
+			}
+			' <$cfg 
+	 	}
+
+	done
+}
+
+do_search_all()
+{
+	do_search_root
+	do_search_prefix
+	do_search_suffix
+}
+
+
+case `basename $0` in
+
+	searchroot)
+		do_search_root $*
+	;;
+
+	searchprefix)
+		do_search_prefix $*
+	;;
+
+	searchsuffix)
+		do_search_suffix $*
+	;;
+
+	*)
+		do_search_all $*
+	;;
+esac
+
+
+

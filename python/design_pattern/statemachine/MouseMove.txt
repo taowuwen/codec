@@ -1,0 +1,48 @@
+
+mouse appears
+mouse run away
+mouse enters trap
+mouse appears
+mouse run away
+mouse enters trap
+mouse escaps
+mouse trapped
+mouse appears
+mouse run away
+mouse enters trap
+mouse escaps
+mouse trapped
+mouse removed
+mouse removed
+mouse escaps
+mouse trapped
+mouse removed
+mouse appears
+mouse run away
+mouse enters trap
+mouse appears
+mouse run away
+mouse enters trap
+mouse escaps
+mouse trapped
+mouse appears
+mouse run away
+mouse enters trap
+mouse escaps
+mouse run away
+
+mouse appears
+mouse runs away
+mouse appears
+mouse enters trap
+mouse escapes
+mouse appears
+mouse enters trap
+mouse trapped
+mouse removed
+mouse appears
+mouse runs away
+mouse appears
+mouse enters trap
+mouse trapped
+mouse removed

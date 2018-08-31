@@ -77,6 +77,6 @@ MouseTrap.holding = Holding()
 
 #moves = map(string.strip, open("MouseMoves.txt").readlines())
 
-moves = [ a.strip() for a in open("MouseMove.txt").readlines() ]
+moves = [ a.strip() for a in open("MouseMove.txt").readlines() if a.startswith("mouse")]
 
 MouseTrap().runAll(map(MouseAction, moves))

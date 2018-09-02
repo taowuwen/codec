@@ -6,8 +6,8 @@ class Item:
 
     def __init__(self, name, price, quantity):
         self.name = name
-        self.price = price
-        self.quantity = quantity
+        self.price = int(price)
+        self.quantity = int(quantity)
         self.id = 0
 
     def __str__(self):
@@ -45,9 +45,15 @@ class ItemSlots:
 
     def __init__(self, x, y):
 
+        if x >= 10:
+            x = 9
+
+        if y >= 10:
+            y = 9
+
         self.x = x
         self.y = y
-        self.items = [ [None for a in range(x)] for b in range(y) ]
+        self.items = [ [None for a in range(y)] for b in range(x) ]
 
     def __str__(self):
         return str(self.items)
@@ -73,17 +79,17 @@ class ItemSlots:
 
         table = BeautifulTable(default_padding=2)
 
-        [ table.append_row(self.items[_y]) for _y in range(self.y) ]
+        [ table.append_row(self.items[_x]) for _x in range(self.x) ]
 
         print(table)
 
     def append_item(self, it):
 
-        for _y in range(self.y):
-            for _x in range(self.x):
-                if not self.items[_y][_x]:
-                    self.items[_y][_x] = it
-                    it.id = str(_y) + str(_x)
+        for _x in range(self.x):
+            for _y in range(self.y):
+                if not self.items[_x][_y]:
+                    self.items[_x][_y] = it
+                    it.id = str(_x) + str(_y)
                     return
 
     def load(self, fl="items.txt"):
@@ -91,6 +97,20 @@ class ItemSlots:
         with open(fl, "r") as fin:
             for ln in fin:
                 self.append_item(Item(*ln.split()))
+
+    def get_item(self, pos="00"):
+
+        if len(pos) != 2:
+            return None
+
+        x = int(pos[0])
+        y = int(pos[1])
+
+        if 0 <= x < self.x and 0 <= y < self.y:
+            return self.items[x][y]
+
+        return None
+
 
 
 def test():
@@ -132,10 +152,15 @@ def test():
 
 if __name__ == '__main__':
 
-    vm = ItemSlots(5,4)
+    vm = ItemSlots(4, 5)
 
     #print(vm)
     #vm.show_items()
     vm.load()
     vm.show_items_v1()
+
+    print(vm.get_item("01"))
+    print(vm.get_item("10"))
+    print(vm.get_item("50"))
+    print(vm.get_item("30"))
 

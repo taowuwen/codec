@@ -5,6 +5,7 @@
 import sys
 import os
 from Items import ItemSlots, Item 
+from Money import Money, MoneyList
 
 class Template:
     def __init__(self, val):
@@ -55,23 +56,6 @@ class Condition:
 
     def test(self, a, b):
         assert 0, "Not Implemention"
-
-
-class Money:
-
-    def __init__(self, name, val):
-        self.name = name
-        self.val  = val
-
-    def __str__(self):
-        return self.name
-
-    def get_value(self):
-        return self.val
-
-
-Money.quarter = Money("Quarter", 25)
-Money.dollar  = Money("Dollar", 100)
 
 
 class Transition:
@@ -131,11 +115,12 @@ class StateMachine:
         return False
 
 
+
 class VendingMachine(StateMachine):
 
-    def __init__(self, changes=100):
+    def __init__(self):
 
-        self.change = changes
+        self.change = MoneyList(map(lambda a: Money.quarter, range(10)))
         self.item_slots = ItemSlots(4, 5)
         self.item_slots.load()
 
@@ -144,6 +129,7 @@ class VendingMachine(StateMachine):
         super().__init__(State.quiescent)
 
         self.build_state_table()
+
 
 
     def collect_money(self, evt):
@@ -163,7 +149,7 @@ class VendingMachine(StateMachine):
         """
         print("do make change.... {}".format(self.total))
         if self.total > 0:
-            assert self.change > self.total, "error happenned"
+            assert int(self.change) > self.total, "error happenned"
             self.change -= self.total
             self.total = 0
             self.cur_st = State.quiescent
@@ -232,7 +218,7 @@ class VendingMachine(StateMachine):
 
         # for unavailiable
         st = {
-            (State.unavailiable, Money.quarter.__class__): ( None, self.collect_money, State.collecting),
+            (State.unavailiable, Money.quarter.__class__): ( None, self.collect_money, State.unavailiable),
             (State.unavailiable, SelectedItem.select.__class__): (None, self.selected_item, State.selecting),
             (State.unavailiable, Quit.quiter.__class__): (None, self.make_change, State.makechange)
         }
@@ -258,6 +244,8 @@ if __name__ == '__main__':
         Money.dollar,
         SelectedItem("34"),
         SelectedItem("00"),
+        Money.dollar,
+        SelectedItem("13"),
         Quit.quiter
     ]
 

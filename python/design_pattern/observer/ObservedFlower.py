@@ -65,13 +65,12 @@ class Bee:
         self.open_obs = Bee.OpenObserver(self)
         self.close_obs = Bee.CloseObserver(self)
 
-
     class OpenObserver(Observer):
         def __init__(self, outer):
             self.outer = outer
             super().__init__()
 
-        def update(self, observerable=1, arg=None):
+        def update(self, arg=None):
             print("Bee" + self.outer.name +"'s breakfirst time.")
 
     class CloseObserver(Observer):
@@ -79,8 +78,7 @@ class Bee:
             self.outer = outer
             super().__init__()
 
-
-        def update(self, observerable=1, arg=None):
+        def update(self, arg=None):
             print("Bee" + self.outer.name +"'s bed time.")
 
 
@@ -96,7 +94,7 @@ class Hummingbird:
             self.outer = outer
             super().__init__()
 
-        def update(self, observerable=1, arg=None):
+        def update(self, arg=None):
             print("Hummingbird" + self.outer.name +"'s breakfirst time.")
 
     class CloseObserver(Observer):
@@ -105,9 +103,62 @@ class Hummingbird:
             super().__init__()
 
 
-        def update(self, observerable=1, arg=None):
+        def update(self, arg=None):
             print("Hummingbird" + self.outer.name +"'s bed time.")
 
+
+class AllergyOnDust:
+
+    def __init__(self, name):
+        self.name = name
+
+        self.open_obs = AllergyOnDust.OpenObserver(self)
+        self.close_obs = AllergyOnDust.CloseObserver(self)
+
+    class OpenObserver(Observer):
+        def __init__(self, outer):
+            self.outer = outer
+            super().__init__()
+
+        def update(self, arg=None):
+            print("AllergyOnDust " + self.outer.name + " should take a gauze mask")
+
+    class CloseObserver(Observer):
+        def __init__(self, outer):
+            self.outer = outer
+            super().__init__()
+        
+        def update(self, arg=None):
+            print("AllergyOnDust " + self.outer.name + " No need to worry about flower anymore")
+
+
+class TemplateTarget:
+
+    def __init__(self, name):
+        self.name = name
+
+        self.open_obs = eval(self.__class__.__name__ + ".OpenObserver(self)")
+        self.close_obs = eval(self.__class__.__name__ + ".CloseObserver(self)")
+
+    class OpenObserver(Observer):
+        def __init__(self, outer):
+            self.outer = outer
+            super().__init__()
+
+        def update(self, arg=None):
+            print("{} {} be notified on open".format(self.outer.__class__.__name__, self.outer.name))
+
+    class CloseObserver(Observer):
+        def __init__(self, outer):
+            self.outer = outer
+            super().__init__()
+        
+        def update(self, arg=None):
+            print("{} {} be notified on close".format(self.outer.__class__.__name__, self.outer.name))
+
+
+class JustTest(TemplateTarget):
+    pass
 
 
 
@@ -120,15 +171,26 @@ if __name__ == '__main__':
     ha = Hummingbird('A')
     hb = Hummingbird('B')
 
+    aa = AllergyOnDust('Troy')
+    ab = AllergyOnDust('Bob')
+
+    ja = JustTest('justtest')
+
     f.open_notifier.add_observer(ba.open_obs)
     f.open_notifier.add_observer(bb.open_obs)
     f.open_notifier.add_observer(ha.open_obs)
     f.open_notifier.add_observer(hb.open_obs)
+    f.open_notifier.add_observer(aa.open_obs)
+    f.open_notifier.add_observer(ab.open_obs)
+    f.open_notifier.add_observer(ja.open_obs)
 
     f.close_notifier.add_observer(ba.close_obs)
     f.close_notifier.add_observer(bb.close_obs)
     f.close_notifier.add_observer(ha.close_obs)
     f.close_notifier.add_observer(hb.close_obs)
+    f.close_notifier.add_observer(aa.close_obs)
+    f.close_notifier.add_observer(ab.close_obs)
+    f.close_notifier.add_observer(ja.close_obs)
 
     f.open_notifier.del_observer(hb.open_obs)
     f.open()

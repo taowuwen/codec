@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-<<<<<<< HEAD
 from pprint import pprint
 
 
@@ -30,18 +29,6 @@ class Foo:
 class Bar(object, metaclass=UpperCaseMetaClass):
     foo = 'foo'
 
-if __name__ == '__main__':
-    print("testing for metaclass....")
-
-    f = Foo()
-    pprint([a for a in dir(f) if not a.startswith('__')])
-
-    b = Bar()
-    pprint([a for a in dir(b) if not a.startswith('__')])
-
-
-
-=======
 
 class Hello:
 
@@ -55,7 +42,13 @@ def fn(self, name="world"):
 Hello1 = type('Hello1', (object, ), dict(hello=fn))
 
 if __name__ == '__main__':
-    print("hello, testing for metaclass")
+    print("testing for metaclass....")
+
+    f = Foo()
+    pprint([a for a in dir(f) if not a.startswith('__')])
+
+    b = Bar()
+    pprint([a for a in dir(b) if not a.startswith('__')])
 
     h = Hello()
     h.hello('tww')
@@ -66,6 +59,3 @@ if __name__ == '__main__':
     h.hello('tww')
     print(type(h))
     print(type(Hello))
-
-    help(type)
->>>>>>> a7c0296fe3240c981e39efa3a605f4cabf4f7a22

@@ -4,27 +4,57 @@
 from Observer import *
 import os
 import sys
+import random
 
+class Event:
 
-class ClickedEvent:
+    def __init__(self, name):
+        self.name = name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __str__(self):
+        return self.name
+
+    def __hash__(self):
+        return hash(self.name)
+
+Event.clicked = Event("clicked")
+
+class ClickedEvent(Event):
 
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        super().__init__("clicked")
+
+    def pos(self):
+        return (self.x, self.y)
+
+    def __str__(self):
+        return super().__str__() + " {}, {}".format(self.x, self.y)
+
+class EventList(list):
+
+    def __str__(self):
+        return str([str(i) for i in self])
 
 
 class BoxObserver(Observer, Observable):
 
-    def __init__(self, x, y, z):
+    def __init__(self, x, y, z, outer=None):
         '''
         0  <= x <= 8
         30 <= y <= 37
         40 <= z <= 47
         '''
+        self.outer = outer
 
         self.x = x if 0 <= x <= 8 else 1
         self.y = y if 30 <= y <= 37 else 31
         self.z = z if 40 <= z <= 47 else 41
+        super().__init__()
 
     def __eq__(self, other):
 
@@ -41,11 +71,29 @@ class BoxObserver(Observer, Observable):
         return "\33[0{self.x};{self.y};{self.z}m{:^20}\33[00m".format(s, self=self)
 
     def update(self, arg=None):
-        pass
+        print("{} got notified on {}".format(self, arg))
+        evt = arg
+        x, y = evt.pos()
+        self.x = self.outer.boxes[x][y].x
+
 
     def notify_servers(self, arg=None):
-        pass
 
+        print("update box {}".format(self), end="\t")
+        # update color
+        bo = self.outer.build_uniqe_box()
+        self.x = bo.x
+        self.y = bo.y
+        self.z = bo.z
+        del bo
+
+        print("current box {}, evt: {}".format(self, arg))
+
+        self.set_changed()
+        super().notify_servers(arg)
+        self.clear_changed()
+        
+        print(self.outer)
 
 
 class BoxTable:
@@ -68,13 +116,11 @@ class BoxTable:
 
     def build_uniqe_box(self):
 
-        import random
+        x = random.randint(0,  8)
+        y = random.randint(30, 37)
+        z = random.randint(40, 47)
 
-        x = random.randint(0,  9)
-        y = random.randint(30, 38)
-        z = random.randint(40, 48)
-
-        bo = BoxObserver(x, y, z)
+        bo = BoxObserver(x, y, z, self)
 
         return bo if not self.box_exist(bo) else self.build_uniqe_box()
 
@@ -141,6 +187,33 @@ class BoxTable:
 
         return _s
 
+    def run(self, evt):
+        if evt == Event.clicked:
+
+            x, y = evt.pos()
+
+            box = self.boxes[x][y]
+            box.notify_servers(arg=evt)
+
+    def build_observers_for_box(self, box):
+
+        for x in range(self.x):
+            for y in range(self.y):
+
+                b = self.boxes[x][y]
+                if not b is box:
+                    box.add_observer(b)
+
+
+    def build_observers(self):
+        
+        for x in range(self.x):
+            for y in range(self.y):
+                self.build_observers_for_box(self.boxes[x][y])
+
+    def remove_observers(self):
+        [ [self.boxes[x][y].clear_observers() for y in range(self.y)] for x in range(self.x) ]
+
 
 
 if __name__ == '__main__':
@@ -160,5 +233,21 @@ if __name__ == '__main__':
     
     #os.write(sys.stdout.fileno(), str(bo).encode() + '\n'.encode())
 
-    bt = BoxTable(3, 5)
+    row = 5 
+    col = 5
+
+    bt = BoxTable(row, col)
     print(bt)
+
+    bt.build_observers()
+
+    _r = [random.randint(0, row-1) for x in range(row * col)]
+    _c = [random.randint(0, col-1) for y in range(row * col)]
+
+    evts = [ ClickedEvent(*a) for a in zip(_r, _c) ] 
+    print(EventList(evts))
+
+    for evt in evts:
+        bt.run(evt)
+
+    bt.remove_observers()

@@ -51,12 +51,12 @@ class TaskHttp(Task):
         assert url and cls, "url and cls not null"
         assert isinstance(url, str)
 
-        super(TaskHttp, self).__init__()
+        super().__init__()
         self._url = url
         self._cls = cls()
 
     def __str__(self):
-        return super(TaskHttp, self).__str__() +\
+        return super().__str__() +\
                 "[{:10}: {url}]".format(threading.current_thread().name, url=self._url)
 
     def task_run(self):
@@ -82,13 +82,13 @@ class TaskHttp(Task):
 
 class TaskUrlDownload(TaskHttp):
     def __init__(self, url):
-        super(TaskUrlDownload, self).__init__(url, get_parser(url).URLDownload)
+        super().__init__(url, get_parser(url).URLDownload)
 
 
 class TaskMenuDownload(TaskHttp):
 
     def __init__(self, url):
-        super(TaskMenuDownload, self).__init__(url, get_parser(url).MenuDownload)
+        super().__init__(url, get_parser(url).MenuDownload)
         self._cur = None
 
     def __iter__(self):
@@ -114,7 +114,7 @@ class TaskMenuDownload(TaskHttp):
 class TaskPageDownload(TaskHttp):
 
     def __init__(self, url):
-        super(TaskPageDownload, self).__init__(url, get_parser(url).PageDownload)
+        super().__init__(url, get_parser(url).PageDownload)
 
     @property
     def content(self):
@@ -192,7 +192,9 @@ class taskpool2:
             for item in task:
 
                 if skip:
-                    if self._last_task == urlparse(task[item]).path:
+                    path = urlparse(urljoin(task._url, urlparse(task[item]).path)).path
+                    #if self._last_task == urlparse(task[item]).path:
+                    if self._last_task == path:
                         skip = 0
 
                     continue

@@ -29,16 +29,16 @@ class MethodNotImpletion(Exception):
     pass
 
 
+_url_path = "www.quanben5.com"
+_url_root = _http + _url_path
+
 class Quanben(HTTPDownload):
-    _url_path = "www.quanben5.com"
-    _url_root = _http + _url_path
 
     def http_get(self, url):
-        return super(Quanben, self).http_get(urljoin(self._url_root, url))
+        return super().http_get(urljoin(_url_root, url))
 
     def http_post(self, url, data):
-        return super(Quanben, self).http_post(
-                     urljoin(self._url_root, url), data)
+        return super().http_post(urljoin(_url_root, url), data)
 
     def parse_post(self, ctx):
         print("Quanben POST: " + ctx)

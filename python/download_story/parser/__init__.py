@@ -6,20 +6,26 @@ from urllib.parse import urlparse
 import parser.quanben as quanben
 import parser.qb5 as qb5
 import parser.jueshitangmen as jueshitangmen
+import parser.c23us as c23us
+import parser.biquge as biquge
 import sys
 
 __all__ = ['get_parser']
 
 parser_info = {
-    quanben.Quanben._url_path : quanben,
-    qb5.Qb5._url_path : qb5,
-    jueshitangmen.JueShiTangMen._url_path: jueshitangmen
+    quanben._url_path : quanben,
+    qb5._url_path : qb5,
+    jueshitangmen._url_path: jueshitangmen,
+    c23us._url_path: c23us,
+    biquge._url_path: biquge
 }
 
 def get_parser(url):
-    mod = parser_info.get(urlparse(url).netloc, None)
+    parsed = urlparse(url)
+    mod = parser_info.get(parsed.netloc, None)
 
     if mod:
+        mod._url_root = parsed.scheme + mod._url_path
         return mod
 
     sys.stderr.write("No parser for {}, exit\n".format(url))

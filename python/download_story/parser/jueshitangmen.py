@@ -30,16 +30,16 @@ class MethodNotImpletion(Exception):
     pass
 
 
+_url_path = "www.jueshitangmen.info"
+_url_root = _http + _url_path
+
 class JueShiTangMen(HTTPDownload):
-    _url_path = "www.jueshitangmen.info"
-    _url_root = _http + _url_path
 
     def http_get(self, url):
-        return super(JueShiTangMen, self).http_get(urljoin(self._url_root, url))
+        return super().http_get(urljoin(_url_root, url))
 
     def http_post(self, url, data):
-        return super(JueShiTangMen, self).http_post(
-                     urljoin(self._url_root, url), data)
+        return super().http_post(urljoin(_url_root, url), data)
 
     def parse_post(self, ctx):
         print("JueShiTangMen POST: " + ctx)

@@ -10,9 +10,11 @@ from parser.httpdownload import url_download
 import re
 import os
 
+_url_path = 'www.qb5.io'
+_url_root = _http + _url_path
+
 class Qb5:
-    _url_path = 'www.qb5.io'
-    _url_root = _http + _url_path
+    pass
 
 
 class PageDownload(Qb5, quanben.PageDownload):
@@ -106,7 +108,7 @@ def _main():
         
 
     page = PageDownload()
-    print(page._url_root)
+    print(_url_root)
     url = '/xs-14241/du-15.html'
     info = page.http_get(url)
     print(info)

@@ -4,11 +4,10 @@
 import urllib
 from urllib import request
 from urllib.parse import urlencode
+from bs4 import BeautifulSoup
 
 _http = "http://"
 _https = "https://"
-
-
 
 class HTTPDownload:
 
@@ -20,6 +19,7 @@ class HTTPDownload:
         )
 
         req.add_header('User-Agent', 'Firefox 3.12')
+        #req.add_header('Accept-Encoding','gzip, deflate, br')
 
         try:
             rsp = request.urlopen(req, timeout=30)
@@ -28,9 +28,28 @@ class HTTPDownload:
         else:
             if parser:
                 cmd = self.parse_post if req.get_method() == 'POST' else self.parse_get
-                return cmd(rsp.read().decode('utf-8'))
+                return cmd(self._get_rsp(rsp))
             else:
-                return rsp.read().decode('utf-8')
+                return self._get_rsp(rsp)
+
+    def _get_rsp(self, rsp):
+
+        res = rsp.read()
+
+        if rsp.info().get('Content-Encoding') == 'gzip':
+            import gzip
+            res = gzip.decompress(res)
+
+        codec = ["utf-8", "gb2312", 'gbk']
+
+        for c in codec:
+            try:
+                return res.decode(c)
+            except UnicodeDecodeError:
+                pass
+
+        return res.decode()
+
 
     def http_get(self, url):
         return self._do_http_request(url)
@@ -52,7 +71,7 @@ class url_download(HTTPDownload):
         self._ctx = None
 
     def _do_http_request(self, url, data = None):
-        self._ctx = super(url_download, self)._do_http_request(url, data, parser=0)
+        self._ctx = super()._do_http_request(url, data, parser=0)
         return self._ctx
 
     @property

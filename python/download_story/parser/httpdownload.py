@@ -47,6 +47,8 @@ class HTTPDownload:
                 return res.decode(c)
             except UnicodeDecodeError:
                 pass
+        else:
+            raise UnicodeDecodeError
 
         return res.decode()
 

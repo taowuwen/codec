@@ -91,12 +91,12 @@ class PageDownload(BiQuGe):
         except ValueError:
             pass
     
-class MenuDownload(BiQuGe, quanben.MenuDownload):
+class MenuDownload(BiQuGe):
     from collections import OrderedDict
 
     def parse_get(self, ctx):
 
-        self._items = {}
+        self._items = OrderedDict()
 
         try:
             _bs = BeautifulSoup(ctx, "html.parser")

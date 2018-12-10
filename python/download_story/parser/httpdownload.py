@@ -3,6 +3,7 @@
 
 import urllib
 from urllib import request
+from urllib.parse import urljoin
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 
@@ -79,6 +80,16 @@ class url_download(HTTPDownload):
     @property
     def content(self):
         return self._ctx
+
+
+_url_root = ''
+
+class HTTPDownload_V1(HTTPDownload):
+    def http_get(self, url):
+        return super().http_get(urljoin(_url_root, url))
+
+    def http_post(self, url, data):
+        return super().http_post(urljoin(_url_root, url), data)
 
 
 def _main():

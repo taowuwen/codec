@@ -24,7 +24,6 @@ def get_node(bs, *key, **kwargs):
 def parse_23us(bs = None):
     #print(bs.prettify())
 
-
     amain = get_node(bs, id='amain')
 
     # get title
@@ -60,6 +59,42 @@ def parse_23us(bs = None):
                 print(ln, "\t" + str(c.string).strip())
 
 
+def parse_booktxt(bs=None):
+    top = get_node(bs, class_='box_con')
+
+    # get title
+    if top:
+        title = get_node(top, class_ = 'bookname')
+        print(title.h1.string.strip())
+
+    # get content
+    obj = get_node(top, id='content')
+    if obj:
+        for ln, c in enumerate(obj.children):
+            if c.string and str(c.string).strip():
+                print(ln, "\t" + str(c.string).strip())
+
+    obj = get_node(top, class_='bottem2')
+
+    if obj:
+        urls = obj.find_all('a')
+
+        last_page = urls[1]
+        menu = urls[2]
+        next_page = urls[3]
+
+        print("last page is : {}".format(last_page['href']))
+        print("menu page is : {}".format(menu['href']))
+        print("next page is : {}".format(next_page['href']))
+
+
+        for url in obj.find_all('a'):
+            print(url.get("href"))
+
+        for ln, c in enumerate(obj.children):
+            if c.string and str(c.string).strip():
+                print(ln, "\t" + str(c.string).strip())
+
 
 def parse_def(obj = None):
 
@@ -92,18 +127,20 @@ if __name__ == '__main__':
     url='https://www.bequge.com/28_28784/12755056.html'
     fl='/tmp/index.html'
     #fl='/tmp/3213012.html'
+    url = 'https://www.booktxt.net/1_1562/508673.html'
 
     #obj = BeautifulSoup(do_download_url('http://www.biquge.lu/book/9806/4241761.html'), "html.parser")
     #obj = BeautifulSoup(open("/tmp/4241761.html", "r", encoding='gb2312').read(), "html.parser")
     #obj = BeautifulSoup(open("/tmp/index.html", "r").read(), "html.parser")
 
-    #obj = BeautifulSoup(do_download_url(url), "html.parser")
-    obj = BeautifulSoup(open(fl, "r").read(), "html.parser")
+    obj = BeautifulSoup(do_download_url(url), "html.parser")
+    #obj = BeautifulSoup(open(fl, "r").read(), "html.parser")
 
     #print(obj.prettify())
 
     print("attrs: {}".format(obj.body.div.attrs))
 
-    parse_23us(obj)
+    #parse_23us(obj)
+    parse_booktxt(obj)
 #    parse_def(obj)
 

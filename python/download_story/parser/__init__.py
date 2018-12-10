@@ -8,6 +8,7 @@ import parser.qb5 as qb5
 import parser.jueshitangmen as jueshitangmen
 import parser.c23us as c23us
 import parser.biquge as biquge
+import parser.booktxt as booktxt
 import sys
 
 __all__ = ['get_parser']
@@ -17,7 +18,8 @@ parser_info = {
     qb5._url_path : qb5,
     jueshitangmen._url_path: jueshitangmen,
     c23us._url_path: c23us,
-    biquge._url_path: biquge
+    biquge._url_path: biquge,
+    booktxt._url_path: booktxt
 }
 
 def get_parser(url):

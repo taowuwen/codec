@@ -543,7 +543,7 @@ bool uh_file_request(struct client *cl, struct path_info *pi, int *detached)
 				"Transfer-Encoding: chunked\r\n", -1));
 
 		ensure_out(uh_http_send(cl, NULL,
-				"Content-Type: text/html\r\n\r\n", -1));
+				"Content-Type: text/html;charset=UTF-8\r\n\r\n", -1));
 
 		/* content */
 		uh_file_dirlist(cl, pi);

@@ -16,10 +16,10 @@ import bs4
 from parser.quanben import InvalidPageInfo
 from collections import OrderedDict
 
-_url_path = 'www.biquge.info'
+_url_path = 'www.biquke.com'
 _url_root = _https + _url_path
 
-class BiQuGe(HTTPDownload):
+class BiQuKe(HTTPDownload):
 
     def http_get(self, url):
         return super().http_get(urljoin(_url_root, url))
@@ -28,7 +28,7 @@ class BiQuGe(HTTPDownload):
         return super().http_post(urljoin(_url_root, url), data)
 
 
-class PageDownload(BiQuGe):
+class PageDownload(BiQuKe):
 
     def parse_get(self, ctx):
 
@@ -92,7 +92,7 @@ class PageDownload(BiQuGe):
         except ValueError:
             pass
     
-class MenuDownload(BiQuGe):
+class MenuDownload(BiQuKe):
 
     def parse_get(self, ctx):
 
@@ -124,18 +124,19 @@ class URLDownload(url_download):
 
 def _main():
 
-    page = PageDownload()
-    print(_url_root)
-    url = 'https://www.23us.so/files/article/html/30/30177/13921970.html'
-    url = 'https://www.biquge.info/10_10240/5018128.html'
-    info = page.http_get(url)
-    print(info)
+   #page = PageDownload()
+   #print(_url_root)
+   #url = 'https://www.23us.so/files/article/html/30/30177/13921970.html'
+   #url = 'https://www.biquge.info/10_10240/5018128.html'
+   #url = 'https://www.biquke.com/bq/0/990/3929103.html'
+   #info = page.http_get(url)
+   #print(info)
 
-   # menu = MenuDownload()
-   # print(_url_root)
-   # url = 'https://www.biquge.info/10_10240/'
-   # info = menu.http_get(url)
-   # print(info)
+    menu = MenuDownload()
+    print(_url_root)
+    url = 'https://www.biquke.com/bq/0/990/'
+    info = menu.http_get(url)
+    print(info)
 
 
 if __name__ == '__main__':

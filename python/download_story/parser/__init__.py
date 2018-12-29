@@ -9,6 +9,7 @@ import parser.jueshitangmen as jueshitangmen
 import parser.c23us as c23us
 import parser.biquge as biquge
 import parser.booktxt as booktxt
+import parser.biquke as biquke
 import sys
 
 __all__ = ['get_parser']
@@ -19,6 +20,7 @@ parser_info = {
     jueshitangmen._url_path: jueshitangmen,
     c23us._url_path: c23us,
     biquge._url_path: biquge,
+    biquke._url_path: biquke,
     booktxt._url_path: booktxt
 }
 

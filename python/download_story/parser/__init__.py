@@ -10,6 +10,7 @@ import parser.c23us as c23us
 import parser.biquge as biquge
 import parser.booktxt as booktxt
 import parser.biquke as biquke
+import parser.longwangchuanshuo as duoluodalu
 import sys
 
 __all__ = ['get_parser']
@@ -21,6 +22,7 @@ parser_info = {
     c23us._url_path: c23us,
     biquge._url_path: biquge,
     biquke._url_path: biquke,
+    duoluodalu._url_path: duoluodalu,
     booktxt._url_path: booktxt
 }
 

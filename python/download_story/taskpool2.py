@@ -143,7 +143,7 @@ class TaskPageDownload(TaskHttp):
 
 class taskpool2:
 
-    def __init__(self, num=1, output=sys.stdout):
+    def __init__(self, num=1, output=sys.stdout, retry=10):
 
         self._wait = queue.Queue()
 
@@ -159,7 +159,7 @@ class taskpool2:
         self._last_task = None
 
         self._st = task_status.inited
-        self._retry = 10
+        self._retry = retry
 
         self._failed = 0
         self._succeed = 0

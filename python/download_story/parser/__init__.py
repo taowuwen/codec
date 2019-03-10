@@ -12,6 +12,7 @@ import parser.booktxt as booktxt
 import parser.biquke as biquke
 import parser.longwangchuanshuo as duoluodalu
 import parser.luoxia as luoxia
+import parser.qiushuge as qiushuge
 import sys
 
 __all__ = ['get_parser']
@@ -25,6 +26,7 @@ parser_info = {
     biquke._url_path: biquke,
     duoluodalu._url_path: duoluodalu,
     luoxia._url_path: luoxia,
+    qiushuge._url_path: qiushuge,
     booktxt._url_path: booktxt
 }
 

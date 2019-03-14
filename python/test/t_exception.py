@@ -60,5 +60,3 @@ if __name__ == '__main__':
     test_try_except()
     test_try_except_else()
     test_try_except_else_finally()
-
-

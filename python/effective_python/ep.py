@@ -31,11 +31,24 @@ def show_item_info(f):
 
     return wrapper
 
+def show_system_info():
+    print("sys.path: ")
+    for p in sys.path:
+        print("\t {}".format(p))
+    else:
+        print("")
+
+    print("sys.build in names:")
+    for n in sys.builtin_module_names:
+        print("\t {}".format(n))
+    else:
+        print("")
 
 @show_item_info
 @timeit
-def main():
+def _main():
+    show_system_info()
     print("hello, this is effective python common lib")
 
 if __name__ == '__main__':
-    main()
+    _main()

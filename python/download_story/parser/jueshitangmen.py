@@ -1,208 +1,113 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from parser.httpdownload import HTTPDownload
+from parser.httpdownload import HTTPDownload_V1
 from parser.httpdownload import url_download
 from parser.httpdownload import _http
 from parser.httpdownload import _https
+from parser.qiushuge import PageDownload as qiushuge_PageDownload
+from parser.qiushuge import MenuDownload as qiushuge_MenuDownload
+from parser.qiushuge import BookInfoDownload as qiushuge_BookInfo
+import parser.quanben as quanben
 
 from urllib.parse import urljoin
 import sys
 import re
-
-
-class TitleNotFound(Exception):
-    pass
-
-
-class PageContentNotFound(Exception):
-    pass
-
-
-class PageScriptNotFound(Exception):
-    pass
-
-
-class InvalidPageInfo(Exception):
-    pass
-
-class MethodNotImpletion(Exception):
-    pass
+from bs4 import BeautifulSoup
+import bs4
 
 
 _url_path = "www.jueshitangmen.info"
 _url_root = _http + _url_path
 
-class JueShiTangMen(HTTPDownload):
 
-    def http_get(self, url):
-        return super().http_get(urljoin(_url_root, url))
+class JueShiTangMen(HTTPDownload_V1):
+    pass
 
-    def http_post(self, url, data):
-        return super().http_post(urljoin(_url_root, url), data)
 
-    def parse_post(self, ctx):
-        print("JueShiTangMen POST: " + ctx)
-        raise MethodNotImpletion()
+class PageDownload(JueShiTangMen, qiushuge_PageDownload):
 
     def parse_get(self, ctx):
-        print("JueShiTangMen GET: " + ctx)
-        raise MethodNotImpletion()
 
-    def _do_get_(self, tag_open, tag_close, ctx):
-        assert tag_open != None and len(tag_open) > 0, "tag_open NULL"
-        assert tag_close != None and len(tag_close) > 0, "tag_close NULL"
-        assert ctx != None, "Content NULL"
-
-        s = ctx.index(tag_open)
-        e = ctx.index(tag_close, s + len(tag_open))
-
-        return (ctx[s+len(tag_open):e], ctx[e+len(tag_close):])
-
-    def get_href(self, ctx):
+        self._info = {}
 
         try:
-            val, *c = self._do_get_('href="', '"', ctx)
-        except ValueError:
-            return ""
-        else:
-            return val.strip()
+            _bs = BeautifulSoup(ctx, "html.parser")
 
+            bs = _bs.find("div", class_='bg')
 
-class PageDownload(JueShiTangMen):
-    def parse_post(self, ctx):
-        if ctx.find(u'参数错误') == -1:
+            self._get_title(bs)
+            self._get_content(bs)
+            self._get_urls(_bs)
 
-            val = ctx.replace("</p>", "\n\n").replace("<p>", "    ")
-            self._info["content"] = re.sub("<[^>]*>", "", val)
-        else:
-            raise InvalidPageInfo("Invalid Page info {}".format(ctx))
+        except Exception as e:
+            raise quanben.InvalidPageInfo("Invalid page info")
 
         return self._info
 
-    def parse_get(self, ctx):
-
-        self._ctx = ctx.replace('\', '')
-        self._info = {}
-        info = self._info
+    def _get_urls(self, bs):
         
         try:
-            self._get_menu(info)
-            self._get_title(info)
-            self._get_content(info)
+            menu = bs.find("div", class_="banner")
 
-            self._get_next(info)
-            self._get_prev(info)
-
-        except Exception as e:
-            raise
-        else:
-            return info
-
-        return None
-
-
-    def _do_get_data(self, tag_open, tag_close):
-        val, self._ctx = self._do_get_(tag_open, tag_close, self._ctx)
-        return val.strip()
-
-
-    def _get_title(self, info):
-
-        try:
-            info["title"] = self._do_get_data('<h1>', '</h1>')
-        except ValueError:
-            raise TitleNotFound("title not found")
-
-
-    def _get_content(self, info):
-        try:
-            val = self._do_get_data(
-                    '<div style="padding: 40px 0px 0px 0px; width: 336px; float: right;"> </div><br>',
-                    '<br>'
-                    ).replace("</p>", "\n\n").replace("<p>", "    ")
-
-            self._info["content"] = re.sub("<[^>]*>", "", val)
+            self._info["menu"] = menu.a.get("href")
+            self._info["page_prev"] = self._info["menu"]
+            self._info["page_next"] = self._info["menu"]
 
         except ValueError:
-            raise PageContentNotFound("page content not found")
+            raise quanben.InvalidPageInfo("invalid page info")
 
-
-    def _get_prev(self, info):
-        try:
-            info["page_prev"] = self.get_href(
-                    self._do_get_data('</strong> <a ', '</a>')
-                )
-        except ValueError:
-            pass
-
-
-    def _get_menu(self, info):
-        try:
-            info["menu"] = self.get_href(
-                    self._do_get_data( '<div class="banner">' , '</div>')
-                )
-        except ValueError:
-            pass
-
-    def _get_next(self, info):
-        try:
-            info["page_next"] = self.get_href(
-                    self._do_get_data('</strong> <a ', '</a>')
-                )
-        except ValueError:
-            pass
-
-
-class MenuDownload(JueShiTangMen):
-    def parse_get(self, ctx):
-        from collections import OrderedDict
-
-        self._ctx = ctx
-        self._items = OrderedDict()
-
-        while self._ctx and len(self._ctx) > 0:
-            self.get_next_item()
-
-        if self._items:
-            return self._items
-
-        raise InvalidPageInfo("Invalid Menu Page")
-
-    def get_next_item(self):
 
         try:
-            val, self._ctx = self._do_get_(
-                    '<li><span>', '</span></li>', self._ctx)
+            url = bs.find("div", class_="content")
+            urls = url.center.find_all('a')
+
+            for _u in urls:
+
+                pos = _u.get("rel", None)
+                if not pos:
+                    continue
+
+                if pos[0] == "next":
+                    self._info["page_next"] = _u["href"]
+                elif pos[0] == "prev":
+                    self._info["page_prev"] = _u["href"]
+
         except ValueError:
-            self._ctx = None
-            return None
-        else:
-            _k = re.sub("<[^>]*>", "", val)
-            _v = self.get_href(val)
-            self._items[_k] = _v.strip()
+            raise quanben.InvalidPageInfo("invalid page info")
 
 
 
-class BookInfoDownload(JueShiTangMen):
-    def parse_get(self, ctx):
-        print("BookInfo: " + ctx)
-        return ctx
+class MenuDownload(JueShiTangMen, qiushuge_MenuDownload):
+    pass
+
+
+class BookInfoDownload(JueShiTangMen, qiushuge_BookInfo):
+    pass
+
 
 class URLDownload(url_download):
     pass
 
+
 def _main():
 
-    url = 'http://www.jueshitangmen.info/wudongqiankun/3.html'
-    page = PageDownload()
-    print(page.http_get(url))
+ #  url = 'http://www.jueshitangmen.info/wudongqiankun/3.html'
+ #  url = 'http://www.jueshitangmen.info/yinianyongheng/583.html'
+ #  page = PageDownload()
+ #  print(page.http_get(url))
+
+
+    url = 'http://www.jueshitangmen.info/yinianyongheng/'
 #   page.http_post("http://localhost:8000/cgi-bin/hello.py", {"foo":"bar"})
-#    menu = MenuDownload()
+    menu = MenuDownload()
+    info = menu.http_get(url)
+
+    for index, k in enumerate(info):
+        print("{:<}\t: {:<30s}{:<}".format(index, k, info[k]))
 #    print(menu.http_get('http://www.jueshitangmen.info/wudongqiankun/'))
 #   book = BookInfoDownload()
 #   book.http_get('n/jiuzhuanhunchunjue/')
-
 
 if __name__ == '__main__':
     _main()

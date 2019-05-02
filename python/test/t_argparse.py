@@ -463,8 +463,8 @@ def _test_myown_action():
 
 if __name__ == '__main__':
     print("hello, test argparse " + str(sys.argv))
-    _test()
-    _test_long_args()
+    #_test()
+    #_test_long_args()
     #_test_non_minus()
     #_test_store()
     #_test_prefix()
@@ -480,11 +480,11 @@ if __name__ == '__main__':
     #_test_conflict_resolver_v2()
     #_test_positional()
     #_test_group()
-    #_test_nest_parser()
+    _test_nest_parser()
     #_test_nargs()
     #_test_type_and_mode()
     #_test_file()
-    _test_myown_action()
+    #_test_myown_action()
 
 
 

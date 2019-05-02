@@ -37,6 +37,7 @@ def test_try_except_else():
 
 def test_try_except_else_finally():
     try:
+        print("hello")
         with open(fl, "r+") as f:
             print(f.read())
 

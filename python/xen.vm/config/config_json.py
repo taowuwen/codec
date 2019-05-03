@@ -8,7 +8,7 @@ class VMConfigJson(VMConfig):
 
     def serialize(self, cfg='{}'):
         try:
-            self.write(json.dumps(cfg))
+            self.write(json.dumps(cfg, indent=4))
 
         except PermissionError:
             print("Warning, File {self.path} has no write permission")
@@ -22,9 +22,9 @@ class VMConfigJson(VMConfig):
         try:
             cfg = json.loads(self.read())
         except FileNotFoundError:
-            print(f"Warning, file {self.path} not exist")
+            print("Warning, file {self.path} not exist".format(self=self))
         except PermissionError:
-            print("Warning, File {self.path} has no read permission")
+            print("Warning, File {self.path} has no read permission".format(self=self))
 
         finally:
             return cfg

@@ -1,0 +1,43 @@
+
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          tww-xen-vmstart
+# Required-Start:    $remote_fs
+# Required-Stop:
+# Default-Start:     S
+# Default-Stop:
+# Short-Description: xen. vm start
+# Description:       virtual machine auto startup
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+[ -f /etc/default/rcS ] && . /etc/default/rcS
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+PROGRAM=/root/xen.vm/vm_start.py
+CFG=/root/xen.vm/xen.vm.startup.json
+
+
+test -x $PROGRAM || exit 0
+
+case "$1" in
+  start)
+	log_action_begin_msg "Setting sensors limits"
+	cd /root/xen.vm
+	$PROGRAM -C $CFG
+	log_action_end_msg 0
+	;;
+  stop)
+	;;
+  force-reload|restart)
+	;;
+  status)
+	exit 0
+	;;
+  *)
+	log_success_msg "Usage: /etc/init.d/xen-vmstart {start|stop|restart|force-reload|status}"
+	exit 1
+esac
+
+exit 0

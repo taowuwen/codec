@@ -20,7 +20,7 @@ class VMConfigProvider:
         try:
             return self._ins[key]
         except KeyError:
-            raise ConfigFileMethodNotFound(f"config file for extension .{key} not found")
+            raise ConfigFileMethodNotFound("config file for extension .{key} not found".format(key=key))
 
 
 _vms = VMConfigProvider()

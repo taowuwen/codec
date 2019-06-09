@@ -360,7 +360,7 @@ def _test_nest_parser():
 
     parser = argparse.ArgumentParser()
 
-    subparser = parser.add_subparsers(help='commands')
+    subparser = parser.add_subparsers(help='commands', dest='action')
 
     # list 
     list_parser = subparser.add_parser('list', help='List contents')
@@ -380,7 +380,9 @@ def _test_nest_parser():
     print(parser.parse_args())
     print(parser.get_default(dest='delete'))
     print(parser._get_optional_actions())
-    print(dir(parser))
+
+    print(parser.parse_args().action, parser.parse_args().dirname)
+    #print(dir(parser))
 
 
 

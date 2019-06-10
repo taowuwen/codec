@@ -1,0 +1,14 @@
+[Unit]
+Description=xen-vmstart. Virtual Machine auto start by taowuwen@gmail.com
+After=network.target auditd.service xen.service xendomains.service
+#ConditionPathExists=!/etc/ssh/sshd_not_to_be_run
+
+[Service]
+WorkingDirectory=/root/xen.vm
+ExecStart=/root/xen.vm/vm_start.py -C /root/xen.vm/xen.vm.startup.json
+RestartPreventExitStatus=255
+Type=notify
+
+[Install]
+WantedBy=multi-user.target
+Alias=xen-vmstart.service

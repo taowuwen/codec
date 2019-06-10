@@ -10,6 +10,10 @@ class NodeIsRunning(Exception): pass
 
 class StartupNode(Node):
 
+    def __init__(self, *args):
+        super().__init__(*args)
+        self._max_failed = 3
+
     def start(self):
         """
         cmd: xl create {self._path} 2>&1
@@ -20,10 +24,15 @@ class StartupNode(Node):
         print("do startup {self}".format(self=self))
         cmd = ['xl', 'create', self._path]
 
-        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        res = ""
 
-        if res.returncode == 0:
-            return True
+        while self._max_failed > 0:
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            if res.returncode == 0:
+                return True
+
+            self._max_failed -= 1
+            print("failed: {}, {} times left".format(res.stdout.decode(), self._max_failed))
 
         raise StartupFailed(res.stdout.decode())
 
@@ -40,13 +49,13 @@ class StartupNode(Node):
         print("do stop {self}".format(self=self))
         cmd = ['xl', 'shutdown', self._path]
 
-        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         if res.returncode == 0:
             return True
         else:
             cmd = ['xl', 'destroy', self._path]
-            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     def is_running(self):
         """
@@ -55,7 +64,7 @@ class StartupNode(Node):
 
         cmd = ['xl', 'list', self.name]
 
-        if subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode == 0:
+        if subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).returncode == 0:
             return True
         else:
             return False

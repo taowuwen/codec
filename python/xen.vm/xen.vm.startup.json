@@ -1,25 +1,5 @@
 {
-    "ordered": [
-        [
-            "/etc/xen/hi-spider.cfg",
-            true,
-            20,
-            true
-        ]
-    ],
     "disable": [
-        [
-            "/etc/xen/vm.debian.06.cfg",
-            false,
-            20,
-            false
-        ],
-        [
-            "/etc/xen/vm.debian.07.cfg",
-            false,
-            20,
-            false
-        ],
         [
             "/etc/xen/vm.debian.08.cfg",
             false,
@@ -39,10 +19,48 @@
             false
         ],
         [
-            "/etc/xen/win10.cfg",
+            "/etc/xen/winxp.cfg",
             false,
             20,
             false
+        ],
+        [
+            "/etc/xen/vm.debian.03.cfg",
+            false,
+            20,
+            false
+        ],
+        [
+            "/etc/xen/vm.debian.04.cfg",
+            false,
+            20,
+            false
+        ],
+        [
+            "/etc/xen/vm.debian.05.cfg",
+            false,
+            20,
+            false
+        ],
+        [
+            "/etc/xen/vm.debian.06.cfg",
+            false,
+            20,
+            false
+        ],
+        [
+            "/etc/xen/vm.debian.07.cfg",
+            false,
+            20,
+            false
+        ]
+    ],
+    "ordered": [
+        [
+            "/etc/xen/openwrt.cfg",
+            true,
+            20,
+            true
         ]
     ],
     "unordred": [
@@ -65,25 +83,13 @@
             true
         ],
         [
-            "/etc/xen/vm.debian.03.cfg",
+            "/etc/xen/win10.cfg",
             true,
             20,
             true
         ],
         [
-            "/etc/xen/vm.debian.04.cfg",
-            true,
-            20,
-            true
-        ],
-        [
-            "/etc/xen/vm.debian.05.cfg",
-            true,
-            20,
-            true
-        ],
-        [
-            "/etc/xen/winxp.cfg",
+            "/etc/xen/archlinux.cfg",
             true,
             20,
             true

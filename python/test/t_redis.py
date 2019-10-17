@@ -118,8 +118,7 @@ class TestRedis(redis.Redis):
 
 if __name__ == '__main__':
 
-    print("hello, test redis goes from here")
-
+    Logger.print_info("hello, test redis goes from here")
 
     tr = TestRedis(host='10.10.10.11')
 

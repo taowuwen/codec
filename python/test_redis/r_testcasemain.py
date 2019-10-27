@@ -109,7 +109,7 @@ class TestcaseMain:
 
 if __name__ == '__main__':
 
-    modules = {"string", "set", "server", "hash"}
+    modules = {"string", "set", "server", "hash", "connection"}
 
     config = {
         "modules": modules,

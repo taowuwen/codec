@@ -6,6 +6,24 @@ from r_utils import logger
 
 class Testcase(redis.Redis):
 
+    def select_db(self, db=15):
+
+        if hasattr(self, "select"):
+            return getattr(self, "select")(db)
+
+        return self.execute_command('SELECT', db)
+
+    @property
+    def db(self):
+
+        clnt_id = self.client_id()
+        for clnt in self.client_list():
+            if int(clnt['id']) == clnt_id:
+                return int(clnt['db'])
+
+        assert 0, "bugs or server down should never show up this line"
+
+
     def prepare(self):
         self.key = f'{self}'
         self.val = self.key + "-" + self.key

@@ -10,6 +10,7 @@ class StringTest_001(TestcaseString):
         super().prepare()
 
     def clean(self):
+        self.delete(self.key)
         super().clean()
 
     def do_test_set_get(self):

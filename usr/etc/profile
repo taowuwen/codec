@@ -1,0 +1,5 @@
+
+ROOT=${HOME}/codec/usr
+export PATH=$PATH:$ROOT/bin
+export PYTHONPATH=$PYTHONPATH:$ROOT/lib/python
+

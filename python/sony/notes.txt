@@ -1,0 +1,7 @@
+
+windows 
+	AppData/Roaming/Sony Corporation/Digital
+
+
+1. dptrp1 --client-id deviceid.dat --key privatekey.dat --addr digitalpaper.local register 
+

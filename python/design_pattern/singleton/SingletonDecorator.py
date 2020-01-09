@@ -24,6 +24,20 @@ class bar: pass
 bar = SingletonDecorator(bar)
 
 
+
+
+class Singleton:
+    _inst_singleton = None
+
+    def __new__(cls, *kargs, **kwargs):
+
+        if not cls._inst_singleton:
+            cls._inst_singleton = super().__new__(cls, *kargs, **kwargs)
+
+        return cls._inst_singleton
+
+
+
 if __name__ == '__main__':
     print("testing for Decorator....")
 
@@ -53,3 +67,17 @@ if __name__ == '__main__':
     
     print(z, id(z), z.val)
     print(y, id(y), y.val)
+
+
+    st1 = Singleton()
+    st2 = Singleton()
+    st3 = Singleton()
+    st4 = Singleton()
+    st5 = Singleton()
+
+    print(id(st1))
+    print(id(st2))
+    print(id(st3))
+    print(id(st4))
+    print(id(st5))
+

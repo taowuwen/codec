@@ -11,13 +11,13 @@ from test_utils import timeit as _timeit
 
 
 @_timeit
-def _be_one_server(sock):
+def _be_one_server(sock, do_send):
 
     data, addr = sock.recvfrom(4096)
 
     print('received data from {} data {!r}'.format(addr, data))
 
-    if data:
+    if data and do_send:
         sent = sock.sendto(data, addr)
         print('sent out {}'.format(sent))
 
@@ -26,12 +26,12 @@ if __name__ == '__main__':
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    sock.bind(('localhost', 10000))
+    sock.bind(('localhost', 23232))
 
     while True:
         try:
             print('waitting to receive data...')
-            _be_one_server(sock)
+            _be_one_server(sock, 0)
 
         except socket.error as msg:
             print('error: {}'.format(msg))

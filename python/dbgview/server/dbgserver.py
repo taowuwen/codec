@@ -8,7 +8,7 @@ from dbgmsg import DbgMessage
 
 class DbgServerThread(threading.Thread):
 
-    def __init__(self, mq_filter, host='localhost', port=23232, **kwargs):
+    def __init__(self, mq_filter, host='0.0.0.0', port=23232, **kwargs):
 
         self.addr = (host, port)
         self.mq_filter = mq_filter

@@ -19,6 +19,9 @@ class App:
     def __init__(self, *kargs, **kwargs):
 
         '''
+        acl management
+            action lists:
+            filter lists:
         message queue: 
             1. gui received from msg from "DATA" domain: msgqueue1
             2. filter received from both server and "DATA" domain: msgqueue 2

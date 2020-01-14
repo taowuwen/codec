@@ -9,8 +9,15 @@ class DbgMessage:
         self.client = client
         self.server = server
         self.tm     = time.time()
+        self.prefix = ""
+        '''
+        time.ctime(time.time())
+        '''
 
     def __str__(self):
+        if self.prefix:
+            return self.prefix + " "*30 + self.ctx
+
         return self.ctx
 
     def __repr__(self):

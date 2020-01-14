@@ -4,11 +4,10 @@ import threading
 
 class DbgFilterThread(threading.Thread):
 
-    def __init__(self, dbg_data, mq_filter, *kargs, host='localhost', port=23232, **kwargs):
+    def __init__(self, *kargs, host='localhost', port=23232, **kwargs):
 
         self.addr = (host, port)
-        self.dbg_data  = dbg_data
-        self.mq_filter = mq_filter
+        self.dbg_data, self.mq_filter, self.actionctl, *_ = kargs
         self._run = False
         super().__init__()
 

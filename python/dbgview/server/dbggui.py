@@ -8,13 +8,11 @@ except ImportError:
     import tkinter.font as tkFont
 
 class DbgView:
-    def __init__(self, datactl, cfgctl, mq_gui, *kargs, **kwargs):
+    def __init__(self, *kargs, **kwargs):
         self.root = tkinter.Tk()
         self.root.geometry('1024x768')
         self.root.title('DebugView by taowuwen@gmail.com')
-        self.datactl = datactl
-        self.cfgctl  = cfgctl
-        self.mq_gui = mq_gui
+        self.datactl, self.cfgctl, self.mq_gui, self.actionctl, *_ = kargs
 
         self.do_init_widget()
 
@@ -31,7 +29,7 @@ class DbgView:
                     self.listbox.insert(tkinter.END, msg)
                 elif isinstance(_id, int):
                     msg = self.datactl.get(_id)
-                    self.listbox.insert(tkinter.END, str(msg))
+                    self.actionctl.gui_action(msg, self.listbox)
                 else:
                     print(f"warnning, unkown id: {_id}")
                     continue

@@ -12,8 +12,6 @@ ActionType = enum.Enum('ActionType', "preconfig common postconfig filter color")
 ActionTarget = enum.Enum('ActionTarget', 'DROP ACCEPT CONTINUE RETURN')
 ActionFilterType = enum.Enum('ActionFilterType', 'equal not_equal contain not_contain')
 
-line_number = 0
-
 class Action:
 
     _type_act = None
@@ -44,18 +42,11 @@ class ActionCommon(Action):
     pass
 
 
-def reset_line_number():
-    global line_number
-    line_number = 0
-
-
 class ActionCommonShowLineNumber(ActionCommon):
     _config = "show_line_number"
     def __call__(self, *args, **kwargs):
-        global line_number
         msg, listbox, *_ = args
-        line_number += 1
-        msg.prefix += '{:<12d}'.format(line_number)
+        msg.prefix += '{:<12d}'.format(listbox.size())
 
 class ActionCommonShowTimeStamp(ActionCommon):
     _config = "show_timestamp"

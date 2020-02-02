@@ -35,8 +35,6 @@ class DbgConfig:
     def update(self, **kwargs):
         self.kwargs.update(kwargs)
 
-
-
     def __getattr__(self, key):
 
         try:
@@ -67,15 +65,10 @@ class DbgConfig:
     def set_default_config(self):
         '''
         {
-            "gui" : DbgDict(
-                "font": DbgDict({
-                    fg="black",
-                    bg="white",
-                    font=""
-                }),
-            )
-            'preconfig': {
-            },
+            "gui_font": DbgDict({ fg="black", bg="white", font="" })
+
+            "enable_color": True,
+            "enable_filter": True,
 
             'common': {
                 "show_line_number": False,
@@ -85,26 +78,37 @@ class DbgConfig:
                 "show_content_length": False,
             },
 
-            "postconfig": {
+            'postconfig': {
                 "set_listbox", True,
                 "enable_log",  False,
-            },
-
-            "color": {
-                "rule_name1": { fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True, binded_msgs=[]},
-                "rule_name2": { fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True, binded_msgs=[]},
-                ...
             }
 
-            "filter": {
-                "filter1": { rule="rule priciple", target="drop/continue/accept/return", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True},
-                "filter2": { rule="rule priciple", target="drop/continue/accept/return", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True},
-                ...
-            }
+
+            "color_rule": [
+                {"enable":True, "name": "rule_name1", fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True},
+                {"enable":True, "name": "rule_name2", fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True},
+            ],
+
+            "filter_default_target": "accept",
+
+            "filter_rule": [
+                ["enable":True, "name": "rule_name1", fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True, target="drop"],
+                ["enable":True, "name": "rule_name2", fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True, target="accept"],
+                ["enable":True, "name": "rule_name1", fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="contain" , ignorecase=True, target="accept"],
+            ]
         }
         '''
 
-        self.kwargs['preconfig'] = DbgDict()
+        self.kwargs['gui_font'] = DbgDict({
+            "fg":               "black",
+            "bg":               "white",
+            "font":             "systemSystemFont",
+            "height":           10,
+            "width":            10,
+            "selectforeground": "white",
+            "selectbackground": "#33B397"
+        })
+
         self.kwargs['common'] = DbgDict({
             "show_line_number":    True,
             "show_timestamp":      True,
@@ -115,12 +119,13 @@ class DbgConfig:
 
         self.kwargs['postconfig'] = DbgDict({
             "set_listbox": True,
-            "enable_log":  False,
+            "enable_log":  True,
         })
 
         self.kwargs['color'] = [ 
             DbgDict({
-                "name": "default",
+                "enable": True,
+                "name": "color",
                 "rule":  '',
                 "fg":   'red',
                 "match_condition": "contain",
@@ -129,11 +134,12 @@ class DbgConfig:
         ]
         self.kwargs['filter'] = [
             DbgDict({
-                "name": "default",
-                    "rule":            '',
-                    "target":          'accept',
-                    "match_condition": "contain",
-                    "ignorecase":      False
+                "enable": True,
+                "name": "filter",
+                "rule":            '',
+                "target":          'accept',
+                "match_condition": "contain",
+                "ignorecase":      False
             }),
         ]
 
@@ -147,6 +153,7 @@ if __name__ == '__main__':
     pprint(config.postconfig)
     pprint(config.filter)
     pprint(config.color)
+    pprint(config.gui_font)
 
     pprint(config.common.show_line_number)
 
@@ -159,3 +166,4 @@ if __name__ == '__main__':
     key = 'tmpkey'
 
     print(config.common.get(key))
+

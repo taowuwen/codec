@@ -1,6 +1,7 @@
 import tkinter
 import queue
 from dbgmsg import DbgMessage
+from dbgconfig import config
 
 try:
     import tkFont
@@ -53,24 +54,32 @@ class DbgView:
 
         self.y_scroll.pack(side=tkinter.LEFT, fill=tkinter.Y)
 
-        self.listbox.config(
-            fg               = 'black',
-            selectmode       = tkinter.EXTENDED,
-            selectforeground = 'white',
-            selectbackground = '#33B397',
-            yscrollcommand   = self.y_scroll.set,
-            xscrollcommand   = self.x_scroll.set,
-            height           = 10,
-            width            = 10,
-            font             = 'systemSystemFont',
-        )
+        kwargs = {
+            "selectmode":     tkinter.EXTENDED,
+            "yscrollcommand": self.y_scroll.set,
+            "xscrollcommand": self.x_scroll.set,
+        }
+
+        kwargs.update(config.gui_font)
+
+        self.listbox.config(kwargs)
+    #   (
+    #       fg               = 'black',
+    #       selectforeground = 'white',
+    #       selectbackground = '#33B397',
+    #       height           = 10,
+    #       width            = 10,
+    #       font             = 'systemSystemFont',
+    #   )
 
         self.y_scroll.config(command = self.listbox.yview)
         self.x_scroll.config(command = self.listbox.xview)
 
+        self.do_test_widget()
+
 
     def do_test_widget(self):
-        for item in ["one", "two", "three", "four"]:
+        for item in ["one", "two", "three", "four", "five", "sex", "testing...."]:
             self.listbox.insert("end", item)
 
         tmpfont = tkFont.Font(family='Helvetica', size=20, weight='normal')

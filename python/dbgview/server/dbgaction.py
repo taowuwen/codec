@@ -8,9 +8,9 @@ import time
 import tkinter
 from pprint import pprint
 
-ActionType = enum.Enum('ActionType', "preconfig common postconfig filter color")
-ActionTarget = enum.Enum('ActionTarget', 'DROP ACCEPT CONTINUE RETURN')
-ActionFilterType = enum.Enum('ActionFilterType', 'equal not_equal contain not_contain')
+ActionType = enum.Enum('ActionType', "common postconfig filter color")
+ActionTarget = enum.Enum('ActionTarget', 'DROP ACCEPT CONTINUE')
+ActionFilterType = enum.Enum('ActionFilterType', 'equal not_equal contain not_contain equal_ic not_equal_ic contain_ic not_contain_ic')
 
 class Action:
 
@@ -24,15 +24,6 @@ class Action:
 
     def __repr__(self):
         return self.__str__()
-
-'''
-    actions for Preconfig
-'''
-
-class ActionPreConfig(Action):
-    _type_act = ActionType.preconfig
-    pass
-
 
 '''
     actions for common tables
@@ -72,33 +63,94 @@ class ActionPostListBoxInsert(ActionPostConfig):
         msg, listbox, *_ = args
         listbox.insert(tkinter.END, str(msg))
 
+class ActionPostEnableLog(ActionPostConfig):
+    _config = "enable_log"
+    def __call__(self, *args, **kwargs):
+        msg, listbox, *_ = args
+        print(msg)
+
 '''
     action for colors
 '''
 class ActionColor(Action):
     _type_act = ActionType.color
-    pass
+
+    def match(self, *args, **kwargs):
+        rule, msg, *_ = args
+        return rule in msg
+
+
 
 class ActionFilter(Action):
     _type_act = ActionType.filter
-    pass
 
+    def __init__(self, *args, **kwargs):
+        self._rule = args[0]
+
+        super().__init__(args[1:], **kwargs)
+
+    def __call__(self, *args, **kwargs):
+        return self._rule.match(self.match, *args, **kwargs)
+
+    def match(self, *args, **kwargs):
+        return ActionTarget.DROP
 
 class ActionFilterEqual(ActionFilter):
     _config = ActionFilterType.equal.name
-    pass
+
+    def match(self, *args, **kwargs):
+        rule, msg, *_ = args
+        return rule == msg
+
 
 class ActionFilterNotEqual(ActionFilter):
     _config = ActionFilterType.not_equal.name
-    pass
+
+    def match(self, *args, **kwargs):
+        rule, msg, *_ = args
+        return rule != msg
 
 class ActionFilterContain(ActionFilter):
     _config = ActionFilterType.contain.name
-    pass
+
+    def match(self, *args, **kwargs):
+        rule, msg, *_ = args
+        return rule in msg
 
 class ActionFilterNotContain(ActionFilter):
     _config = ActionFilterType.not_contain.name
-    pass
+
+    def match(self, *args, **kwargs):
+        rule, msg, *_ = args
+        return rule not in msg
+
+class ActionFilterEqualIgnorecase(ActionFilter):
+    _config = ActionFilterType.equal_ic.name
+
+    def match(self, *args, **kwargs):
+        rule, msg, *_ = args
+        return rule.lower() == msg.lower()
+
+class ActionFilterNotEqualIgnorecase(ActionFilter):
+    _config = ActionFilterType.not_equal_ic.name
+
+    def match(self, *args, **kwargs):
+        rule, msg, *_ = args
+        return rule.lower() != msg.lower()
+
+class ActionFilterContainIgnorecase(ActionFilter):
+    _config = ActionFilterType.contain_ic.name
+
+    def match(self, *args, **kwargs):
+        rule, msg, *_ = args
+        return rule.lower() in msg.lower()
+
+class ActionFilterNotContainIgnorecase(ActionFilter):
+    _config = ActionFilterType.not_contain_ic.name
+
+    def match(self, *args, **kwargs):
+        rule, msg, *_ = args
+        return rule.lower() not in msg.lower()
 
 class ActionFactoryBuilder(BuildFactory):
 
@@ -127,17 +179,10 @@ class ActionManagement:
 
     def _build_action_table(self):
 
-        self.build_action_table_pre()
         self.build_action_table_common()
         self.build_action_table_post()
         self.build_action_table_filter()
         self.build_action_table_color()
-
-    def build_action_table_pre(self):
-        self.action_table_pre = []
-
-        for key in config.preconfig:
-            pass
 
     def build_action_table_common(self):
 
@@ -164,18 +209,17 @@ class ActionManagement:
         self.action_table_color = []
 
         for key in config.color:
-            print(key)
+            print("color: ", key)
 
     def build_action_table_filter(self):
         self.action_table_filter = []
 
         for key in config.filter:
-            print(key)
+            print("filter: ", key)
 
     def gui_action(self, msg, listbox, **kwargs):
 
-        for act in self.action_table_pre + \
-                   self.action_table_common + \
+        for act in self.action_table_common + \
                    self.action_table_post + \
                    self.action_table_color:
             act(msg, listbox, **kwargs)
@@ -186,7 +230,7 @@ class ActionManagement:
         for act in self.action_table_filter:
 
             tgt = act(msg, *args, **kwargs)
-            if tgt in (ActionTarget.DROP, ActionTarget.ACCEPT, ActionTarget.RETURN):
+            if tgt in (ActionTarget.DROP, ActionTarget.ACCEPT):
                 return tgt
                 
 if __name__ == '__main__':

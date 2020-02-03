@@ -22,5 +22,5 @@ if __name__ == '__main__':
     DebugStringPrint("aaaaa, world")
     DebugStringPrint("tww love xixi, world")
 
-    for x in range(10000):
-        DebugStringPrint(f"tww love xixi with {x} times")
+#    for x in range(10000):
+#        DebugStringPrint(f"tww love xixi with {x} times")

@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import enum
-from dbgfactory import BuildFactoryAutoRegister, BuildFactory
-from dbgconfig import config, DbgDict
 import time
 import tkinter
 from pprint import pprint
 
-ActionType = enum.Enum('ActionType', "common postconfig filter color")
-ActionTarget = enum.Enum('ActionTarget', 'DROP ACCEPT CONTINUE')
-ActionFilterType = enum.Enum('ActionFilterType', 'equal not_equal contain not_contain equal_ic not_equal_ic contain_ic not_contain_ic')
+from dbgfactory import BuildFactoryAutoRegister, BuildFactory
+from dbgconfig import config, DbgDict
+from dbgrule import FilterRule, ColorRule
+
+from dbgactiondef import ActionType, ActionTarget, ActionFilterType, action_filter_type, action_target_type
+
+
 
 class Action:
 
@@ -87,10 +88,13 @@ class ActionFilter(Action):
     def __init__(self, *args, **kwargs):
         self._rule = args[0]
 
-        super().__init__(args[1:], **kwargs)
+        super().__init__(*args[1:], **kwargs)
 
     def __call__(self, *args, **kwargs):
-        return self._rule.match(self.match, *args, **kwargs)
+        if self._rule.match(self.match, *args, **kwargs):
+            return self._rule.matched()
+        else:
+            return self._rule.not_matched()
 
     def match(self, *args, **kwargs):
         return ActionTarget.DROP
@@ -209,13 +213,21 @@ class ActionManagement:
         self.action_table_color = []
 
         for key in config.color:
+            rule = ColorRule(**key)
+            print(rule)
             print("color: ", key)
 
     def build_action_table_filter(self):
         self.action_table_filter = []
 
         for key in config.filter:
+
+            rule = FilterRule(**key)
+            act = self.action_builder.create(action_filter_type(rule.match_condition, rule.ignorecase), rule)
+            self.action_table_filter.append(act)
+            print(rule)
             print("filter: ", key)
+        print(self.action_table_filter)
 
     def gui_action(self, msg, listbox, **kwargs):
 
@@ -232,6 +244,8 @@ class ActionManagement:
             tgt = act(msg, *args, **kwargs)
             if tgt in (ActionTarget.DROP, ActionTarget.ACCEPT):
                 return tgt
+
+        return ActionTarget.DROP
                 
 if __name__ == '__main__':
     am = ActionManagement()

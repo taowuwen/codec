@@ -1,6 +1,7 @@
 
 import queue
 import threading
+from dbgactiondef import ActionType, ActionTarget, ActionFilterType, action_filter_type, action_target_type
 
 class DbgFilterThread(threading.Thread):
 
@@ -19,7 +20,13 @@ class DbgFilterThread(threading.Thread):
         while self._run:
             try:
                 msg = self.mq_filter.get(timeout=1)
-                self.dbg_data.set(msg)
+
+                tgt = self.actionctl.filter_action(msg)
+                if tgt is ActionTarget.ACCEPT:
+                    self.dbg_data.set(msg)
+                else:
+                    print("filter msg: ", msg)
+                    del msg
             except queue.Empty:
                 pass
             except KeyboardInterrupt:

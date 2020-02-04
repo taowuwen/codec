@@ -30,6 +30,8 @@ class CDebugViewPrint:
             'timeout': 1,
         }
 
+        self._stat = 0
+
     def __call__(self, ln):
 
         if not isinstance(ln, str):
@@ -62,6 +64,7 @@ class CDebugViewPrint:
             self.do_exit()
             return -1
         else:
+            self._stat += 1
             return ret
 
     def config(self, **kwargs):
@@ -73,6 +76,7 @@ class CDebugViewPrint:
             sock.close()
             self.args.pop('sock')
             self.args['thread_running'] = 0
+        print(f'total sent {self._stat} logs')
 
 
     def sender_thread(self):

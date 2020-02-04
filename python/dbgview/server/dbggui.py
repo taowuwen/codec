@@ -75,9 +75,6 @@ class DbgView:
         self.y_scroll.config(command = self.listbox.yview)
         self.x_scroll.config(command = self.listbox.xview)
 
-        self.do_test_widget()
-
-
     def do_test_widget(self):
         for item in ["one", "two", "three", "four", "five", "sex", "testing...."]:
             self.listbox.insert("end", item)

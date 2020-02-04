@@ -119,23 +119,57 @@ class DbgConfig:
 
         self.kwargs['postconfig'] = DbgDict({
             "set_listbox": True,
-            "enable_log":  True,
+            "enable_log":  False,
         })
 
         self.kwargs['color'] = [ 
             DbgDict({
-                "enable": True,
-                "name": "color",
-                "rule":  '',
-                "fg":   'red',
+                "enable":          True,
+                "name":            "red",
+                "rule":            'red',
+                "fg":              'red',
+                "match_condition": "contain",
+                "ignorecase":      True
+            }),
+            DbgDict({
+                "enable":          True,
+                "name":            "blue",
+                "rule":            'blue',
+                "fg":              'blue',
                 "match_condition": "contain",
                 "ignorecase":      False
+            }),
+
+            DbgDict({
+                "enable":          True,
+                "name":            "BigBlue",
+                "rule":            'BLUE',
+                "fg":              '#00aaaa',
+                "match_condition": "contain",
+                "ignorecase":      False
+            }),
+
+            DbgDict({
+                "enable":          True,
+                "name":            "yellow",
+                "rule":            'yellow',
+                "fg":              'yellow',
+                "match_condition": "contain",
+                "ignorecase":      True
             }),
         ]
         self.kwargs['filter'] = [
             DbgDict({
-                "enable": True,
-                "name": "filter",
+                "enable":          True,
+                "name":            "BLUE",
+                "rule":            'BLUE',
+                "target":          'drop',
+                "match_condition": "contain",
+                "ignorecase":      False
+            }),
+            DbgDict({
+                "enable":          True,
+                "name":            "filter",
                 "rule":            '',
                 "target":          'accept',
                 "match_condition": "contain",

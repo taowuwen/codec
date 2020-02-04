@@ -44,9 +44,6 @@ class FilterRule(Rule):
         super().matched()
         return self._tgt
 
-    def not_matched(self):
-        pass
-
     def __str__(self):
         return super().__str__() + f' --> target: {self._tgt.name}, cfg: {self._cfg}'
 
@@ -55,11 +52,31 @@ class ColorRule(Rule):
     def __init__(self, *args, **kwargs):
         super().__init__(**kwargs)
 
-    def matched(self):
-        pass
+        self.build_cfg()
 
-    def not_matched(self):
-        pass
+    def matched(self):
+        super().matched()
+
+    def __str__(self):
+        return super().__str__() + f' --> cfg: {self._cfg}'
+
+    def build_cfg(self):
+        '''
+         Valid resource names: background, bg, foreground, fg, selectbackground, selectforeground.
+        '''
+        cfg = {}
+
+        for key in ('background', 'bg', 'foreground', 'fg', 'selectbackground', 'selectforeground'):
+            val = self._cfg.get(key, None)
+            if val:
+                cfg[key] = val
+
+        self._itemconfig = cfg
+
+    @property
+    def itemconfig(self):
+        return self._itemconfig
+
 
 
 

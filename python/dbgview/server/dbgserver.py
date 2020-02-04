@@ -4,6 +4,7 @@
 import socket
 import threading
 import selectors
+import queue
 from dbgmsg import DbgMessage
 
 class DbgServerThread(threading.Thread):
@@ -14,7 +15,9 @@ class DbgServerThread(threading.Thread):
         self.mq_filter = mq_filter
         self._selector = selectors.DefaultSelector()
         self._run = False
-        self._stat = 0
+        self._recv_stat = 0
+        self._send_stat = 0
+        self.q_msg = []
 
         super().__init__()
 
@@ -26,6 +29,36 @@ class DbgServerThread(threading.Thread):
 
         self._selector.register(self._sock, selectors.EVENT_READ, self._recv)
 
+    def do_send_one(self, msg):
+        try:
+            self.mq_filter.put_nowait(msg)
+            self._send_stat += 1
+        except queue.Full as e:
+            return 0
+        else:
+            return 1
+
+    def send_msg(self, msg = None):
+        if msg:
+            '''
+                sent by recved cb
+            '''
+            if self.q_msg:
+                self.q_msg.append(msg)
+            else:
+                if not self.do_send_one(msg):
+                    self.q_msg.append(msg)
+        else:
+            '''
+                sent by timeout event
+            '''
+            while self.q_msg:
+                msg = self.q_msg[0]
+                if self.do_send_one(msg):
+                    self.q_msg.pop(0)
+                else:
+                    break
+
     def _recv(self, sock, mask):
 
         if not mask & selectors.EVENT_READ:
@@ -33,17 +66,14 @@ class DbgServerThread(threading.Thread):
 
         try:
             data, addr = sock.recvfrom(8192)
-            self._stat += 1
+            self._recv_stat += 1
 
-            # we need to send tm + addr + msg
-            # do it later 
-            msg = DbgMessage(self._stat, addr, self.addr, data.decode())
-            self.mq_filter.put(msg)
+            msg = DbgMessage(self._recv_stat, addr, self.addr, data.decode())
+            self.send_msg(msg)
 
         except socket.error as msg:
             print("error recv {}, if needed, we neeed to restart server here".format(msg))
             self.mq_filter.put("DbgServerThread.socket.error")
-
 
     def run(self):
 
@@ -57,7 +87,14 @@ class DbgServerThread(threading.Thread):
 
         while self._run:
             try:
-                for key, mask in self._selector.select(timeout = 1):
+                events = self._selector.select(timeout = 1)
+
+                if not events:
+                    self.send_msg()
+                    #print(f"recved: {self._recv_stat}, sent: {self._send_stat}")
+                    continue
+
+                for key, mask in events:
                     cb = key.data
                     cb(key.fileobj, mask)
 

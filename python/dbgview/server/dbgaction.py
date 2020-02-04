@@ -38,7 +38,7 @@ class ActionCommonShowLineNumber(ActionCommon):
     _config = "show_line_number"
     def __call__(self, *args, **kwargs):
         msg, listbox, *_ = args
-        msg.prefix += '{:<12d}'.format(listbox.size())
+        msg.prefix += '{:0>5d}   '.format(listbox.size())
 
 class ActionCommonShowTimeStamp(ActionCommon):
     _config = "show_timestamp"
@@ -76,17 +76,40 @@ class ActionPostEnableLog(ActionPostConfig):
 class ActionColor(Action):
     _type_act = ActionType.color
 
+    def __init__(self, *args, **kwargs):
+        self._rule, *_ = args
+        super().__init__(*args[1:], **kwargs)
+
+    def __call__(self, *args, **kwargs):
+
+        msg, listbox, *_ = args
+
+        if self._rule.match(self.match, msg):
+            self._rule.matched()
+            listbox.itemconfig(tkinter.END, **self._rule.itemconfig)
+
+
+class ActionColorMatch(ActionColor):
+    _config = "color"
+
     def match(self, *args, **kwargs):
         rule, msg, *_ = args
         return rule in msg
 
+
+class ActionColorMatchIgnorecase(ActionColor):
+    _config = "color_ignorecase"
+
+    def match(self, *args, **kwargs):
+        rule, msg, *_ = args
+        return rule.lower() in msg.lower()
 
 
 class ActionFilter(Action):
     _type_act = ActionType.filter
 
     def __init__(self, *args, **kwargs):
-        self._rule = args[0]
+        self._rule, *_ = args
 
         super().__init__(*args[1:], **kwargs)
 
@@ -203,7 +226,6 @@ class ActionManagement:
 
         for key in config.postconfig:
             if config.postconfig.get(key, False):
-                print(key)
                 self.action_table_post.append(self.action_builder.create(key))
 
         print("action_table: ", self.action_table_post)
@@ -214,8 +236,16 @@ class ActionManagement:
 
         for key in config.color:
             rule = ColorRule(**key)
+
+            if rule.ignorecase:
+                act = self.action_builder.create('color_ignorecase', rule)
+            else:
+                act = self.action_builder.create('color', rule)
+
+            self.action_table_color.append(act)
             print(rule)
-            print("color: ", key)
+
+        print("color_table", self.action_table_color)
 
     def build_action_table_filter(self):
         self.action_table_filter = []
@@ -226,8 +256,7 @@ class ActionManagement:
             act = self.action_builder.create(action_filter_type(rule.match_condition, rule.ignorecase), rule)
             self.action_table_filter.append(act)
             print(rule)
-            print("filter: ", key)
-        print(self.action_table_filter)
+        print("filter_table", self.action_table_filter)
 
     def gui_action(self, msg, listbox, **kwargs):
 

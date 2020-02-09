@@ -6,7 +6,7 @@ import tkinter
 from pprint import pprint
 
 from dbgfactory import BuildFactoryAutoRegister, BuildFactory
-from dbgconfig import config, DbgDict
+from dbgconfig import config
 from dbgrule import FilterRule, ColorRule
 
 from dbgactiondef import ActionType, ActionTarget, ActionFilterType, action_filter_type, action_target_type
@@ -271,7 +271,7 @@ class ActionManagement:
         for act in self.action_table_filter:
 
             tgt = act(msg, *args, **kwargs)
-            if tgt in (ActionTarget.DROP, ActionTarget.ACCEPT):
+            if tgt is not ActionTarget.CONTINUE:
                 return tgt
 
         return ActionTarget.DROP

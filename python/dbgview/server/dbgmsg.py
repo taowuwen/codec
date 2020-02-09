@@ -46,3 +46,6 @@ class DbgMessage:
 
         raise DbgMessageInvalidType(f'{type(obj)}, {obj}, not support current type of class')
 
+
+    def __len__(self):
+        return len(self.ctx)

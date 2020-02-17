@@ -87,10 +87,13 @@ def parser_arguments(parser):
 
 def find_file(args, is_dir = 0):
 
+    r = None
+    rule = '|'.join(args.file_list)
+
     if args.ignorecase:
-        file_list = [fl.lower() for fl in args.file_list]
+        r = re.compile(rule, re.I)
     else:
-        file_list = args.file_list
+        r = re.compile(rule)
 
     def find_file_cb(fl, isdir):
 
@@ -98,12 +101,8 @@ def find_file(args, is_dir = 0):
             return 0
 
         filename = os.path.basename(fl)
-        key = filename
 
-        if args.ignorecase:
-            key = filename.lower()
-
-        if key in file_list:
+        if r.search(filename):
             print(paint_substr(Color.green, fl, filename))
 
     ff = FileFind(exception_list = args.exception_list, follow_symbol = args.follow_symbol)

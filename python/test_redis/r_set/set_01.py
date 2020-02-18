@@ -15,6 +15,4 @@ class SetTest_001(TestcaseSet):
 
     def do_test_set_get(self):
         self.sadd(self.key, self.val)
-        val = { decode_str(s) for s in self.smembers(self.key) }
-
-        logger.trace(f'{val}')
+        self.smembers(self.key)

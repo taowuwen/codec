@@ -32,25 +32,19 @@ class ConnectionTest_001(TestcaseConnection):
 
     def do_test_echo(self):
         val = decode_str(self.echo(self.key))
-        logger.trace(f"{val}")
 
         
     def do_test_ping(self):
         val = self.ping()
-        logger.trace(f"{val}")
 
     def do_test_select(self):
 
         backup_db = self.db
 
-        logger.trace(f"current db {backup_db}")
-
         self.select_db(13)
-        logger.trace(f"current db {self.db}")
         assert self.db == 13, "invalid db select"
 
         self.select_db(backup_db)
-        logger.trace(f"current db {self.db}")
         assert self.db == backup_db, "invalid db select"
 
 
@@ -91,12 +85,10 @@ class ConnectionTest_002(TestcaseConnection):
 
         self.select_db(self.from_db)
         val = decode_str(self.get(self.key))
-        logger.trace(f"key: {self.key}, val: {self.val}, val_get: {val}")
         assert val == self.val, "val should equal to self.val"
 
         self.select_db(self.to_db)
         val = decode_str(self.get(self.key))
-        logger.trace(f"key: {self.key}, val: {self.val * 2}, val_get: {val}")
         assert val == self.val * 2, "val should equal to self.val"
 
 
@@ -104,10 +96,8 @@ class ConnectionTest_002(TestcaseConnection):
 
         self.select_db(self.from_db)
         val = decode_str(self.get(self.key))
-        logger.trace(f"key: {self.key}, val: {self.val * 2}, val_get: {val}")
         assert val == self.val * 2, "val should equal to self.val"
 
         self.select_db(self.to_db)
         val = decode_str(self.get(self.key))
-        logger.trace(f"key: {self.key}, val: {self.val}, val_get: {val}")
         assert val == self.val, "val should equal to self.val"

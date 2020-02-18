@@ -11,6 +11,3 @@ class ServerTest_001(TestcaseServer):
 
     def clean(self):
         super().clean()
-
-    def do_test_set_get(self):
-        pass

@@ -2,9 +2,81 @@
 # -*- coding: utf-8 -*-
 
 import redis
-from r_utils import logger
+from r_utils import logger, decode_str
+
+
+def get_parser(a):
+    global parser_tbl
+    return parser_tbl.get(type(a), parse_passthrough)
+
+
+def parse_str(s):
+    if s.isdigit():
+        return int(s)
+
+    return s
+
+def parse_bytes(s):
+    return parse_str(decode_str(s))
+
+def parse_list(l):
+
+    rsp_l = []
+
+    for i in l:
+        parser = get_parser(i)
+        rsp_l.append(parser(i))
+
+    return rsp_l
+
+def parse_set(s):
+    return set(parse_list(s))
+
+def parse_tuple(s):
+    return tuple(parse_list(s))
+
+def parse_dict(d):
+
+    new_dict = {}
+
+    for k, v in d.items():
+        parser_k = get_parser(k)
+        parser_v = get_parser(v)
+        new_dict[parser_k(k)] = parser_v(v)
+
+    return new_dict
+
+parse_passthrough = lambda x:x
+
+parser_tbl = {
+        type(1): parse_passthrough,
+        type(1.0): parse_passthrough,
+        type('a'): parse_str,
+        type(True): parse_passthrough,
+        type(None): parse_passthrough,
+        type(b'1'): parse_bytes,
+        type(list()): parse_list,
+        type(set()): parse_set,
+        type(tuple()): parse_tuple,
+        type(dict()): parse_dict,
+}
+
+def parse_response(rsp):
+    parser = get_parser(rsp)
+    return parser(rsp)
 
 class Testcase(redis.Redis):
+
+    def execute_command(self, *args, **kwargs):
+        rsp = super().execute_command(*args, **kwargs)
+
+        try:
+            logger.trace(f"CMD:{args} {kwargs} -> {parse_response(rsp)}")
+        except Exception as e:
+            logger.trace(f"CMD:{args} {kwargs} -> {rsp} {type(rsp)} {e}")
+
+        return rsp
+        
 
     def select_db(self, db=15):
 

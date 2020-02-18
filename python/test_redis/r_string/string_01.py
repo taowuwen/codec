@@ -15,6 +15,4 @@ class StringTest_001(TestcaseString):
 
     def do_test_set_get(self):
         self.set(self.key, self.val)
-        val = decode_str(self.get(self.key))
-
-        logger.trace(f'{val}')
+        self.get(self.key)

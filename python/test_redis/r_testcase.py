@@ -71,9 +71,9 @@ class Testcase(redis.Redis):
         rsp = super().execute_command(*args, **kwargs)
 
         try:
-            logger.trace(f"CMD:{args} {kwargs} -> {parse_response(rsp)}")
+            logger.trace(f"> {args}, {kwargs} ---> {parse_response(rsp)}")
         except Exception as e:
-            logger.trace(f"CMD:{args} {kwargs} -> {rsp} {type(rsp)} {e}")
+            logger.trace(f"> {args}, {kwargs} ---> {rsp} {type(rsp)} {e}")
 
         return rsp
         

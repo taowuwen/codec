@@ -46,25 +46,25 @@ class Logger:
         self._fd = sys.stdout
 
 
-    def _do_print(self, level, color, s):
+    def _do_print(self, level, color, prefix, s):
 
         if level >= self._level:
-            print(f"{color} {time.asctime()}\t {s}\033[m")
+            print(f"{color} {time.asctime()}    {prefix}\t{s}\033[m")
 
     def debug(self, s):
-        self._do_print(DebugLevel.dbg, Color.normal, s)
+        self._do_print(DebugLevel.dbg, Color.normal, "debug", s)
 
     def info(self, s):
-        self._do_print(DebugLevel.info, Color.green, s)
+        self._do_print(DebugLevel.info, Color.green, "info", s)
 
     def notice(self, s):
-        self._do_print(DebugLevel.notice, Color.yellow, s)
+        self._do_print(DebugLevel.notice, Color.yellow, "notice", s)
 
     def warn(self, s):
-        self._do_print(DebugLevel.warn, Color.blue, s)
+        self._do_print(DebugLevel.warn, Color.blue, "warn", s)
 
     def error(self, s):
-        self._do_print(DebugLevel.err, Color.red, s)
+        self._do_print(DebugLevel.err, Color.red, "error", s)
 
     trace = debug
 

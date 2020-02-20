@@ -42,7 +42,5 @@ def main():
 
 
 if __name__ == '__main__':
-    DebugStringConfig(enable_thread=1, timeout=1)
-
     test_10()
     #test_10000()

@@ -22,7 +22,7 @@ class CDebugViewPrint:
         self.args =  {
             'host': 'localhost',
             'port': 23232,
-            'enable_thread': 0,
+            'enable_thread': 1,
             'buffer_size': 10,
             'buffer': None,
             'thread_running': 0,
@@ -76,8 +76,6 @@ class CDebugViewPrint:
             sock.close()
             self.args.pop('sock')
             self.args['thread_running'] = 0
-        print(f'total sent {self._stat} logs')
-
 
     def sender_thread(self):
 
@@ -104,6 +102,10 @@ class CDebugViewPrint:
         self.args['thread'] = threading.Thread(target=self.sender_thread, args=())
         self.args['thread_running'] = 1
         self.args['thread'].start()
+
+    @property
+    def total_sent(self):
+        return self._stat
 
 
 DebugStringPrint = CDebugViewPrint()

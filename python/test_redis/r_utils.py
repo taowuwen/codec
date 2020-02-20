@@ -3,6 +3,7 @@
 
 import sys
 import time
+from dbgview import DebugStringPrint
 
 class DecodeFailed(Exception): pass
 
@@ -50,6 +51,7 @@ class Logger:
 
         if level >= self._level:
             print(f"{color} {time.asctime()}    {prefix}\t{s}\033[m")
+            DebugStringPrint("{:<8s}{}".format(prefix, s))
 
     def debug(self, s):
         self._do_print(DebugLevel.dbg, Color.normal, "debug", s)

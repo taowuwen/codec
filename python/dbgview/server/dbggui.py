@@ -15,6 +15,12 @@ class DbgView:
         self.root.title('DebugView by taowuwen@gmail.com')
         self.datactl, self.cfgctl, self.mq_gui, self.actionctl, *_ = kargs
 
+        self.font_cfg= {
+                'font':'systemSystemFont',
+                'fg':'black',
+                'bg':'white'
+            }
+
         self.do_init_widget()
 
     def check_msg_queue(self):
@@ -42,6 +48,7 @@ class DbgView:
         return self.root.mainloop()
 
     def do_init_widget(self):
+        self.prepare_menu()
         self.frame    = tkinter.Frame(self.root)
         self.listbox  = tkinter.Listbox(self.frame)
         self.y_scroll = tkinter.Scrollbar(self.root, orient=tkinter.VERTICAL)
@@ -87,3 +94,40 @@ class DbgView:
         self.listbox.itemconfig(2, bg='green')
         self.listbox.itemconfig(0, foreground="purple")
         self.listbox.itemconfig(tkinter.END, {'bg':'black'})
+
+    def command_cb(self):
+        pass
+
+
+    def clear_screen(self):
+        self.listbox.delete(0, tkinter.END)
+
+    def prepare_menu(self):
+
+        self.menu_root = tkinter.Menu(self.root, **self.font_cfg)
+
+        # file menu
+        filemenu = tkinter.Menu(self.menu_root, tearoff=0, **self.font_cfg)
+        filemenu.add_command(label='Open', command=self.command_cb)
+        filemenu.add_command(label='Edit', command = self.command_cb)
+        filemenu.add_separator()
+        filemenu.add_command(label='Exit', command=self.root.quit)
+        self.menu_root.add_cascade(label='File', menu=filemenu)
+
+        # edit menu
+        editmenu = tkinter.Menu(self.menu_root, tearoff = 0, **self.font_cfg)
+
+        editmenu.add_command(label="Cut", command=self.command_cb)
+        editmenu.add_command(label="Copy", command=self.command_cb)
+        editmenu.add_command(label="Paste", command=self.command_cb)
+        editmenu.add_command(label="clear", command=self.clear_screen)
+        self.menu_root.add_cascade(label="Edit", menu=editmenu)
+         
+        # help menu
+        helpmenu = tkinter.Menu(self.menu_root, tearoff=0, **self.font_cfg)
+        helpmenu.add_command(label="About", command=self.command_cb)
+        self.menu_root.add_cascade(label="Help", menu=helpmenu)
+
+        self.root.config(menu=self.menu_root)
+
+

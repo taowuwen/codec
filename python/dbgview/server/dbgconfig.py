@@ -63,42 +63,6 @@ class DbgConfig:
                 self.kwargs[key] = val
         
     def set_default_config(self):
-        '''
-        {
-            "gui_font": DbgDict({ fg="black", bg="white", font="" })
-
-            "enable_color": True,
-            "enable_filter": True,
-
-            'common': {
-                "show_line_number": False,
-                "show_timestamp":   False,
-                "show_client":      False,
-                "show_server":      False,
-                "show_content_length": False,
-            },
-
-            'postconfig': {
-                "set_listbox", True,
-                "enable_log",  False,
-            }
-
-
-            "color_rule": [
-                {"enable":True, "name": "rule_name1", fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True},
-                {"enable":True, "name": "rule_name2", fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True},
-            ],
-
-            "filter_default_target": "accept",
-
-            "filter_rule": [
-                ["enable":True, "name": "rule_name1", fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True, target="drop"],
-                ["enable":True, "name": "rule_name2", fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="equal/not_euqal/contain/not_contain" , ignorecase=True, target="accept"],
-                ["enable":True, "name": "rule_name1", fg='#0xaabbcc', bg='white', rule="rule priciple", match_condition="contain" , ignorecase=True, target="accept"],
-            ]
-        }
-        '''
-
         self.kwargs['gui_font'] = DbgDict({
             "fg":               "black",
             "bg":               "white",
@@ -110,19 +74,19 @@ class DbgConfig:
         })
 
         self.kwargs['common'] = DbgDict({
-            "show_line_number":    True,
-            "show_timestamp":      True,
-            "show_client":         False,
-            "show_server":         False,
-            "show_content_length": False,
+            "ShowLineNumber":    True,
+            "ShowTimeStamp":      True,
+            "ShowClient":         False,
+            "ShowServer":         False,
+            "ShowLength": False,
         })
 
         self.kwargs['postconfig'] = DbgDict({
-            "set_listbox": True,
-            "enable_log":  False,
+            "EnableListbox": True,
+            "EnableLog":  False,
         })
 
-        self.kwargs['color'] = [ 
+        self.kwargs['Color'] = [ 
             DbgDict({
                 "enable":          True,
                 "name":            "red",
@@ -158,7 +122,7 @@ class DbgConfig:
                 "ignorecase":      True
             }),
         ]
-        self.kwargs['filter'] = [
+        self.kwargs['Filter'] = [
             DbgDict({
                 "enable":          True,
                 "name":            "BLUE",
@@ -189,10 +153,10 @@ if __name__ == '__main__':
     pprint(config.color)
     pprint(config.gui_font)
 
-    pprint(config.common.show_line_number)
+    pprint(config.common.ShowLineNumber)
 
-    config.common.show_line_number = True
-    pprint(config.common.show_line_number)
+    config.common.ShowLineNumber = True
+    pprint(config.common.ShowLineNumber)
 
     config.common.tmpkey = "tmpval"
     pprint(config.common.tmpkey)

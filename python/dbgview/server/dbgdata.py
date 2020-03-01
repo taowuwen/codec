@@ -31,3 +31,7 @@ class DbgData:
             msg = self.msgs.get(msg_id, None)
 
         return msg
+
+    def clear(self):
+        with self.mutex:
+            self.msgs.clear()

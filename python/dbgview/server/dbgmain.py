@@ -13,6 +13,8 @@ from dbgfilter import DbgFilterThread
 from dbgdata   import DbgData
 from dbgconfig import DbgConfig
 from dbgaction import ActionManagement
+from dbgctl import dbg_ctrl_init, dbg_ctrl_notify_create
+from dbgintf import dbg_intf_init
 
 
 class App:
@@ -33,13 +35,18 @@ class App:
         self.msgqueue1 = queue.Queue(1024)
         self.msgqueue2 = queue.Queue(1024)
         self.datactl = DbgData(self.msgqueue1, *kargs, **kwargs)
-        self.cfgctl = DbgConfig(self.msgqueue1, self.msgqueue2, *kargs, **kwargs)
         self.actionctl = ActionManagement()
+
+        dbg_ctrl_init()
+        dbg_intf_init(self.actionctl)
+        dbg_ctrl_notify_create()
+
+        self.actionctl.refresh_table()
 
         # signals catch from here
         self.start_server(self.msgqueue2, *kargs, **kwargs)
         self.start_filter(self.datactl, self.msgqueue2, self.actionctl, *kargs, **kwargs)
-        self.init_gui(self.datactl, self.cfgctl, self.msgqueue1, self.actionctl, *kargs, **kwargs)
+        self.init_gui(self.datactl, self.msgqueue1, self.actionctl, *kargs, **kwargs)
 
     def start_server(self, *kargs, **kwargs):
         print(*kargs, **kwargs)

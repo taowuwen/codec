@@ -7,10 +7,9 @@ from pprint import pprint
 
 from dbgfactory import BuildFactoryAutoRegister, BuildFactory
 from dbgconfig import config
-from dbgrule import FilterRule, ColorRule
 
-from dbgactiondef import ActionType, ActionTarget, ActionFilterType, action_filter_type, action_target_type
-
+from dbgactiondef import ActionType, ActionTarget, ActionFilterType, action_filter_type, action_target_type, CtrlModID, cfg_table_module_common, cfg_table_module_post
+import threading
 
 
 class Action:
@@ -35,13 +34,13 @@ class ActionCommon(Action):
 
 
 class ActionCommonShowLineNumber(ActionCommon):
-    _config = "show_line_number"
+    _config = CtrlModID.ShowLineNumber.name
     def __call__(self, *args, **kwargs):
         msg, listbox, *_ = args
         msg.prefix += '{:0>5d}   '.format(listbox.size())
 
 class ActionCommonShowTimeStamp(ActionCommon):
-    _config = "show_timestamp"
+    _config = CtrlModID.ShowTimeStamp.name
     def __call__(self, *args, **kwargs):
         msg, listbox, *_ = args
         msg.prefix += f' {time.ctime(msg.tm)}'
@@ -59,13 +58,13 @@ class ActionPostConfig(Action):
     pass
 
 class ActionPostListBoxInsert(ActionPostConfig):
-    _config = "set_listbox"
+    _config = CtrlModID.EnableListbox.name
     def __call__(self, *args, **kwargs):
         msg, listbox, *_ = args
         listbox.insert(tkinter.END, str(msg))
 
 class ActionPostEnableLog(ActionPostConfig):
-    _config = "enable_log"
+    _config = CtrlModID.EnableLog.name
     def __call__(self, *args, **kwargs):
         msg, listbox, *_ = args
         print(msg)
@@ -90,7 +89,7 @@ class ActionColor(Action):
 
 
 class ActionColorMatch(ActionColor):
-    _config = "color"
+    _config = 'color'
 
     def match(self, *args, **kwargs):
         rule, msg, *_ = args
@@ -202,61 +201,86 @@ class ActionFactoryBuilder(BuildFactory):
 class ActionManagement:
     def __init__(self):
         self.action_builder = ActionFactoryBuilder('Action')
-        self._build_action_table()
+        self.filter_mutex = threading.Lock()
 
-    def _build_action_table(self):
+        self.config_action_table = [ None for x in CtrlModID  ]
+        self.config_color_action_table = [None, ]
+        self.config_filter_action_table = [None, ]
 
-        self.build_action_table_common()
-        self.build_action_table_post()
-        self.build_action_table_filter()
-        self.build_action_table_color()
+        self.config_table_map = {
+            CtrlModID.Color:  self.config_color_action_table,
+            CtrlModID.Filter: self.config_filter_action_table,
+        }
 
-    def build_action_table_common(self):
 
+    def create_action(self, action_key, *args, **kwargs):
+        return self.action_builder.create(action_key, *args, **kwargs)
+
+    def write_action(self, mod, act, add = True):
+
+        if mod in self.config_table_map:
+            table = self.config_table_map.get(mod)
+
+            if add and act:
+                table.append(act)
+            else:
+                if act in table:
+                    table.remove(act)
+        else:
+            self.config_action_table[mod.value] = act
+
+        return True
+
+    def refresh_common_table(self):
         self.action_table_common = []
 
-        for key in config.common:
-            if config.common.get(key, False):
-                self.action_table_common.append(self.action_builder.create(key))
+        for mod in cfg_table_module_common:
+            act = self.config_action_table[mod.value]
+
+            if act:
+                self.action_table_common.append(act)
 
         print("common_table: ", self.action_table_common)
 
-    def build_action_table_post(self):
+    def refresh_post_table(self):
         self.action_table_post = []
 
-        for key in config.postconfig:
-            if config.postconfig.get(key, False):
-                self.action_table_post.append(self.action_builder.create(key))
+        for mod in cfg_table_module_post:
+            act = self.config_action_table[mod.value]
+
+            if act:
+                self.action_table_post.append(act)
 
         print("action_table: ", self.action_table_post)
 
 
-    def build_action_table_color(self):
+    def refresh_color_table(self):
         self.action_table_color = []
 
-        for key in config.color:
-            rule = ColorRule(**key)
+        for act in self.config_color_action_table:
 
-            if rule.ignorecase:
-                act = self.action_builder.create('color_ignorecase', rule)
-            else:
-                act = self.action_builder.create('color', rule)
+            if act:
+                self.action_table_color.append(act)
 
-            self.action_table_color.append(act)
-            print(rule)
+        print("color action table", self.action_table_color)
 
-        print("color_table", self.action_table_color)
 
-    def build_action_table_filter(self):
-        self.action_table_filter = []
+    def refresh_filter_table(self):
 
-        for key in config.filter:
+        with self.filter_mutex:
+            self.action_table_filter = []
 
-            rule = FilterRule(**key)
-            act = self.action_builder.create(action_filter_type(rule.match_condition, rule.ignorecase), rule)
-            self.action_table_filter.append(act)
-            print(rule)
-        print("filter_table", self.action_table_filter)
+            for act in self.config_filter_action_table:
+                if act:
+                    self.action_table_filter.append(act)
+
+        print("filter action table", self.action_table_filter)              
+
+    def refresh_table(self):
+        self.refresh_common_table()
+        self.refresh_post_table()
+        self.refresh_color_table()
+        self.refresh_filter_table()
 
     def gui_action(self, msg, listbox, **kwargs):
 
@@ -267,14 +291,17 @@ class ActionManagement:
 
 
     def filter_action(self, msg, *args, **kwargs):
-        
-        for act in self.action_table_filter:
 
-            tgt = act(msg, *args, **kwargs)
-            if tgt is not ActionTarget.CONTINUE:
-                return tgt
+        ret = ActionTarget.DROP
 
-        return ActionTarget.DROP
+        with self.filter_mutex:
+            for act in self.action_table_filter:
+
+                tgt = act(msg, *args, **kwargs)
+                if tgt is not ActionTarget.CONTINUE:
+                    ret = tgt
+                    break
+        return ret
                 
 if __name__ == '__main__':
     am = ActionManagement()

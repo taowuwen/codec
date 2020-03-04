@@ -14,7 +14,6 @@ class DbgData:
         '''
 
         if not isinstance(msg, DbgMessage):
-            print("msg is not DbgMessage")
             self.mq_gui.put(msg)
 
         with self.mutex:

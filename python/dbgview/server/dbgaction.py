@@ -8,7 +8,7 @@ from pprint import pprint
 from dbgfactory import BuildFactoryAutoRegister, BuildFactory
 from dbgconfig import config
 
-from dbgactiondef import ActionType, ActionTarget, ActionFilterType, action_filter_type, action_target_type, CtrlModID, cfg_table_module_common, cfg_table_module_post
+from dbgactiondef import ActionType, ActionTarget, ActionFilterType, action_filter_type, action_target_type, CtrlModID, cfg_table_module_common, cfg_table_module_post, dbg_print
 import threading
 
 
@@ -240,7 +240,7 @@ class ActionManagement:
             if act:
                 self.action_table_common.append(act)
 
-        print("common_table: ", self.action_table_common)
+        dbg_print(f"common_table: {self.action_table_common}")
 
     def refresh_post_table(self):
         self.action_table_post = []
@@ -251,7 +251,7 @@ class ActionManagement:
             if act:
                 self.action_table_post.append(act)
 
-        print("action_table: ", self.action_table_post)
+        dbg_print(f"action_table: {self.action_table_post}")
 
 
     def refresh_color_table(self):
@@ -262,7 +262,7 @@ class ActionManagement:
             if act:
                 self.action_table_color.append(act)
 
-        print("color action table", self.action_table_color)
+        dbg_print(f"color action table: {self.action_table_color}")
 
 
     def refresh_filter_table(self):
@@ -274,7 +274,7 @@ class ActionManagement:
                 if act:
                     self.action_table_filter.append(act)
 
-        print("filter action table", self.action_table_filter)              
+        dbg_print(f"filter action table: {self.action_table_filter}")
 
     def refresh_table(self):
         self.refresh_common_table()

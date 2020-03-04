@@ -10,7 +10,7 @@ from  dbgactiondef import CtrlModID, CtrlEvent
 from dbgfactory import BuildFactoryAutoRegister, BuildFactory
 from dbgctl import dbg_ctrl_get
 from dbgrule import FilterRule, ColorRule
-from dbgactiondef import action_filter_type, action_target_type
+from dbgactiondef import action_filter_type, action_target_type, dbg_print
 
 
 class DbgIntf(Observer):
@@ -28,7 +28,7 @@ class DbgIntf(Observer):
         }
 
     def update(self, *args, **kwargs):
-        print(f"{self} >>>: {args}, {kwargs}")
+        dbg_print(f"{self} >>>: {args}, {kwargs}")
 
         mod, evt, *rest_args = args
         assert mod is self._mod
@@ -162,8 +162,5 @@ if __name__ == '__main__':
     from dbgctl import dbg_ctrl_init, dbg_ctrl_notify_create
     dbg_ctrl_init()
     dbg_intf_init()
-
-    print(g_ctrl_intf)
-
     dbg_ctrl_notify_create()
 

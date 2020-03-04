@@ -63,6 +63,8 @@ class DbgConfig:
                 self.kwargs[key] = val
         
     def set_default_config(self):
+        self.kwargs['gui'] = {
+                },
         self.kwargs['gui_font'] = DbgDict({
             "fg":               "black",
             "bg":               "white",

@@ -41,4 +41,15 @@ def action_target_type(target):
     return cfg_target_tbl.get(target, ActionTarget.CONTINUE)
 
 
+g_mq_gui = None
+def dbg_print_init(mq = None):
+    global g_mq_gui
+    g_mq_gui = mq
 
+def dbg_print(msg):
+    global g_mq_gui
+
+    if g_mq_gui:
+        g_mq_gui.put(msg)
+    else:
+        print(msg)

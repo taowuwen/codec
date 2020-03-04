@@ -25,7 +25,7 @@ class DbgFilterThread(threading.Thread):
                 if tgt is ActionTarget.ACCEPT:
                     self.dbg_data.set(msg)
                 else:
-                    print("filter msg: ", msg)
+                    print("filtered msg: ", msg)
                     del msg
             except queue.Empty:
                 pass

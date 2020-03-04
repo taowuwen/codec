@@ -40,5 +40,3 @@ class BuildFactoryAutoRegister(BuildFactory):
         for klass in klasses:
             for _cls in klass.__subclasses__():
                 self.register(_cls.__name__, _cls)
-
-        print(self.products)

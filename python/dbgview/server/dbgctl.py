@@ -1,9 +1,9 @@
 
 from dbgobserver import Observable
 from dbgconfig import config, DbgDict
-from  dbgactiondef import CtrlModID, CtrlEvent
+from dbgactiondef import CtrlModID, CtrlEvent
 from dbgfactory import BuildFactoryAutoRegister, BuildFactory
-from dbgactiondef import  cfg_table_module_common, cfg_table_module_post
+from dbgactiondef import  cfg_table_module_common, cfg_table_module_post, dbg_print
 
 
 class DbgCtrl(Observable):
@@ -16,7 +16,6 @@ class DbgCtrl(Observable):
             cls._inst = super().__new__(cls, *args, **kwargs)
 
         return cls._inst
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -42,21 +41,40 @@ class DbgCtrl(Observable):
         assert self._mod not in (cfg_table_module_post + cfg_table_module_common), "Never show up this line"
         pass
 
+    @property
+    def enable(self):
+        if self._mod in cfg_table_module_common:
+            return config.common.get(self._mod.name, False)
+
+        if self._mod in cfg_table_module_post:
+            return config.postconfig.get(self._mod.name, False)
+
+        assert False, "Never Show up this line"
+
+    @enable.setter
+    def enable(self, enable):
+        dbg_print(f"update ---> {self}, Show?: {enable}, observers {self.observers} {id(self)}")
+        if self._mod in cfg_table_module_common:
+            dbg_print(f"update common ---> {self}, Show?: {enable}")
+            config.common[self._mod.name] = enable
+            return self.notify_update()
+
+        if self._mod in cfg_table_module_post:
+            dbg_print(f"update postconfig ---> {self}, Show?: {enable}")
+            config.postconfig[self._mod.name] = enable
+            return self.notify_update()
+
+        assert False, "Never show up this line"
+
     def __str__(self):
         return self.__class__.__name__
 
 
 class DbgCtrlShowLineNumber(DbgCtrl):
-
     _mod = CtrlModID.ShowLineNumber
-
-    def update(self, *args, **kwargs):
-        pass
-
 
 class DbgCtrlShowTimestamp(DbgCtrl):
     _mod = CtrlModID.ShowTimeStamp
-    pass
 
 
 class DbgCtrlShowClient(DbgCtrl):
@@ -125,9 +143,6 @@ class DbgCtrlFactory(BuildFactoryAutoRegister):
             for _cls in klass.__subclasses__():
                 self.register(_cls._mod.name, _cls)
 
-        print(self.products)
-
-
 g_dbg_ctrl_factory = None
 g_dbg_ctrl = [None for x in range(len(DbgCtrl.__subclasses__()) + 1)]
 
@@ -139,12 +154,16 @@ def dbg_ctrl_get(s_ctrl = None, *args, **kwargs):
 
     global g_dbg_ctrl_factory
     global g_dbg_ctrl
+
     ctrl = g_dbg_ctrl_factory.create(s_ctrl, *args, **kwargs)
     g_dbg_ctrl[ctrl._mod.value] = ctrl
+
     return ctrl
 
 
 def dbg_ctrl_notify_create():
+    global g_dbg_ctrl
+
     for ctrl in g_dbg_ctrl:
         if not ctrl:
             continue
@@ -153,6 +172,10 @@ def dbg_ctrl_notify_create():
             return False
 
     return True
+
+def dbg_controller(mod):
+    global g_dbg_ctrl
+    return g_dbg_ctrl[mod.value]
 
 if __name__ == '__main__':
 

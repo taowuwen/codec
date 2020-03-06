@@ -1,9 +1,10 @@
 import tkinter
 import queue
 from dbgmsg import DbgMessage
-from dbgconfig import config
+from dbgconfig import config, DbgDict
 from dbgctl import dbg_controller 
 from dbgactiondef import CtrlModID, cfg_table_module_common, cfg_table_module_post, dbg_print
+from functools import partial
 
 try:
     import tkFont
@@ -114,29 +115,19 @@ class DbgView:
         self.listbox.delete(0, tkinter.END)
         self.datactl.clear()
 
-    def show_line_number(self):
-        ctrl = dbg_controller(CtrlModID.ShowLineNumber)
-        ctrl.enable = self.enable_linenumber.get()
-
-    def show_timestamp(self):
-        ctrl = dbg_controller(CtrlModID.ShowTimeStamp)
-        dbg_print(f'{ctrl}')
-        ctrl.enable = self.enable_timestamp.get()
-
     def prepare_menu(self):
 
         self.menu_root = tkinter.Menu(self.root, **self.font_cfg)
+        config.cache = DbgDict()
 
         self.menu_file_prepare()
         self.menu_edit_prepare()
-        self.menu_view_prepare()
         self.menu_color_prepare()
         self.menu_filter_prepare()
         self.menu_help_prepare()
 
         self.root.config(menu=self.menu_root)
 
-         
     def menu_file_prepare(self):
 
         # file menu
@@ -147,32 +138,31 @@ class DbgView:
 
         self.menu_root.add_cascade(label='File', menu=filemenu)
         self.filemenu = filemenu
-        pass
+
+    def edit_show_or_not(self, mod):
+        ctrl = dbg_controller(mod)
+        ctrl.enable = config.cache.get(mod.name).get()
 
     def menu_edit_prepare(self):
 
         # edit menu
         editmenu = tkinter.Menu(self.menu_root, tearoff = 0, **self.font_cfg)
 
-        # show line number
-        self.enable_linenumber = tkinter.BooleanVar()
-        editmenu.add_checkbutton(label="ShowLineNumber", command=self.show_line_number, onvalue=True, offvalue=False, variable=self.enable_linenumber)
-        self.enable_linenumber.set(dbg_controller(CtrlModID.ShowLineNumber).enable)
+        edit_show_cb = {mod.name: partial(lambda x: self.edit_show_or_not(x), x=mod) for mod in cfg_table_module_common + cfg_table_module_post}
 
-        # show timestamp
-        self.enable_timestamp = tkinter.BooleanVar()
-        editmenu.add_checkbutton(label="ShowTimeStamp", command=self.show_timestamp, onvalue=True, offvalue=False, variable=self.enable_timestamp)
-        self.enable_timestamp.set(dbg_controller(CtrlModID.ShowTimeStamp).enable)
+        for mod in cfg_table_module_common + cfg_table_module_post:
+
+            val = tkinter.BooleanVar()
+            editmenu.add_checkbutton(label=mod.name, onvalue=True, offvalue=False, variable=val, command=edit_show_cb.get(mod.name))
+
+            config.cache[mod.name] = val
+            config.cache[mod.name].set(dbg_controller(mod).enable)
 
         # clear
         editmenu.add_command(label="clear", command=self.clear_screen)
         self.menu_root.add_cascade(label="Edit", menu=editmenu)
 
         self.editmenu = editmenu
-
-    def menu_view_prepare(self):
-        pass
-
 
     def menu_color_cb(self):
 
@@ -200,6 +190,8 @@ class DbgView:
             self.filtermenu.add_checkbutton(label=item.get('name'), command=self.command_cb, onvalue=True, offvalue=False)
             if item.get('target').lower() == 'drop':
                 self.filtermenu.entryconfig(self.filtermenu.index(item.get('name')), foreground='red')
+            else:
+                self.filtermenu.entryconfig(self.filtermenu.index(item.get('name')), foreground='green')
 
         self.filtermenu.add_checkbutton(label="Config", command=self.command_cb, onvalue=True, offvalue=False)
 

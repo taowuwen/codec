@@ -77,7 +77,3 @@ class ColorRule(Rule):
     def itemconfig(self):
         return self._itemconfig
 
-
-
-
-

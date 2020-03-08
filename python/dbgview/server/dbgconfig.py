@@ -91,35 +91,35 @@ class DbgConfig:
         self.kwargs['Color'] = [ 
             DbgDict({
                 "enable":          True,
-                "name":            "red",
-                "rule":            'red',
-                "fg":              'red',
+                "name":            "Error",
+                "rule":            'error',
+                "fg":              '#ff0000',
                 "match_condition": "contain",
                 "ignorecase":      True
             }),
             DbgDict({
                 "enable":          True,
-                "name":            "blue",
-                "rule":            'blue',
+                "name":            "Info",
+                "rule":            'Info',
+                "fg":              '#00aa00',
+                "match_condition": "contain",
+                "ignorecase":      True
+            }),
+
+            DbgDict({
+                "enable":          True,
+                "name":            "Warn",
+                "rule":            'Warn',
+                "fg":              '#aa0000',
+                "match_condition": "contain",
+                "ignorecase":      True
+            }),
+
+            DbgDict({
+                "enable":          True,
+                "name":            "notice",
+                "rule":            'notice',
                 "fg":              'blue',
-                "match_condition": "contain",
-                "ignorecase":      False
-            }),
-
-            DbgDict({
-                "enable":          True,
-                "name":            "BigBlue",
-                "rule":            'BLUE',
-                "fg":              '#00aaaa',
-                "match_condition": "contain",
-                "ignorecase":      False
-            }),
-
-            DbgDict({
-                "enable":          True,
-                "name":            "yellow",
-                "rule":            'yellow',
-                "fg":              'yellow',
                 "match_condition": "contain",
                 "ignorecase":      True
             }),

@@ -45,6 +45,25 @@ class ActionCommonShowTimeStamp(ActionCommon):
         msg, listbox, *_ = args
         msg.prefix += f' {time.ctime(msg.tm)}'
 
+
+class ActionCommonShowClient(ActionCommon):
+    _config = CtrlModID.ShowClient.name
+    def __call__(self, *args, **kwargs):
+        msg, listbox, *_ = args
+        msg.prefix += f' {msg.client}'
+
+class ActionCommonShowServer(ActionCommon):
+    _config = CtrlModID.ShowServer.name
+    def __call__(self, *args, **kwargs):
+        msg, listbox, *_ = args
+        msg.prefix += f' {msg.server}'
+
+class ActionCommonShowLength(ActionCommon):
+    _config = CtrlModID.ShowLength.name
+    def __call__(self, *args, **kwargs):
+        msg, listbox, *_ = args
+        msg.prefix += ' {:0>5d}'.format(len(msg))
+
 '''
 string format
     "{:<10s}{:>10d}".format(word, number)

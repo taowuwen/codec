@@ -14,6 +14,8 @@ tmp = {
 		"h": "h_v",
 		"i": "i_v"
 	},
+
+        '1' : [1,2,3,4,5],
 	"b": "b_v",
 	"c": "c_v",
 }
@@ -25,7 +27,7 @@ print(json.dumps(tmp, separators=(',', ':'), sort_keys=True, indent=8))
 def parse_object_cb(obj):
 	print("type(obj) = {}, obj = {}".format(type(obj), str(obj)))
 	print(obj.get('a', "nothing got"));
-	print(obj.get('jj', "nothing got"));
+	print(obj.get('h', "nothing got"));
 	return obj
 
 json.loads(json.dumps(tmp), object_hook = parse_object_cb)

@@ -53,14 +53,12 @@ class DbgCtrl(Observable):
 
     @enable.setter
     def enable(self, enable):
-        dbg_print(f"update ---> {self}, Show?: {enable}, observers {self.observers} {id(self)}")
+        dbg_print(f"notice {self} --- UPDATE ---> Show?: {enable}")
         if self._mod in cfg_table_module_common:
-            dbg_print(f"update common ---> {self}, Show?: {enable}")
             config.common[self._mod.name] = enable
             return self.notify_update()
 
         if self._mod in cfg_table_module_post:
-            dbg_print(f"update postconfig ---> {self}, Show?: {enable}")
             config.postconfig[self._mod.name] = enable
             return self.notify_update()
 

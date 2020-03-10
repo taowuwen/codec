@@ -3,8 +3,6 @@
 
 import time
 import tkinter
-from pprint import pprint
-
 from dbgfactory import BuildFactoryAutoRegister, BuildFactory
 from dbgconfig import config
 
@@ -214,9 +212,6 @@ class ActionFactoryBuilder(BuildFactory):
                 else:
                     self.register(_cls.__name__, _cls)
 
-        pprint(self.products)
-
-
 class ActionManagement:
     def __init__(self):
         self.action_builder = ActionFactoryBuilder('Action')
@@ -311,7 +306,7 @@ class ActionManagement:
 
     def filter_action(self, msg, *args, **kwargs):
 
-        ret = ActionTarget.DROP
+        ret = config.gui.get('default_action_target', ActionTarget.DROP)
 
         with self.filter_mutex:
             for act in self.action_table_filter:

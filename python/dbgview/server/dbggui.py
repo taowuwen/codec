@@ -17,6 +17,7 @@ class DbgView:
         self.root.geometry('1024x768')
         self.root.title('DebugView by taowuwen@gmail.com')
         self.datactl, self.mq_gui, self.actionctl, *_ = kargs
+        self.cache = DbgDict()
 
         self.font_cfg= {
                 'font':'systemSystemFont',
@@ -118,7 +119,6 @@ class DbgView:
     def prepare_menu(self):
 
         self.menu_root = tkinter.Menu(self.root, **self.font_cfg)
-        config.cache = DbgDict()
 
         self.menu_file_prepare()
         self.menu_edit_prepare()
@@ -141,7 +141,7 @@ class DbgView:
 
     def edit_show_or_not(self, mod):
         ctrl = dbg_controller(mod)
-        ctrl.enable = config.cache.get(mod.name).get()
+        ctrl.enable = self.cache.get(mod.name).get()
 
     def menu_edit_prepare(self):
 
@@ -155,10 +155,11 @@ class DbgView:
             val = tkinter.BooleanVar()
             editmenu.add_checkbutton(label=mod.name, onvalue=True, offvalue=False, variable=val, command=edit_show_cb.get(mod.name))
 
-            config.cache[mod.name] = val
-            config.cache[mod.name].set(dbg_controller(mod).enable)
+            self.cache[mod.name] = val
+            self.cache[mod.name].set(dbg_controller(mod).enable)
 
         # clear
+        editmenu.add_separator()
         editmenu.add_command(label="clear", command=self.clear_screen)
         self.menu_root.add_cascade(label="Edit", menu=editmenu)
 
@@ -172,6 +173,7 @@ class DbgView:
             self.colormenu.add_checkbutton(label=color.get('name'), command=self.command_cb, onvalue=True, offvalue=False)
             self.colormenu.entryconfig(self.colormenu.index(color.get('name')), foreground=color.get('fg'))
 
+        self.colormenu.add_separator()
         self.colormenu.add_checkbutton(label="Config", command=self.command_cb, onvalue=True, offvalue=False)
 
     def menu_color_prepare(self):
@@ -193,6 +195,7 @@ class DbgView:
             else:
                 self.filtermenu.entryconfig(self.filtermenu.index(item.get('name')), foreground='green')
 
+        self.filtermenu.add_separator()
         self.filtermenu.add_checkbutton(label="Config", command=self.command_cb, onvalue=True, offvalue=False)
 
     def menu_filter_prepare(self):

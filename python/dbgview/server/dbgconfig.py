@@ -1,6 +1,9 @@
 
-import threading
-from pprint import pprint
+import json
+import os
+import sys
+
+from dbgactiondef import action_target_type, ActionTarget
 
 class DbgDict(dict):
 
@@ -13,21 +16,24 @@ class DbgDict(dict):
 
 class DbgConfig:
 
-    _inst = None
+    def __init__(self, *args, **kwargs):
 
-    def __new__(cls, *args, **kwargs):
+        self._fl = None
+        if args:
+            self._fl, *_ = args
+            self._fl = os.path.expandvars(os.path.expanduser(self._fl))
 
-        if not cls._inst:
-            cls._inst = super().__new__(cls, *args, **kwargs)
-
-        return cls._inst
-
-
-    def __init__(self, *kargs, **kwargs):
-
-        self.mutex = threading.Lock()
         self.kwargs = DbgDict()
-        self.set_default_config()
+
+        if not self._fl or not os.path.exists(self._fl):
+            self.set_default_config()
+
+            if self._fl and not os.path.exists(os.path.dirname(self._fl)):
+                os.mkdir(os.path.dirname(self._fl))
+
+            self.searilize()
+        else:
+            self.load_cfg()
 
         if kwargs:
             self.kwargs.update(kwargs)
@@ -35,8 +41,22 @@ class DbgConfig:
     def update(self, **kwargs):
         self.kwargs.update(kwargs)
 
-    def __getattr__(self, key):
+    def load_cfg(self):
 
+        with open(self._fl, 'r') as f:
+
+            def parse_dict(obj):
+                if isinstance(obj, dict):
+                    act = obj.get('default_action_target', None)
+                    if act:
+                        obj['default_action_target'] = action_target_type(act)
+
+                    return DbgDict(obj)
+                return obj
+
+            self.kwargs = json.loads(f.read(), object_hook = parse_dict)
+
+    def __getattr__(self, key):
         try:
             return super().__getattribute__(key)
         except AttributeError:
@@ -46,25 +66,20 @@ class DbgConfig:
         try:
             object.__setattr__(self, key, val)
         except AttributeError:
-            self.__setitem(key, val)
+            self.__setitem__(key, val)
 
     def __getitem__(self, item):
-        res = None
-
-        with self.mutex:
-            res = self.kwargs.get(item, None)
-
-        return res
+        return self.kwargs.get(item, None)
 
     def __setitem__(self, key, val):
-
         if key and val:
-            with self.mutex:
-                self.kwargs[key] = val
+            self.kwargs[key] = val
         
     def set_default_config(self):
-        self.kwargs['gui'] = {
-                },
+        self.kwargs['gui'] = DbgDict({
+            'default_action_target': 'accept',
+            })
+
         self.kwargs['gui_font'] = DbgDict({
             "fg":               "black",
             "bg":               "white",
@@ -143,12 +158,27 @@ class DbgConfig:
             }),
         ]
 
-        pprint(self.kwargs)
 
-config = DbgConfig()
+    def searilize(self):
+
+        def json_encode(obj):
+            if isinstance(obj, ActionTarget):
+                return obj.name.lower()
+
+        with open(self._fl, 'w') as fp:
+            json.dump(self.kwargs, fp, indent=4, default=json_encode)
+
+    def __str__(self):
+        return f'{self.kwargs}'
+
+    def __repr__(self):
+        return self.__str__()
+
+config = DbgConfig('~/.config/dbgview/dbgview.json')
 
 if __name__ == '__main__':
-    pprint(config.preconfig)
+    from pprint import pprint
+    pprint(config)
     pprint(config.common)
     pprint(config.postconfig)
     pprint(config.filter)
@@ -167,3 +197,4 @@ if __name__ == '__main__':
 
     print(config.common.get(key))
 
+    print(config.gui.default_action_target)

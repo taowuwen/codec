@@ -53,6 +53,45 @@ class DbgView:
         self.root.after(100, self.check_msg_queue)
         return self.root.mainloop()
 
+
+    # cmd
+    def entry_command_cb(self, evt = None):
+        '''
+        cmd args,args,k=v,k=x,....
+        '''
+        dbg_print(f"{self.cmd_entry.get()}")
+        cmds = self.cmd_entry.get().split()
+
+        if not cmds:
+            self.cmd_entry.delete(0, tkinter.END)
+            return 1
+
+        _cmd = cmds[0]
+        args = []
+        kwargs = {}
+
+        if len(_cmd) > 1:
+            ln_args = "".join(cmds[1:])
+
+            for item in ln_args.split(','):
+
+                items = item.split('=')
+
+                if len(items) > 2:
+                    dbg_print(f"ERROR args: {items}")
+                    return 0
+
+                if len(items) == 2:
+                    kwargs[items[0]] = items[1]
+
+                if len(items) == 1:
+                    args.append(items[0])
+
+
+        dbg_print(f"get {_cmd} goes from here {args} , {kwargs}")
+        self.cmd_entry.delete(0, tkinter.END)
+
+
     def do_init_widget(self):
         self.prepare_menu()
         self.frame    = tkinter.Frame(self.root)
@@ -92,6 +131,11 @@ class DbgView:
         self.frame_cmd.pack(side=tkinter.TOP, fill=tkinter.X)
         self.cmd_label = tkinter.Label(self.frame_cmd, text='   Command: ', **self.font_cfg)
         self.cmd_entry = tkinter.Entry(self.frame_cmd, **self.font_cfg)
+        self.cmd_entry.bind('<Return>', self.entry_command_cb)
+        # up
+        # down
+        self.cmd_entry.focus()
+
 
         self.cmd_label.pack(side=tkinter.LEFT)
         self.cmd_entry.pack(side=tkinter.LEFT, fill=tkinter.X, expand=tkinter.YES)

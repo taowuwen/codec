@@ -59,6 +59,9 @@ class DbgView:
         '''
         cmd args,args,k=v,k=x,....
         '''
+        if not self.cmd_entry.get().strip():
+            return 0
+
         dbg_print(f"{self.cmd_entry.get()}")
         cmds = self.cmd_entry.get().split()
 
@@ -66,29 +69,33 @@ class DbgView:
             self.cmd_entry.delete(0, tkinter.END)
             return 1
 
-        _cmd = cmds[0]
+        _cmd = cmds[0].strip()
         args = []
         kwargs = {}
 
         if len(_cmd) > 1:
             ln_args = "".join(cmds[1:])
 
-            for item in ln_args.split(','):
+            for ln_args in cmds[1:]:
+                for item in ln_args.split(','):
 
-                items = item.split('=')
+                    if not item:
+                        continue
 
-                if len(items) > 2:
-                    dbg_print(f"ERROR args: {items}")
-                    return 0
+                    items = item.split('=')
 
-                if len(items) == 2:
-                    kwargs[items[0]] = items[1]
+                    if len(items) > 2:
+                        dbg_print(f"ERROR args: {items}")
+                        return 0
 
-                if len(items) == 1:
-                    args.append(items[0])
+                    if len(items) == 2:
+                        kwargs[items[0]] = items[1]
+
+                    if len(items) == 1:
+                        args.append(items[0])
 
 
-        dbg_print(f"get {_cmd} goes from here {args} , {kwargs}")
+        dbg_print(f">>> {_cmd} <<< {args} , {kwargs}")
         self.cmd_entry.delete(0, tkinter.END)
 
 

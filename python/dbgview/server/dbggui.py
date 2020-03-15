@@ -27,6 +27,9 @@ class DbgView:
 
         self.do_init_widget()
 
+        self.history = []
+        self.history_pos = -1
+
     def check_msg_queue(self):
         while True:
             try:
@@ -55,14 +58,35 @@ class DbgView:
 
 
     # cmd
-    def entry_command_cb(self, evt = None):
+    def cmd_entry_evt(self, evt = None):
         '''
         cmd args,args,k=v,k=x,....
         '''
+        if evt.keysym in ("Up", "Down"):
+            self.cmd_entry.delete(0, tkinter.END)
+            if not self.history:
+                return
+
+            if evt.keysym == "Up":
+                self.history_pos -= 1
+                if self.history_pos < -len(self.history):
+                    self.history_pos = -len(self.history)
+
+                self.cmd_entry.insert(0, self.history[self.history_pos])
+                return
+
+            if evt.keysym == "Down":
+                self.history_pos += 1
+                if self.history_pos >= -1:
+                    self.history_pos = -1
+
+                self.cmd_entry.insert(0, self.history[self.history_pos])
+                return
+
+
         if not self.cmd_entry.get().strip():
             return 0
 
-        dbg_print(f"{self.cmd_entry.get()}")
         cmds = self.cmd_entry.get().split()
 
         if not cmds:
@@ -95,9 +119,55 @@ class DbgView:
                         args.append(items[0])
 
 
+        self.history.append(" ".join(cmds))
+        self.history_pos = -1
+
         dbg_print(f">>> {_cmd} <<< {args} , {kwargs}")
+        self.get_cmd(_cmd)(*args, **kwargs)
+
         self.cmd_entry.delete(0, tkinter.END)
 
+    def cmd_show_help(self, *args, **kwargs):
+
+        dbg_print("Current support cmds:")
+
+        for key in self._cmd_table.keys():
+            dbg_print(f"        {key}")
+
+    def cmd_filter(self, *args, **kwargs):
+        pass
+
+    def cmd_color(self, *args, **kwargs):
+        pass
+
+    def cmd_stat(self, *args, **kwargs):
+        pass
+
+    def cmd_show_ctrl(self, *args, **kwargs):
+        pass
+
+    def cmd_show_intf(self, *args, **kwargs):
+        pass
+
+    def cmd_show_action_table(self, *args, **kwargs):
+        pass
+
+    def get_cmd(self, cmd=None):
+
+        self._cmd_table = None
+
+        if not self._cmd_table:
+            self._cmd_table = {
+                    "help": self.cmd_show_help,
+                    "filter": self.cmd_filter,
+                    "color": self.cmd_color,
+                    "stat": self.cmd_stat,
+                    "show_ctrl": self.cmd_show_ctrl,
+                    "show_intf": self.cmd_show_intf,
+                    "show_action_table": self.cmd_show_action_table
+                }
+
+        return self._cmd_table.get(cmd, self.cmd_show_help)
 
     def do_init_widget(self):
         self.prepare_menu()
@@ -138,7 +208,9 @@ class DbgView:
         self.frame_cmd.pack(side=tkinter.TOP, fill=tkinter.X)
         self.cmd_label = tkinter.Label(self.frame_cmd, text='   Command: ', **self.font_cfg)
         self.cmd_entry = tkinter.Entry(self.frame_cmd, **self.font_cfg)
-        self.cmd_entry.bind('<Return>', self.entry_command_cb)
+        self.cmd_entry.bind('<Return>', self.cmd_entry_evt)
+        self.cmd_entry.bind('<Up>', self.cmd_entry_evt)
+        self.cmd_entry.bind('<Down>', self.cmd_entry_evt)
         # up
         # down
         self.cmd_entry.focus()

@@ -23,6 +23,9 @@ class Action:
     def __repr__(self):
         return self.__str__()
 
+    def show(self):
+        return f'{self}'
+
 '''
     actions for common tables
 '''
@@ -104,6 +107,8 @@ class ActionColor(Action):
             self._rule.matched()
             listbox.itemconfig(tkinter.END, **self._rule.itemconfig)
 
+    def show(self):
+        return f'{self} >> {self._rule}'
 
 class ActionColorMatch(ActionColor):
     _config = 'color'
@@ -138,13 +143,15 @@ class ActionFilter(Action):
     def match(self, *args, **kwargs):
         return ActionTarget.DROP
 
+    def show(self):
+        return f'{self} >> {self._rule}'
+
 class ActionFilterEqual(ActionFilter):
     _config = ActionFilterType.equal.name
 
     def match(self, *args, **kwargs):
         rule, msg, *_ = args
         return rule == msg
-
 
 class ActionFilterNotEqual(ActionFilter):
     _config = ActionFilterType.not_equal.name
@@ -316,6 +323,18 @@ class ActionManagement:
                     ret = tgt
                     break
         return ret
-                
+
+    def show(self, table=None):
+
+        table = {
+                "common": self.action_table_common,
+                "post":   self.action_table_post,
+                "color":  self.action_table_color,
+                "filter": self.action_table_filter,
+                }.get(table, self.action_table_common + self.action_table_post + self.action_table_color + self.action_table_filter)
+
+        for act in table:
+            dbg_print(f'{act.show()}')
+
 if __name__ == '__main__':
     am = ActionManagement()

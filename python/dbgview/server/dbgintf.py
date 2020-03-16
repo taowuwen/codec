@@ -35,10 +35,19 @@ class DbgIntf(Observer):
         return self.evt_table[evt](*rest_args, **kwargs)
 
     def __str__(self):
-        if hasattr(self, '_act'):
+        if hasattr(self, '_act') and self._act:
             return f'{self.__class__.__name__}({self._mod.name}, {self._act})'
 
         return f'{self.__class__.__name__}({self._mod.name})'
+
+    def show(self):
+
+        dbg_print(f'{self}')
+
+        if hasattr(self, '_act') and isinstance(self._act, list):
+
+            for act in self._act:
+                dbg_print(f'----> {act.show()}')
 
     def __repr__(self):
         return self.__str__()
@@ -157,6 +166,20 @@ def dbg_intf_init(action_ctrl = None, *args, **kwargs):
     for cls in DbgIntf.__subclasses__():
         g_ctrl_intf[cls._mod.value] = cls(action_ctrl, *args, **kwargs)
 
+def dbg_intf_show(name = None):
+    global g_ctrl_intf
+
+    if name:
+        try:
+            g_ctrl_intf[CtrlModID[name].value].show()
+        except Exception as e:
+            dbg_print(f"Unkown module: {name}, error {e}")
+        finally:
+            return
+
+    for mod in g_ctrl_intf:
+        if mod:
+            mod.show()
 
 if __name__ == '__main__':
     from dbgctl import dbg_ctrl_init, dbg_ctrl_notify_create

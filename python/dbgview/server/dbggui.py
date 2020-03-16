@@ -5,6 +5,7 @@ from dbgconfig import config, DbgDict
 from dbgctl import dbg_controller 
 from dbgactiondef import CtrlModID, cfg_table_module_common, cfg_table_module_post, dbg_print
 from functools import partial
+from dbgintf import dbg_intf_show
 
 try:
     import tkFont
@@ -77,12 +78,12 @@ class DbgView:
 
             if evt.keysym == "Down":
                 self.history_pos += 1
-                if self.history_pos >= -1:
-                    self.history_pos = -1
+                if self.history_pos >= 0:
+                    self.history_pos = 0
+                    return
 
                 self.cmd_entry.insert(0, self.history[self.history_pos])
                 return
-
 
         if not self.cmd_entry.get().strip():
             return 0
@@ -120,7 +121,7 @@ class DbgView:
 
 
         self.history.append(" ".join(cmds))
-        self.history_pos = -1
+        self.history_pos = 0
 
         dbg_print(f">>> {_cmd} <<< {args} , {kwargs}")
         self.get_cmd(_cmd)(*args, **kwargs)
@@ -128,29 +129,59 @@ class DbgView:
         self.cmd_entry.delete(0, tkinter.END)
 
     def cmd_show_help(self, *args, **kwargs):
-
+        ""
         dbg_print("Current support cmds:")
 
-        for key in self._cmd_table.keys():
-            dbg_print(f"        {key}")
+        for key,val in self._cmd_table.items():
+            dbg_print(f"        {key} {str(val.__doc__)}")
+
+    def cmd_rule_filter(self, *args, **kwargs):
+        "show [id] | add | del id"
+        pass
+
+    def cmd_rule_color(self, *args, **kwargs):
+        "show [id] | add | del id"
+        pass
 
     def cmd_filter(self, *args, **kwargs):
+        "show"
         pass
 
-    def cmd_color(self, *args, **kwargs):
+    def cmd_server(self, *args, **kwargs):
+        "show"
         pass
 
-    def cmd_stat(self, *args, **kwargs):
+    def cmd_data(self, *args, **kwargs):
+        "show | clear | delete"
         pass
 
     def cmd_show_ctrl(self, *args, **kwargs):
+        "show [id]"
         pass
 
     def cmd_show_intf(self, *args, **kwargs):
-        pass
+        "show [id]"
+        if len(args) <= 0:
+            return;
+
+        cmd = args[0]
+
+        if cmd == "show":
+            dbg_intf_show(*args[1:], **kwargs)
 
     def cmd_show_action_table(self, *args, **kwargs):
-        pass
+        "show [table]"
+        if len(args) <= 0:
+            return;
+
+        cmd = args[0]
+
+        if cmd == "show":
+            self.actionctl.show(*args[1:], **kwargs)
+
+    def cmd_exit(self, *args, **kwargs):
+        ""
+        return self.root.quit()
 
     def get_cmd(self, cmd=None):
 
@@ -159,12 +190,15 @@ class DbgView:
         if not self._cmd_table:
             self._cmd_table = {
                     "help": self.cmd_show_help,
+                    "rule.filter": self.cmd_rule_filter,
+                    "rule.color": self.cmd_rule_color,
                     "filter": self.cmd_filter,
-                    "color": self.cmd_color,
-                    "stat": self.cmd_stat,
-                    "show_ctrl": self.cmd_show_ctrl,
-                    "show_intf": self.cmd_show_intf,
-                    "show_action_table": self.cmd_show_action_table
+                    "server": self.cmd_server,
+                    "data": self.cmd_data,
+                    "ctrl": self.cmd_show_ctrl,
+                    "intf": self.cmd_show_intf,
+                    "action": self.cmd_show_action_table,
+                    "exit":  self.cmd_exit
                 }
 
         return self._cmd_table.get(cmd, self.cmd_show_help)

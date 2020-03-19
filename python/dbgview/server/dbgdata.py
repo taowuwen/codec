@@ -1,6 +1,8 @@
 
 import threading
 from dbgmsg import DbgMessage
+from dbgactiondef import dbg_print
+
 
 class DbgData:
     def __init__(self, mq_gui, *kargs, **kwargs):
@@ -34,3 +36,13 @@ class DbgData:
     def clear(self):
         with self.mutex:
             self.msgs.clear()
+
+    def show(self):
+        dbg_print(f'Data cache size {len(self.msgs)}')
+
+    def delete(self, k):
+        with self.mutex:
+            try:
+                self.msgs.pop(k)
+            except Exception as e:
+                dbg_print(f"invalid key {k}, not exist")

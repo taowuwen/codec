@@ -6,6 +6,7 @@ import threading
 import selectors
 import queue
 from dbgmsg import DbgMessage
+from dbgactiondef import dbg_print
 
 class DbgServerThread(threading.Thread):
 
@@ -91,7 +92,6 @@ class DbgServerThread(threading.Thread):
 
                 if not events:
                     self.send_msg()
-                    #print(f"recved: {self._recv_stat}, sent: {self._send_stat}")
                     continue
 
                 for key, mask in events:
@@ -111,4 +111,12 @@ class DbgServerThread(threading.Thread):
     def stop(self):
         print("stop server")
         self._run = False
+
+
+    def dbg_show(self):
+        dbg_print(f'Server({self.addr}) running? {"yes" if self._run else "no"}, TX {self._send_stat}, RX: {self._recv_stat} ')
+
+    def dbg_clear(self):
+        self._send_stat = 0
+        self._recv_stat = 0
 

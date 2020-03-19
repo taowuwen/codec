@@ -6,6 +6,7 @@ from dbgctl import dbg_controller
 from dbgactiondef import CtrlModID, cfg_table_module_common, cfg_table_module_post, dbg_print
 from functools import partial
 from dbgintf import dbg_intf_show
+from dbgctl import dbg_ctrl_show
 
 try:
     import tkFont
@@ -17,7 +18,7 @@ class DbgView:
         self.root = tkinter.Tk()
         self.root.geometry('1024x768')
         self.root.title('DebugView by taowuwen@gmail.com')
-        self.datactl, self.mq_gui, self.actionctl, *_ = kargs
+        self.datactl, self.mq_gui, self.actionctl, self.app, *_ = kargs
         self.cache = DbgDict()
 
         self.font_cfg= {
@@ -128,15 +129,18 @@ class DbgView:
 
         self.cmd_entry.delete(0, tkinter.END)
 
+    def cmd_error(self, *args, **kwargs):
+        dbg_print("Command Error. input 'help' to get supported commands list.")
+
     def cmd_show_help(self, *args, **kwargs):
-        ""
+        "                   show help lists"
         dbg_print("Current support cmds:")
 
         for key,val in self._cmd_table.items():
             dbg_print(f"        {key} {str(val.__doc__)}")
 
     def cmd_rule_filter(self, *args, **kwargs):
-        "show [id] | add | del id"
+        "show [id] | add | del id           filter rule control"
         pass
 
     def cmd_rule_color(self, *args, **kwargs):
@@ -144,40 +148,49 @@ class DbgView:
         pass
 
     def cmd_filter(self, *args, **kwargs):
-        "show"
-        pass
+        "show | clear"
+
+        if len(args) <= 0:
+            return
+
+        self.app.app_exec(f"filter.{args[0]}")
 
     def cmd_server(self, *args, **kwargs):
-        "show"
-        pass
+        "show | clear"
+        if len(args) <= 0:
+            return
+
+        self.app.app_exec(f"server.{args[0]}")
 
     def cmd_data(self, *args, **kwargs):
         "show | clear | delete"
-        pass
+
+        if len(args) <= 0:
+            return
+
+        cmd = args[0]
+        if cmd == "show":
+            return self.datactl.show()
+
+        if cmd == "clear":
+            return self.datactl.clear()
+
+        if cmd == "delete":
+            for k in args[1:]:
+                self.datactl.delete(k)
+
 
     def cmd_show_ctrl(self, *args, **kwargs):
-        "show [id]"
-        pass
+        "[id]"
+        dbg_ctrl_show(*args, **kwargs)
 
     def cmd_show_intf(self, *args, **kwargs):
-        "show [id]"
-        if len(args) <= 0:
-            return;
-
-        cmd = args[0]
-
-        if cmd == "show":
-            dbg_intf_show(*args[1:], **kwargs)
+        "[id]"
+        dbg_intf_show(*args, **kwargs)
 
     def cmd_show_action_table(self, *args, **kwargs):
-        "show [table]"
-        if len(args) <= 0:
-            return;
-
-        cmd = args[0]
-
-        if cmd == "show":
-            self.actionctl.show(*args[1:], **kwargs)
+        "[table]"
+        self.actionctl.show(*args, **kwargs)
 
     def cmd_exit(self, *args, **kwargs):
         ""
@@ -195,13 +208,13 @@ class DbgView:
                     "filter": self.cmd_filter,
                     "server": self.cmd_server,
                     "data": self.cmd_data,
-                    "ctrl": self.cmd_show_ctrl,
-                    "intf": self.cmd_show_intf,
-                    "action": self.cmd_show_action_table,
+                    "show.ctrl": self.cmd_show_ctrl,
+                    "show.intf": self.cmd_show_intf,
+                    "show.action": self.cmd_show_action_table,
                     "exit":  self.cmd_exit
                 }
 
-        return self._cmd_table.get(cmd, self.cmd_show_help)
+        return self._cmd_table.get(cmd, self.cmd_error)
 
     def do_init_widget(self):
         self.prepare_menu()

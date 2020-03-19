@@ -67,6 +67,8 @@ class DbgCtrl(Observable):
     def __str__(self):
         return self.__class__.__name__
 
+    def show(self):
+        dbg_print(f'{self} enable? {"yes" if self.enable else "no"}')
 
 class DbgCtrlShowLineNumber(DbgCtrl):
     _mod = CtrlModID.ShowLineNumber
@@ -116,6 +118,11 @@ class DbgCtrlColor(DbgCtrl):
     def notify_delete(self):
         pass
 
+    def show(self):
+        dbg_print(f"{self}")
+        for key in config.Color:
+            dbg_print(f'{key}')
+
 
 class DbgCtrlFilter(DbgCtrl):
     _mod = CtrlModID.Filter
@@ -132,6 +139,11 @@ class DbgCtrlFilter(DbgCtrl):
 
     def notify_delete(self):
         pass
+
+    def show(self):
+        dbg_print(f"{self}")
+        for key in config.Filter:
+            dbg_print(f'{key}')
 
 
 class DbgCtrlFactory(BuildFactoryAutoRegister):
@@ -174,6 +186,22 @@ def dbg_ctrl_notify_create():
 def dbg_controller(mod):
     global g_dbg_ctrl
     return g_dbg_ctrl[mod.value]
+
+def dbg_ctrl_show(name = None):
+
+    global g_dbg_ctrl
+
+    if name:
+        try:
+            g_dbg_ctrl[CtrlModID[name].value].show()
+        except Exception as e:
+            dbg_print(f"Unkown module: {name}, error {e}")
+        finally:
+            return
+
+    for mod in g_dbg_ctrl:
+        if mod:
+            mod.show()
 
 if __name__ == '__main__':
 

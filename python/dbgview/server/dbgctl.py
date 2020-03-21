@@ -123,6 +123,14 @@ class DbgCtrlColor(DbgCtrl):
         for key in config.Color:
             dbg_print(f'{key}')
 
+    def add(self, *args, **kwargs):
+        pass
+
+    def upt(self, *args, **kwargs):
+        pass
+
+    def delete(self, *args, **kwargs):
+        pass
 
 class DbgCtrlFilter(DbgCtrl):
     _mod = CtrlModID.Filter
@@ -138,6 +146,15 @@ class DbgCtrlFilter(DbgCtrl):
         return True
 
     def notify_delete(self):
+        pass
+
+    def add(self, *args, **kwargs):
+        pass
+
+    def delete(self, *args):
+        pass
+
+    def upt(self, *args, **kwargs):
         pass
 
     def show(self):

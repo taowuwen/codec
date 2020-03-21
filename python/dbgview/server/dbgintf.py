@@ -41,13 +41,7 @@ class DbgIntf(Observer):
         return f'{self.__class__.__name__}({self._mod.name})'
 
     def show(self):
-
         dbg_print(f'{self}')
-
-        if hasattr(self, '_act') and isinstance(self._act, list):
-
-            for act in self._act:
-                dbg_print(f'----> {act.show()}')
 
     def __repr__(self):
         return self.__str__()

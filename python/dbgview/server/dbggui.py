@@ -32,6 +32,36 @@ class DbgView:
         self.history = []
         self.history_pos = -1
 
+        ctrl = dbg_controller(CtrlModID.Filter)
+        self.rule_filter_table = {
+                "show": ctrl.show,
+                "add":  ctrl.add,
+                "upt":  ctrl.upt,
+                "del":  ctrl.delete,
+            }
+
+        ctrl = dbg_controller(CtrlModID.Color)
+        self.rule_color_table = {
+                "show": ctrl.show,
+                "add":  ctrl.add,
+                "upt":  ctrl.upt,
+                "del":  ctrl.delete,
+            }
+
+
+        self._cmd_table = {
+                "help":        self.cmd_show_help,
+                "rule.filter": self.cmd_rule_filter,
+                "rule.color":  self.cmd_rule_color,
+                "filter":      self.cmd_filter,
+                "server":      self.cmd_server,
+                "data":        self.cmd_data,
+                "show.ctrl":   self.cmd_show_ctrl,
+                "show.intf":   self.cmd_show_intf,
+                "show.action": self.cmd_show_action_table,
+                "exit":        self.cmd_exit
+            }
+
     def check_msg_queue(self):
         while True:
             try:
@@ -140,12 +170,35 @@ class DbgView:
             dbg_print(f"        {key} {str(val.__doc__)}")
 
     def cmd_rule_filter(self, *args, **kwargs):
-        "show [id] | add | del id           filter rule control"
-        pass
+        "show [id] | add | upt | del rulename           filter rule control"
+
+        if len(args) <= 0:
+            return
+
+        cmd = args[0]
+        cmd_entry = self.rule_filter_table.get(cmd, None)
+
+        if not cmd_entry:
+            dbg_print("error: rule filter argument '{cmd}' invalid")
+            return False
+
+        return cmd_entry(*args[1:], **kwargs)
 
     def cmd_rule_color(self, *args, **kwargs):
         "show [id] | add | del id"
-        pass
+
+        if len(args) <= 0:
+            return
+
+        cmd = args[0]
+        cmd_entry = self.rule_color_table.get(cmd, None)
+
+        if not cmd_entry:
+            dbg_print("error: rule color argument '{cmd}' invalid")
+            return False
+
+        return cmd_entry(*args[1:], **kwargs)
+
 
     def cmd_filter(self, *args, **kwargs):
         "show | clear"
@@ -197,22 +250,6 @@ class DbgView:
         return self.root.quit()
 
     def get_cmd(self, cmd=None):
-
-        self._cmd_table = None
-
-        if not self._cmd_table:
-            self._cmd_table = {
-                    "help": self.cmd_show_help,
-                    "rule.filter": self.cmd_rule_filter,
-                    "rule.color": self.cmd_rule_color,
-                    "filter": self.cmd_filter,
-                    "server": self.cmd_server,
-                    "data": self.cmd_data,
-                    "show.ctrl": self.cmd_show_ctrl,
-                    "show.intf": self.cmd_show_intf,
-                    "show.action": self.cmd_show_action_table,
-                    "exit":  self.cmd_exit
-                }
 
         return self._cmd_table.get(cmd, self.cmd_error)
 

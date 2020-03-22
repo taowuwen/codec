@@ -106,7 +106,7 @@ class DbgIntfShowEnableListbox(DbgIntf):
 class DbgIntfColor(DbgIntf):
     _mod = CtrlModID.Color
 
-    def evt_new(self, *args, **kwargs):
+    def evt_new(self, refresh_table = True, *args, **kwargs):
 
         if not hasattr(self, '_act'):
             self._act = []
@@ -121,7 +121,10 @@ class DbgIntfColor(DbgIntf):
 
         self._act.append(act)
 
-        return self.action_ctrl.write_action(self._mod, act)
+        self.action_ctrl.write_action(self._mod, act)
+
+        if refresh_table:
+            self.action_ctrl.refresh_color_table()
 
     def evt_upt(self, *args, **kwargs):
         return True
@@ -132,7 +135,7 @@ class DbgIntfColor(DbgIntf):
 class DbgIntfFilter(DbgIntf):
     _mod = CtrlModID.Filter
 
-    def evt_new(self, *args, **kwargs):
+    def evt_new(self, refresh_table = True, *args, **kwargs):
         if not hasattr(self, '_act'):
             self._act = []
 
@@ -141,10 +144,14 @@ class DbgIntfFilter(DbgIntf):
 
         self._act.append(act)
 
-        return self.action_ctrl.write_action(self._mod, act)
+        self.action_ctrl.write_action(self._mod, act)
+
+        if refresh_table:
+            self.action_ctrl.refresh_filter_table()
 
 
     def evt_upt(self, *args, **kwargs):
+        dbg_print(args, kwargs, "not handle for now")
         return True
 
     def evt_del(self, *args, **kwargs):

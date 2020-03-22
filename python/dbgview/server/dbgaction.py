@@ -110,6 +110,10 @@ class ActionColor(Action):
     def show(self):
         return f'{self} >> {self._rule}'
 
+    @property
+    def rule_name(self):
+        return self._rule.name
+
 class ActionColorMatch(ActionColor):
     _config = 'color'
 
@@ -145,6 +149,10 @@ class ActionFilter(Action):
 
     def show(self):
         return f'{self} >> {self._rule}'
+
+    @property
+    def rule_name(self):
+        return self._rule.name
 
 class ActionFilterEqual(ActionFilter):
     _config = ActionFilterType.equal.name

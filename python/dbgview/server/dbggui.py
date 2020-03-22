@@ -179,7 +179,7 @@ class DbgView:
         cmd_entry = self.rule_filter_table.get(cmd, None)
 
         if not cmd_entry:
-            dbg_print("error: rule filter argument '{cmd}' invalid")
+            dbg_print(f"error: rule filter argument '{cmd}' invalid")
             return False
 
         return cmd_entry(*args[1:], **kwargs)
@@ -194,7 +194,7 @@ class DbgView:
         cmd_entry = self.rule_color_table.get(cmd, None)
 
         if not cmd_entry:
-            dbg_print("error: rule color argument '{cmd}' invalid")
+            dbg_print(f"error: rule color argument '{cmd}' invalid")
             return False
 
         return cmd_entry(*args[1:], **kwargs)

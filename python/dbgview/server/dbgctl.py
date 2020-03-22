@@ -56,10 +56,12 @@ class DbgCtrl(Observable):
         dbg_print(f"notice {self} --- UPDATE ---> Show?: {enable}")
         if self._mod in cfg_table_module_common:
             config.common[self._mod.name] = enable
+            config.searilize()
             return self.notify_update()
 
         if self._mod in cfg_table_module_post:
             config.postconfig[self._mod.name] = enable
+            config.searilize()
             return self.notify_update()
 
         assert False, "Never show up this line"
@@ -105,26 +107,36 @@ class DbgCtrlEnableListbox(DbgCtrl):
 class DbgCtrlColor(DbgCtrl):
     _mod = CtrlModID.Color
 
-    def notify_update(self):
-        return self.notify_evt(CtrlEvent.update)
-
     def notify_create(self):
         for key in config.Color:
-            if not self.notify(self._mod, CtrlEvent.new, **key):
+            if not self.notify(self._mod, CtrlEvent.new, refresh_table=False, **key):
                 return False
 
         return True
 
-    def notify_delete(self):
-        pass
+    def show(self, *args):
 
-    def show(self):
-        dbg_print(f"{self}")
-        for key in config.Color:
-            dbg_print(f'{key}')
+        if args:
+            for key in config.Color:
+                if key.name in args:
+                    dbg_print(f'{key}')
+        else:
+            dbg_print(f"{self}")
+            for key in config.Color:
+                dbg_print(f'{key}')
 
     def add(self, *args, **kwargs):
-        pass
+        '''
+            DbgDict({
+                "enable":          True,
+                "name":            "Info",
+                "rule":            'Info',
+                "fg":              '#00aa00',
+                "match_condition": "contain",
+                "ignorecase":      True
+            }),
+        '''
+        dbg_print(args, kwargs)
 
     def upt(self, *args, **kwargs):
         pass
@@ -135,32 +147,71 @@ class DbgCtrlColor(DbgCtrl):
 class DbgCtrlFilter(DbgCtrl):
     _mod = CtrlModID.Filter
 
-    def notify_update(self):
-        return self.notify_evt(CtrlEvent.update)
-
     def notify_create(self):
         for key in config.Filter:
-            if not self.notify(self._mod, CtrlEvent.new, **key):
+            if not self.notify(self._mod, CtrlEvent.new, refresh_table = False, **key):
                 return False
 
         return True
 
-    def notify_delete(self):
-        pass
-
     def add(self, *args, **kwargs):
-        pass
+        dbg_print(args, kwargs)
+
+        if not kwargs.get('name', None):
+            dbg_print("rule name missing")
+            return
+
+        if not kwargs.get('rule', None):
+            dbg_print("'rule' missing")
+            return
+
+        cfg = DbgDict({
+                "enable":          True,
+                "name":            "default_name",
+                "rule":            'rule.need.to.be.update',
+                "target":          'drop',
+                "match_condition": "contain",
+                "ignorecase":      True
+            })
+
+        dbg_print(type(cfg), cfg)
+
+        cfg.update(kwargs)
+
+        if self.notify(self._mod, CtrlEvent.new, **cfg):
+            config.Filter.append(cfg)
+            config.searilize()
+
 
     def delete(self, *args):
         pass
 
     def upt(self, *args, **kwargs):
-        pass
+        dbg_print(args, kwargs)
 
-    def show(self):
-        dbg_print(f"{self}")
+        name = kwargs.get('name', None)
+
+        if not name:
+            dbg_print("rule name missing")
+            return
+
         for key in config.Filter:
-            dbg_print(f'{key}')
+            if key.get('name') == name:
+                key.update(kwargs)
+                if self.notify(self._mod, CtrlEvent.update, **key):
+                    config.searilize()
+
+                return
+
+    def show(self, *args):
+        if args:
+            for key in config.Filter:
+                if key.name in args:
+                    dbg_print(f'{key}')
+        else:
+            dbg_print(f"{self}")
+            for key in config.Filter:
+                dbg_print(key)
 
 
 class DbgCtrlFactory(BuildFactoryAutoRegister):

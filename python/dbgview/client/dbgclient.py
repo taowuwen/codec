@@ -22,6 +22,9 @@ def test_10():
         DebugStringPrint("---------------red-----------------")
         DebugStringPrint("---------------yellow-----------------")
         DebugStringPrint("---------------BLUE-----------------")
+        DebugStringPrint("---------------mytarget-----------------")
+        DebugStringPrint("---------------this is my target-----------------")
+        DebugStringPrint("---------------this is mytarget-----------------")
 
 
 def main():

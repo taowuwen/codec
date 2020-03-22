@@ -33,6 +33,10 @@ class Rule:
     def ignorecase(self):
         return self._ignorecase
 
+    @property
+    def name(self):
+        return self._cfg.get('name', 'ERROR_NAME_MISSING')
+
 
 class FilterRule(Rule):
 

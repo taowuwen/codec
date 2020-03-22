@@ -46,10 +46,21 @@ def dbg_print_init(mq = None):
     global g_mq_gui
     g_mq_gui = mq
 
-def dbg_print(msg):
+def dbg_print_v1(msg):
     global g_mq_gui
 
     if g_mq_gui:
         g_mq_gui.put(msg)
     else:
         print(msg)
+
+def dbg_print_v2(*args):
+    global g_mq_gui
+
+    msg = " ".join([a if isinstance(a, str) else str(a)  for a in args])
+    if g_mq_gui:
+        g_mq_gui.put(msg)
+    else:
+        print(msg)
+
+dbg_print = dbg_print_v2

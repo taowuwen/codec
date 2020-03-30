@@ -32,10 +32,9 @@ class CDebugViewPrint:
 
         self._stat = 0
 
-    def __call__(self, ln):
+    def __call__(self, *args, **kwargs):
 
-        if not isinstance(ln, str):
-            ln = f'{ln}'
+        ln = " ".join([ a if isinstance(a, str) else str(a) for a in args])
 
         if not self.args.get('sock', None):
             self.do_init_session()

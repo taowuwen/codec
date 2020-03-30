@@ -43,7 +43,16 @@ def main():
     DebugStringPrint("aaaaa, world")
     DebugStringPrint("tww love xixi, world")
 
+    a = 1
+    b = 2
+    c = 3
+
+    DebugStringPrint(a, b, c, "hello, world")
+    DebugStringPrint(a, b + c, c, "info, it's me")
+
+
 
 if __name__ == '__main__':
     test_10()
+    main()
     #test_10000()

@@ -4,6 +4,7 @@
 from dbgview import DebugStringPrint, DebugStringConfig
 import os
 import sys
+import selectors
 
 def main(fp = None):
     DebugStringConfig(enable_thread=1, timeout=1)

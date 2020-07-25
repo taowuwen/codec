@@ -47,8 +47,6 @@ class ConnectionTest_001(TestcaseConnection):
         self.select_db(backup_db)
         assert self.db == backup_db, "invalid db select"
 
-
-
 class ConnectionTest_002(TestcaseConnection):
     '''
     connection:

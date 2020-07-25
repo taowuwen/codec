@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-python ./r_testcasemain.py
+python3 ./r_testcasemain.py

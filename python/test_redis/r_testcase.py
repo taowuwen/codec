@@ -68,14 +68,17 @@ def parse_response(rsp):
 class Testcase(redis.Redis):
 
     def execute_command(self, *args, **kwargs):
-        rsp = super().execute_command(*args, **kwargs)
-
         try:
-            logger.trace(f"> {args}, {kwargs} ---> {parse_response(rsp)}")
-        except Exception as e:
-            logger.trace(f"> {args}, {kwargs} ---> {rsp} {type(rsp)} {e}")
-
-        return rsp
+            rsp = super().execute_command(*args, **kwargs) or None
+        except redis.exceptions.ResponseError as e:
+            logger.error(f"{e} > {args}, {kwargs}")
+            return None
+        else:
+            try:
+                logger.trace(f"> {args}, {kwargs} ---> {parse_response(rsp)}")
+            except Exception as e:
+                logger.error(f"> {args}, {kwargs} ---> {rsp} {type(rsp)} {e}")
+            return rsp
         
 
     def select_db(self, db=15):

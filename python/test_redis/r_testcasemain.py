@@ -115,7 +115,7 @@ if __name__ == '__main__':
         "modules": modules,
         "redis": {
             "db" : 15,
-            "host": "10.10.10.11",
+            "host": "localhost",
             "port": "6379",
         }
     }

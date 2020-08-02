@@ -8,6 +8,21 @@ import sys
 import selectors
 
 
+class FileReader:
+
+    def __init__(self, fl):
+        self._fl = fl
+
+
+
+def test_file_reader(fl):
+
+    with open(fl, 'rb') as fp:
+        pass
+
+
+
+
 def main():
     pass
 

@@ -53,13 +53,102 @@ class ListBasedArray:
 
 class QueueBasedArray:
     def __init__(self, _size):
-        pass
+        self._pos = 0
+        self._size = _size
+        self._ary = DSArray(_size)
 
+    def __str__(self):
+        res=[str(self._ary[a]) for a in range(self._pos)]
+        return ", ".join(res)
+
+    @property
     def empty(self):
         return self._pos == 0
 
+    @property
     def full(self):
         return self._pos == self._size
+
+    def put(self, item):
+        if self.full:
+            return -1
+
+        self._ary[self._pos] = item
+        self._pos += 1
+
+        return 0
+
+    def get(self):
+        if self.empty:
+            return None
+
+        res = self._ary[0]
+
+        for x in range(self._pos-1):
+            self._ary[x] = self._ary[x+1]
+
+        self._pos -= 1
+
+        return res
+
+    def __len__(self):
+        return self._pos
+
+    def size(self):
+        return self._size
+
+class CircleQueueBaseArray:
+    def __init__(self, _size):
+        self._head = 0
+        self._tail = -1
+        self._size = 0
+        self._maxsize = _size
+        self._ary = DSArray(_size)
+
+    def __str__(self):
+
+        if self.empty:
+            return "[]"
+
+        if self._tail > self._head:
+            return f'[{", ".join([str(self._ary[a]) for a in range(self._head,self._tail +1)])}]'
+        else:
+            first_part=[str(self._ary[a]) for a in range(self._head, self._maxsize)]
+            second_part=[str(self._ary[a]) for a in range(self._tail)]
+
+            return f'{", ".join(first_part)}, {", ".join(second_part)}'
+
+
+    def put(self, item):
+        if self.full:
+            return None
+
+        self._tail = (self._tail + 1) % self._maxsize
+        self._ary[self._tail] = item
+        self._size += 1
+
+    def get(self):
+        if self.empty:
+            return None
+
+        res = self._ary[self._head]
+        self._head = (self._head + 1) % self._maxsize
+        self._size -= 1
+        return res
+
+    @property
+    def full(self):
+        return self._size == self._maxsize
+
+    @property
+    def empty(self):
+        return self._size == 0
+
+    def __len__(self):
+        return self.size()
+
+    def size(self):
+        return self._size
 
 class StackBasedArray:
     def __init__(self, _size):
@@ -105,8 +194,7 @@ class MultiDimensionalArray:
         if len(self._dimensions) != self._ND:
             raise InvalidDimensionArray('Invalid Arguments')
 
-        self._arry_size = self.multiple_all(self._dimensions)
-        self._ary = DSArray(self._arry_size)
+        self._ary = DSArray(self.multiple_all(self._dimensions))
 
         self._factors = [1 for d in range(self._ND)]
         idx = self._ND -1
@@ -171,6 +259,81 @@ def main():
     mary[1,0,0] = 12
 
     print(mary)
+    print(mary[1,2,3])
+
+    q_circle = CircleQueueBaseArray(10)
+    q_circle.put(1)
+    q_circle.put(2)
+    q_circle.put(3)
+    q_circle.put(4)
+    q_circle.put(5)
+
+    print(q_circle)
+    q_circle.put(1)
+    q_circle.put(2)
+    q_circle.put(3)
+    q_circle.put(4)
+    q_circle.put(5)
+    print(q_circle)
+    print(len(q_circle), q_circle.size())
+
+    q_circle.put(5)
+    print(q_circle)
+
+    print(q_circle.get())
+    print(q_circle.get())
+    print(q_circle.get())
+    print(q_circle.get())
+    print(q_circle.get())
+
+    q_circle.put(4)
+    q_circle.put(5)
+    print(q_circle)
+    print(len(q_circle), q_circle.size())
+
+    q_circle.put(5)
+    print(q_circle)
+
+    queue = QueueBasedArray(10)
+    queue.put(1)
+    queue.put(2)
+    queue.put(4)
+    queue.put(5)
+    queue.put(3)
+    queue.put(6)
+    print(queue)
+
+    queue.put(7)
+    queue.put(8)
+    queue.put(9)
+    queue.put(10)
+    print(queue)
+    queue.put(10)
+    print(queue)
+    queue.put(11)
+    print(queue)
+    queue.put(12)
+    print(queue)
+
+    print(queue.get())
+    print(queue.get())
+    print(queue.get())
+    print(queue.get())
+    print(queue.get())
+    print(queue.get())
+    print(queue)
+    queue.put(7)
+    queue.put(8)
+    queue.put(9)
+    queue.put(10)
+    print(queue)
+    queue.put(10)
+    print(queue)
+    queue.put(11)
+    print(queue)
+    queue.put(12)
+    print(queue)
+
 
 if __name__ == '__main__':
     main()

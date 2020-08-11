@@ -6,24 +6,25 @@ import concurrent.futures
 import copy
 
 class Card:
-    def __init__(self, num):
-        self._num = num
+    def __init__(self, card):
+        self._num = {
+                'T': 10,
+                'J': 11,
+                'Q': 12,
+                'K': 13,
+                'A': 1
+            }.get(card, None)
+
+        if not self._num:
+            self._num = int(card)
+
+        self._str = card
 
         if not 1 <= self._num <= 13:
             raise InvalidArgument('Invalid argument')
 
-
     def __str__(self):
-
-        _str = {
-                1:  'A',
-                10: 'T',
-                11: 'J',
-                12: 'Q',
-                13: 'K'
-            }.get(self._num, str(self._num))
-
-        return _str
+        return self._str
     
     def __int__(self):
         return self._num
@@ -159,9 +160,9 @@ def main():
 
     while True:
         print("Input Numbers: ")
-        cards = [Card(int(n)) for n in input().split()]
+        cards = [Card(n) for n in input().split()]
         print(cards)
-        exp.calc(*cards)
+        exp.calc( *[int(card) for card in cards ])
 
 if __name__ == '__main__':
     main()

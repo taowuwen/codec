@@ -21,7 +21,7 @@ INC=-I$(INC_DIR) \
 	-I$(MASTER_DIR) \
 	-I$(UTILS_DIR)
 
-CFLAGS  = -Wall $(INC)  
+CFLAGS  = -Wall -g -O0 $(INC)  
 CFLAGS += -std=gnu99 
 CFLAGS += -DUSE_EPOLL
 CFLAGS += -D_FILE_OFFSET_BITS=64

@@ -6,7 +6,7 @@ from dbgobserver import Observer
 from dbgconfig import config, DbgDict
 import enum
 
-from  dbgactiondef import CtrlModID, CtrlEvent
+from dbgactiondef import CtrlModID, CtrlEvent
 from dbgfactory import BuildFactoryAutoRegister, BuildFactory
 from dbgctl import dbg_ctrl_get
 from dbgrule import FilterRule, ColorRule
@@ -59,7 +59,6 @@ class DbgIntf(Observer):
 
         return self.action_ctrl.write_action(self._mod, self._act)
 
-
     def evt_new(self, *args, **kwargs):
 
         if self._mod in (CtrlModID.Color, CtrlModID.Filter):
@@ -72,7 +71,6 @@ class DbgIntf(Observer):
         self.config_action(*args, **kwargs)
 
         return self.action_ctrl.refresh_common_table()
-
 
 class DbgIntfShowLineNumber(DbgIntf):
     _mod = CtrlModID.ShowLineNumber
@@ -151,10 +149,17 @@ class DbgIntfFilter(DbgIntf):
 
 
     def evt_upt(self, *args, **kwargs):
-        dbg_print(args, kwargs, "not handle for now")
-        return True
+        self.evt_del(**kwargs)
+        self.evt_new(True, *args, **kwargs)
 
     def evt_del(self, *args, **kwargs):
+
+        for act in self._act:
+            if act.rule.name == kwargs.get('name'):
+                self._act.remove(act)
+                self.action_ctrl.write_action(self._mod, act, add = False)
+                break
+
         return True
 
 

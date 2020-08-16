@@ -26,6 +26,12 @@ class Action:
     def show(self):
         return f'{self}'
 
+    @property
+    def rule(self):
+        if hasattr(self, '_rule'):
+            return self._rule
+        return None
+
 '''
     actions for common tables
 '''

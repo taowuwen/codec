@@ -39,7 +39,6 @@ class DbgCtrl(Observable):
 
     def notify_delete(self):
         assert self._mod not in (cfg_table_module_post + cfg_table_module_common), "Never show up this line"
-        pass
 
     @property
     def enable(self):
@@ -78,31 +77,21 @@ class DbgCtrlShowLineNumber(DbgCtrl):
 class DbgCtrlShowTimestamp(DbgCtrl):
     _mod = CtrlModID.ShowTimeStamp
 
-
 class DbgCtrlShowClient(DbgCtrl):
     _mod = CtrlModID.ShowClient
-    pass
-
 
 class DbgCtrlShowServer(DbgCtrl):
     _mod = CtrlModID.ShowServer
-    pass
-
 
 class DbgCtrlShowLength(DbgCtrl):
     _mod = CtrlModID.ShowLength
-    pass
-
 
 class DbgCtrlEnableLog(DbgCtrl):
     _mod = CtrlModID.EnableLog
-    pass
 
 
 class DbgCtrlEnableListbox(DbgCtrl):
     _mod = CtrlModID.EnableListbox
-    pass
-
 
 class DbgCtrlColor(DbgCtrl):
     _mod = CtrlModID.Color

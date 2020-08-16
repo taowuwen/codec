@@ -11,7 +11,8 @@ def main(fp = None):
 
     for ln in fp:
         try:
-            DebugStringPrint(ln.decode())
+            print(ln.decode().rstrip())
+            DebugStringPrint(ln.decode().rstrip())
         except Exception as e:
             pass
 

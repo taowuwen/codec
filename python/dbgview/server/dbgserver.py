@@ -26,6 +26,7 @@ class DbgServerThread(threading.Thread):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._sock.bind(self.addr)
         self._sock.setblocking(False)
+        self._sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1024 * 1024 * 2)
         self._run = True
 
         self._selector.register(self._sock, selectors.EVENT_READ, self._recv)
@@ -44,11 +45,13 @@ class DbgServerThread(threading.Thread):
             '''
                 sent by recved cb
             '''
-            if self.q_msg:
-                self.q_msg.append(msg)
-            else:
-                if not self.do_send_one(msg):
-                    self.q_msg.append(msg)
+            self.q_msg.append(msg)
+
+#           if self.q_msg:
+#               self.q_msg.append(msg)
+#           else:
+#               if not self.do_send_one(msg):
+#                   self.q_msg.append(msg)
         else:
             '''
                 sent by timeout event
@@ -88,7 +91,7 @@ class DbgServerThread(threading.Thread):
 
         while self._run:
             try:
-                events = self._selector.select(timeout = 1)
+                events = self._selector.select(timeout = 0.1)
 
                 if not events:
                     self.send_msg()

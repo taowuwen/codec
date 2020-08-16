@@ -38,7 +38,7 @@ class ActionCommonShowLineNumber(ActionCommon):
     _config = CtrlModID.ShowLineNumber.name
     def __call__(self, *args, **kwargs):
         msg, listbox, *_ = args
-        msg.prefix += '{:0>5d}   '.format(listbox.size())
+        msg.prefix += '{:0>10}   '.format(listbox.size())
 
 class ActionCommonShowTimeStamp(ActionCommon):
     _config = CtrlModID.ShowTimeStamp.name

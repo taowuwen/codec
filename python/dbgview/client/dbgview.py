@@ -35,6 +35,7 @@ class CDebugViewPrint:
     def __call__(self, *args, **kwargs):
 
         ln = " ".join([ a if isinstance(a, str) else str(a) for a in args])
+        print(f"about to send: {ln}")
 
         if not self.args.get('sock', None):
             self.do_init_session()

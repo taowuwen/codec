@@ -53,6 +53,6 @@ def main():
 
 
 if __name__ == '__main__':
-    test_10()
-    main()
-    #test_10000()
+    #test_10()
+    #main()
+    test_10000()

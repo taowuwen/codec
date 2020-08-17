@@ -29,7 +29,7 @@ class DbgConfig:
             self.set_default_config()
 
             if self._fl and not os.path.exists(os.path.dirname(self._fl)):
-                os.mkdir(os.path.dirname(self._fl))
+                self.mkdir(os.path.dirname(self._fl))
 
             self.searilize()
         else:
@@ -37,6 +37,14 @@ class DbgConfig:
 
         if kwargs:
             self.kwargs.update(kwargs)
+    
+    def mkdir(self, _dirname):
+
+        try:
+            os.mkdir(_dirname)
+        except FileNotFoundError:
+            self.mkdir(os.path.dirname(_dirname))
+            os.mkdir(_dirname)
 
     def update(self, **kwargs):
         self.kwargs.update(kwargs)
@@ -174,7 +182,8 @@ class DbgConfig:
     def __repr__(self):
         return self.__str__()
 
-config = DbgConfig('~/.config/dbgview/dbgview.json')
+_path=['~', '.config', 'dbgview', 'dbgview.json']
+config = DbgConfig(os.sep.join(_path))
 
 if __name__ == '__main__':
     from pprint import pprint

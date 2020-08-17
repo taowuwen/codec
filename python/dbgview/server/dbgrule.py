@@ -37,7 +37,6 @@ class Rule:
     def name(self):
         return self._cfg.get('name', 'ERROR_NAME_MISSING')
 
-
 class FilterRule(Rule):
 
     def __init__(self, *args, **kwargs):

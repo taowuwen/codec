@@ -125,9 +125,17 @@ class DbgIntfColor(DbgIntf):
             self.action_ctrl.refresh_color_table()
 
     def evt_upt(self, *args, **kwargs):
+        self.evt_del(**kwargs)
+        self.evt_new(True, *args, **kwargs)
         return True
 
     def evt_del(self, *args, **kwargs):
+        for act in self._act:
+            if act.rule.name == kwargs.get('name'):
+                self._act.remove(act)
+                self.action_ctrl.write_action(self._mod, act, add = False)
+                break
+
         return True
 
 class DbgIntfFilter(DbgIntf):

@@ -33,8 +33,8 @@ class App:
             4. "DATA" domain send msg to filter via msgqueue2
             5. server send msg to filter vis msgqueue 2
         '''
-        self.msgqueue1 = queue.Queue(2048)
-        self.msgqueue2 = queue.Queue(2048)
+        self.msgqueue1 = queue.Queue(512)
+        self.msgqueue2 = queue.Queue(512)
         dbg_print_init(self.msgqueue1)
 
         self.datactl = DbgData(self.msgqueue1, *kargs, **kwargs)

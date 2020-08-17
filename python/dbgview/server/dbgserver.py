@@ -47,11 +47,6 @@ class DbgServerThread(threading.Thread):
             '''
             self.q_msg.append(msg)
 
-#           if self.q_msg:
-#               self.q_msg.append(msg)
-#           else:
-#               if not self.do_send_one(msg):
-#                   self.q_msg.append(msg)
         else:
             '''
                 sent by timeout event

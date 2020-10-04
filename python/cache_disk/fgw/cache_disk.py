@@ -1,0 +1,4 @@
+
+'''
+some global variables here 
+'''

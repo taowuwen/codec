@@ -104,16 +104,7 @@ class meminfo(defaultdict):
 
 
 def main():
-	print(os.environ)
-	print(os.__dict__)
-	print(sys.__dict__)
-	print(sys.version)
-	print(sys.version_info)
-
-	print(sys.hexversion)
 	print(sys.platform)
-
-
 	mem = meminfo(lambda:0)
 	print("memory usage: {:>3.2f}%".format(mem.usage))
 	print(mem.info)

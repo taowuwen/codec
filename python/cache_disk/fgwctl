@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+root=`pwd`
+
+export PYTHONPATH=$root/fgw:$PYTHONPATH
+
+python3 ./tool/fgwctrl.py $*

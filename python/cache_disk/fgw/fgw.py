@@ -1,5 +1,4 @@
 
-
 class FGW:
 
     def __init__(self, queue):

@@ -4,6 +4,7 @@ import os
 import sys
 
 from f_queue import FilePriorityQueue
+from f_command import fgwcommand
 from f_tool import FileTool
 from fgw import FGW
 
@@ -20,6 +21,9 @@ def main():
 
     tool = FileTool(queue)
     tool.start()
+
+    fgwcommand.mq_fgw = queue
+    fgwcommand.register_all()
 
     FGW(queue).run()
 

@@ -12,7 +12,7 @@ def unkown_msg(msg):
 class f_msg:
     _type = FGWModule.unkown
 
-    def __init__(self, proc = unkown_msg, msg = [], tgt = None, pos = None):
+    def __init__(self, msg = [], proc = unkown_msg, tgt = None, pos = None):
         self._pos = pos
         self._tgt = tgt
         self._result = None
@@ -46,6 +46,10 @@ class f_msg:
     @property
     def proc(self):
         return self._proc
+
+    @proc.setter
+    def proc(self, val):
+        self._proc = val
 
     def __str__(self):
         return f'{self._type} -> {self._tgt}, current {self._pos}, msg: {self._msg}'

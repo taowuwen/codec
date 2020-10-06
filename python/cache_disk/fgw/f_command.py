@@ -29,9 +29,21 @@ class FGWCommand:
         msg.result = 'OK'
         self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
 
+    def fuse_handler(self, msg):
+        print(f'handle fuse request, {msg}')
+        msg.result = 'Failed'
+        self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
+
+    def memory_handler(self, msg):
+        print(f'handle memory request, {msg}')
+        msg.result = 'OK'
+        self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
+
     def register_all(self):
         evt_handler = {
             'disk': self.disk_handler,
+            'fuse': self.fuse_handler,
+            'memory': self.memory_handler,
         }
 
         for key, val in evt_handler.items():

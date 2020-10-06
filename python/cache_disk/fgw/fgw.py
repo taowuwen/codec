@@ -10,8 +10,8 @@ class FGW:
         self._run = 1
 
         while self._run:
-            msg = self._queue.get_msg()
+            evt = self._queue.get_msg()
             try:
-                msg.proc()
+                evt.proc()
             except Exception as e:
-                print(f'Exception on handle {msg}, {e}')
+                print(f'Exception on handle {evt}, {e}')

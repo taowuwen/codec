@@ -31,12 +31,12 @@ class FileTool(threading.Thread):
             _msg = _msg.decode().split()
             print(f'Req: Type: {_type}, msg:{_msg}')
 
-            if _msg:
-                evt = FGWEvent(_msg[0], CommandMsg(self.unkown_cmd, _msg))
-            else:
-                evt = FGWEvent('CmdUnkown', CommandMsg(self.unkown_cmd, _msg))
+            msg = CommandMsg(_msg)
+            msg.proc = self.unkown_cmd
 
-            self.mq_fgw.put_level1(evt)
+            evt = _msg[0] if _msg else 'CmdUnkown'
+
+            self.mq_fgw.put_level1(FGWEvent(evt, msg))
 
     def unkown_cmd(self, msg):
         self._mq.send(f'Error: Unkown Command: {msg}')

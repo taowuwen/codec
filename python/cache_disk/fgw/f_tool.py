@@ -3,6 +3,7 @@ import threading
 import sysv_ipc
 from f_msg import CommandMsg
 from f_event import FGWEvent, FGWEventFactory
+from cache_disk import fgwctl_key
 
 class FileTool(threading.Thread):
 
@@ -19,9 +20,9 @@ class FileTool(threading.Thread):
 
     def build_mq(self):
         try:
-            self._mq = sysv_ipc.MessageQueue(0x1000, flags=sysv_ipc.IPC_CREX, max_message_size=8192)
+            self._mq = sysv_ipc.MessageQueue(fgwctl_key, flags=sysv_ipc.IPC_CREX, max_message_size=8192)
         except sysv_ipc.ExistentialError as e:
-            self._mq = sysv_ipc.MessageQueue(0x1000)
+            self._mq = sysv_ipc.MessageQueue(fgwctl_key)
 
     def run(self):
 

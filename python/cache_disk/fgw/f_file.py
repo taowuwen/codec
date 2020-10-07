@@ -2,6 +2,7 @@
 import enum
 from stat import S_IFDIR, S_IFLNK, S_IFREG
 import os
+import time
 
 FileType = enum.Enum(
     value = 'FileType',
@@ -30,26 +31,29 @@ class FileNode:
             3. file on cache(which cache)
             4. fd, current open flag handle
         '''
-        self._ext  = {
+        self._ext  = dict(
             hdd = [],
-            ssd = []
+            ssd = [],
             memory = [],
             fd = None,
-        }
+        )
 
-        self._stat = {
-            st_mode = self.get_file_mode(mode)
-            st_nlink = 1
-            st_size = 0
-            st_ctime = time(),
-            st_mtime = time(),
-            st_atime = time(),
+        self._stat = dict(
+            st_mode = self.get_file_mode(mode),
+            st_nlink = 1,
+            st_size = 0,
+            st_ctime = time.time(),
+            st_mtime = time.time(),
+            st_atime = time.time(),
             st_uid   = os.getuid(),
             st_gid   = os.getgid(),
-        }
+        )
 
     def __str__(self):
         return f'{self._name}'
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}({str(self)})'
 
     @property
     def name(self):
@@ -58,6 +62,18 @@ class FileNode:
     @property
     def stat(self):
         return self._stat
+
+    @stat.setter
+    def stat(self, val):
+        if isinstance(val, os.stat_result):
+            self._stat['st_mode']  = val.st_mode
+            self._stat['st_nlink'] = val.st_nlink
+            self._stat['st_uid']   = val.st_uid
+            self._stat['st_gid']   = val.st_gid
+            self._stat['st_size']  = val.st_size
+            self._stat['st_atime'] = val.st_atime
+            self._stat['st_mtime'] = val.st_mtime
+            self._stat['st_ctime'] = val.st_ctime
 
     @property
     def ext(self):
@@ -76,14 +92,21 @@ class FileNodeFile(FileNode):
 
 class FileNodeDir(FileNode):
     _type = FileType.DIR
-    def __init__(self, name):
-        super().__init__(name, 0o755)
+    def __init__(self, name, mode):
+        super().__init__(name, mode)
         self._st_nlink = 2
         self._files = {}
     
     def add_file(self, fl):
         assert isinstance(fl, FileNode), 'Never show up this line'
         self._files[fl.name] = fl
+
+    def get_file(self, filename):
+        return self._files[filename]
+
+    @property
+    def files(self):
+        return self._files
 
 class FileNodeLink(FileNode):
     _type = FileType.LINK
@@ -107,13 +130,35 @@ class FileSystem:
         self._root.parent = self._root
 
     def find_file(self, path):
-        pass
 
-    def create(self, path, mode):
-        pass
+        _path = path.split(os.sep)
+        while True:
+            try:
+                _path.remove('')
+            except ValueError:
+                break
 
-    def mkdir(self, path, mode):
-        pass
+        cur_node = self.root
+        for fl in _path:
+            cur_node = cur_node.get_file(fl)
+
+        return cur_node
+
+    def _do_create(self, path, _fl):
+        _dir = self.find_file(os.path.dirname(path))
+        _dir.add_file(_fl)
+        _fl.parent = _dir
+        return _fl
+
+    def create(self, path, mode=0o755):
+        return self._do_create(path, FileNodeFile(os.path.basename(path), mode))
+
+    def mkdir(self, path, mode=0o755):
+        return self._do_create(path ,FileNodeDir(os.path.basename(path), mode))
+
+    @property
+    def root(self):
+        return self._root
 
 class FileActiveTable(dict):
     def __init__(self, *args, **kwargs):
@@ -121,3 +166,38 @@ class FileActiveTable(dict):
 
 file_system = FileSystem()
 file_active_table = FileActiveTable()
+
+if __name__ == '__main__':
+    import glob
+
+    def scan_dir(path = None):
+        if not path:
+            return
+
+        for fl in glob.glob(path+'/*'):
+            if os.path.isdir(fl):
+                file_system.mkdir(fl).stat = os.stat(fl)
+                scan_dir(fl)
+            else:
+                file_system.create(fl).stat = os.stat(fl)
+
+    fn_etc = file_system.mkdir('/etc')
+    fn_etc.stat = os.stat('/etc')
+
+    scan_dir('/etc')
+
+    def _show_files(fl = file_system.root, path=None, brief=1):
+
+        if not fl:
+            return None
+
+        if brief:
+            print(path + str(fl))
+        else:
+            print('{:<100}:{}'.format(path + str(fl), fl.stat))
+
+        if isinstance(fl, FileNodeDir):
+            for _fl in fl.files:
+                _show_files(fl.get_file(_fl), path + os.sep + _fl, brief)
+
+    _show_files(file_system.root, '', 0)

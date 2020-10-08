@@ -154,9 +154,6 @@ class Memory(LoggingMixIn, Operations):
         return len(data)
 
 
-class FileFuse(LoggingMixIn, Operations):
-    pass
-
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()

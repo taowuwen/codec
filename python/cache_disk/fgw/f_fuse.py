@@ -2,45 +2,37 @@
 from __future__ import print_function, absolute_import, division
 
 import logging
-
-from collections import defaultdict
-from errno import ENOENT
-from stat import S_IFDIR, S_IFLNK, S_IFREG
-from time import time
+from f_file import file_system
+import threading
 
 try:
-    from fuse import FUSE, FuseOSError, Operations, LoggingMixIn
+    from fuse import FUSE, FuseOSError, Operations, LoggingMixIn, fuse_exit
 except ModuleNotFoundError:
-    from fusepyng import FUSE, FuseOSError, Operations, LoggingMixIn
+    from fusepyng import FUSE, FuseOSError, Operations, LoggingMixIn, fuse_exit
 
-if not hasattr(__builtins__, 'bytes'):
-    bytes = str
+class FileFuseMount(LoggingMixIn, Operations):
 
-class Memory(LoggingMixIn, Operations):
-    'Example memory filesystem. Supports only one level of files.'
+    def __init__(self, mq):
+        self._mq = mq
 
-    def __init__(self):
-        self.files = {}
-        self.data = defaultdict(bytes)
-        self.fd = 0
-        now = time()
-        self.files['/'] = dict(
-            st_mode=(S_IFDIR | 0o755),
-            st_ctime=now,
-            st_mtime=now,
-            st_atime=now,
-            st_nlink=2)
+    def do_file_oper(self, evt, path, *args):
+
+        print(f'file oper: {evt} , {path}, {args}')
+
+        fl = file_system.find_file(path)
+        self._mq.put_msg(FGWEvent(evt, FuseMsg(fl, args)))
+        return fl.wait_finished()
+
 
     def chmod(self, path, mode):
-        self.files[path]['st_mode'] &= 0o770000
-        self.files[path]['st_mode'] |= mode
-        return 0
+        return do_file_oper('fuse_chmod', path, mode)
 
     def chown(self, path, uid, gid):
-        self.files[path]['st_uid'] = uid
-        self.files[path]['st_gid'] = gid
+        return do_file_oper('fuse_chown', path, uid, gid)
 
     def create(self, path, mode):
+
+        fl = file_system.create(path, mode)
         self.files[path] = dict(
             st_mode=(S_IFREG | mode),
             st_nlink=1,
@@ -128,14 +120,10 @@ class Memory(LoggingMixIn, Operations):
         self.data[target] = source
 
     def truncate(self, path, length, fh=None):
-        # make sure extending the file fills in zero bytes
-        self.data[path] = self.data[path][:length].ljust(
-            length, '\x00'.encode('ascii'))
-        self.files[path]['st_size'] = length
+        pass
 
     def unlink(self, path):
-        self.data.pop(path)
-        self.files.pop(path)
+        pass
 
     def utimens(self, path, times=None):
         now = time()
@@ -144,24 +132,41 @@ class Memory(LoggingMixIn, Operations):
         self.files[path]['st_mtime'] = mtime
 
     def write(self, path, data, offset, fh):
-        self.data[path] = (
-            # make sure the data gets inserted at the right offset
-            self.data[path][:offset].ljust(offset, '\x00'.encode('ascii'))
-            + data
-            # and only overwrites the bytes that data is replacing
-            + self.data[path][offset + len(data):])
-        self.files[path]['st_size'] = len(self.data[path])
-        return len(data)
+        pass
 
 
-class FileFuse(LoggingMixIn, Operations):
-    pass
 
-if __name__ == '__main__':
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('mount')
-    args = parser.parse_args()
+class FileFuse(threading.Thread):
 
-    logging.basicConfig(level=logging.DEBUG)
-    fuse = FUSE(Memory(), args.mount, foreground=True, allow_other=True)
+    def __init__(self, queue, mount, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.mq_fgw = queue
+        self._fuse = FileFuseMount(queue)
+        self._running = 0
+        self._mount = mount
+
+    @property
+    def mount(self):
+        return self._mount
+
+    @mount.setter
+    def mount(self, val):
+        self._mount = val
+
+    def run(self):
+        logging.basicConfig(level=logging.DEBUG)
+        self._running = 1
+        _f = FUSE(self._fuse, self.mount, foreground=True, allow_other=True)
+        self._running = 0
+
+    @property
+    def running(self):
+        return self._running
+
+    def do_stop(self):
+        try:
+            fuse_exit()
+        except Exception as e:
+            print(f'Fuse Stop error. {e}')
+        

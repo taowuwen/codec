@@ -16,8 +16,6 @@ class FileTool(threading.Thread):
         FGWEventFactory().register('CmdUnkown', self.unkown_cmd)
         FGWEventFactory().register('CmdRsp',    self.cmd_rsp)
 
-        self._reqs = {}
-
     def build_mq(self):
         try:
             self._mq = sysv_ipc.MessageQueue(fgwctl_key, flags=sysv_ipc.IPC_CREX, max_message_size=8192)
@@ -42,7 +40,7 @@ class FileTool(threading.Thread):
     def unkown_cmd(self, msg):
         self._mq.send(f'Error: Unkown Command: {msg}')
 
-    def cmd_rsp(self, msg):
+    def cmd_rsp(self, evt, msg):
         '''
          use msg result
         '''

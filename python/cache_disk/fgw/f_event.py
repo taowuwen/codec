@@ -33,6 +33,7 @@ class FGWEvent:
         self._proc = FGWEventFactory().get_proc(evt)
         if not self._proc:
             self._proc = msg.proc
+        self._evt = evt
         self._msg  = msg
 
     def register(self, key, val):
@@ -42,6 +43,7 @@ class FGWEvent:
         self._evt.pop(key)
 
     def proc(self):
+        self._msg.event = self._evt
         self._proc(self._msg)
 
     def __str__(self):

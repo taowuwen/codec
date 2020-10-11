@@ -18,6 +18,15 @@ class f_msg:
         self._result = None
         self._msg = msg
         self._proc = proc
+        self._evt = None
+
+    @property
+    def event(self):
+        return self._evt
+
+    @event.setter
+    def event(self, evt):
+        self._evt = evt
 
     @property
     def pos(self):

@@ -31,7 +31,7 @@ class FGWCommand:
 
     def fuse_handler(self, msg):
         print(f'handle fuse request, {msg}')
-        msg.result = 'Failed'
+        msg.result = 'OK'
         self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
 
     def memory_handler(self, msg):

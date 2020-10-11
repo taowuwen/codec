@@ -66,6 +66,11 @@ class f_msg:
     def __repr__(self):
         return str(self)
 
+    @property
+    def type(self):
+        return self._type
+
+
 class CommandMsg(f_msg):
     _type = FGWModule.tool
 

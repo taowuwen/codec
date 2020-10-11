@@ -1,3 +1,4 @@
+from f_event import fgwevent_factory, FGWEvent
 
 class FileRouter:
     '''
@@ -7,12 +8,18 @@ class FileRouter:
     '''
 
     def __init__(self):
-        pass
+        '''
+        register event handler for all disk handle
+        '''
+
+        evts = ['chmod', 'chown', 'create']
+
+        for evt in evts:
+            fgwevent_factory.register(evt, self.handle_evt)
 
     def handle_error(self):
         pass
 
     def handle_evt(self, msg):
-        pass
-
+        print('FR, handle evt: {}, msg: {}'.format(msg.evt, msg))
 

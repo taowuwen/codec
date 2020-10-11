@@ -17,38 +17,31 @@ class FileFuseMount(LoggingMixIn, Operations):
 
     def do_file_oper(self, evt, path, *args):
 
-        print(f'file oper: {evt} , {path}, {args}')
+        msg = FuseMsg(file_system.find_file(path), args)
+        self._mq.put_msg(FGWEvent(evt, msg))
 
-        fl = file_system.find_file(path)
-        self._mq.put_msg(FGWEvent(evt, FuseMsg(fl, args)))
-        return fl.wait_finished()
+        print(f'file oper: {evt} , {path}, {args}, {msg}')
 
+        return msg.wait_finished()
 
     def chmod(self, path, mode):
-        return do_file_oper('fuse_chmod', path, mode)
+        return do_file_oper('chmod', path, mode)
 
     def chown(self, path, uid, gid):
-        return do_file_oper('fuse_chown', path, uid, gid)
+        return do_file_oper('chown', path, uid, gid)
 
     def create(self, path, mode):
 
         fl = file_system.create(path, mode)
-        self.files[path] = dict(
-            st_mode=(S_IFREG | mode),
-            st_nlink=1,
-            st_size=0,
-            st_ctime=time(),
-            st_mtime=time(),
-            st_atime=time())
+        msg = FuseMsg(fl, mode)
+        self._mq.put_msg(FGWEvent('create', msg))
 
-        self.fd += 1
-        return self.fd
+        msg.wait_finished()
+
+        return fl.fd
 
     def getattr(self, path, fh=None):
-        if path not in self.files:
-            raise FuseOSError(ENOENT)
-
-        return self.files[path]
+        return file_system.find_file(path).stat
 
     def getxattr(self, path, name, position=0):
         attrs = self.files[path].get('attrs', {})

@@ -136,7 +136,6 @@ class FileFuse(threading.Thread):
 
         self.mq_fgw = queue
         self._fuse = FileFuseMount(queue)
-        self._running = 0
         self._mount = mount
 
     @property
@@ -149,13 +148,7 @@ class FileFuse(threading.Thread):
 
     def run(self):
         logging.basicConfig(level=logging.DEBUG)
-        self._running = 1
         _f = FUSE(self._fuse, self.mount, foreground=True, allow_other=True)
-        self._running = 0
-
-    @property
-    def running(self):
-        return self._running
 
     def do_stop(self):
         try:

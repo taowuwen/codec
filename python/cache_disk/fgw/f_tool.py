@@ -3,7 +3,7 @@ import threading
 import sysv_ipc
 from f_msg import CommandMsg
 from f_event import FGWEvent, FGWEventFactory
-from cache_disk import fgwctl_key
+from cache_disk import fgwtool_in, fgwtool_out
 
 class FileTool(threading.Thread):
 
@@ -18,14 +18,19 @@ class FileTool(threading.Thread):
 
     def build_mq(self):
         try:
-            self._mq = sysv_ipc.MessageQueue(fgwctl_key, flags=sysv_ipc.IPC_CREX, max_message_size=8192)
+            self._mq_rx = sysv_ipc.MessageQueue(fgwtool_in, flags=sysv_ipc.IPC_CREX, max_message_size=8192)
         except sysv_ipc.ExistentialError as e:
-            self._mq = sysv_ipc.MessageQueue(fgwctl_key)
+            self._mq_rx = sysv_ipc.MessageQueue(fgwtool_in)
+
+        try:
+            self._mq_tx = sysv_ipc.MessageQueue(fgwtool_out, flags=sysv_ipc.IPC_CREX, max_message_size=8192)
+        except sysv_ipc.ExistentialError as e:
+            self._mq_tx = sysv_ipc.MessageQueue(fgwtool_out)
 
     def run(self):
 
         while True:
-            _msg, _type = self._mq.receive()
+            _msg, _type = self._mq_rx.receive()
 
             _msg = _msg.decode().split()
             print(f'Req: Type: {_type}, msg:{_msg}')
@@ -38,10 +43,10 @@ class FileTool(threading.Thread):
             self.mq_fgw.put_level1(FGWEvent(evt, msg))
 
     def unkown_cmd(self, msg):
-        self._mq.send(f'Error: Unkown Command: {msg}')
+        self._mq_tx.send(f'Error: Unkown Command: {msg}')
 
-    def cmd_rsp(self, evt, msg):
+    def cmd_rsp(self, msg):
         '''
          use msg result
         '''
-        self._mq.send(f'{msg.result}')
+        self._mq_tx.send(f'{msg.result}')

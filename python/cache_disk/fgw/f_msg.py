@@ -70,6 +70,9 @@ class f_msg:
     def type(self):
         return self._type
 
+    @property
+    def msg(self):
+        return self._msg
 
 class CommandMsg(f_msg):
     _type = FGWModule.tool

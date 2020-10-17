@@ -1,6 +1,10 @@
 
 from f_event import FGWEventFactory, FGWEvent
 from f_msg import *
+from f_fuse import f_fuse_start, f_fuse_stop
+
+class InvalidArgument(Exception):
+    pass
 
 class FGWCommand:
     _inst = None
@@ -31,8 +35,20 @@ class FGWCommand:
 
     def fuse_handler(self, msg):
         print(f'handle fuse request, {msg}')
-        msg.result = 'OK'
-        self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
+        try:
+            if msg.msg[1] == 'start':
+                f_fuse_start(msg.msg[2])
+            elif msg.msg[1] == 'stop':
+                f_fuse_stop()
+            else:
+                raise InvalidArgument('fuse invalid argument')
+
+        except Exception as e:
+            msg.result = 'Failed, {}'.format(e)
+            self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
+        else:
+            msg.result = 'OK'
+            self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
 
     def memory_handler(self, msg):
         print(f'handle memory request, {msg}')

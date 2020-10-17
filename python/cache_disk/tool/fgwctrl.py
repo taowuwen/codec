@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from cache_disk import fgwctl_key
+from cache_disk import fgwctl_out, fgwctl_in
 import sysv_ipc
 import sys
 import os
@@ -8,12 +8,18 @@ import time
 
 class FgwCtrl:
     def __init__(self):
-        self._mq = sysv_ipc.MessageQueue(fgwctl_key)
+        self._mq_tx = sysv_ipc.MessageQueue(fgwctl_out)
+        self._mq_rx = sysv_ipc.MessageQueue(fgwctl_in)
+
+        while True:
+            try:
+                self._mq_rx.receive(0)
+            except sysv_ipc.BusyError:
+                break
 
     def sendmsg(self, msg):
-        self._mq.send(msg)
-        time.sleep(0.5)
-        _msg, _type = self._mq.receive()
+        self._mq_tx.send(msg)
+        _msg, _type = self._mq_rx.receive()
 
         print(f'Result: Type: {_type}, Msg: {_msg.decode()}')
 

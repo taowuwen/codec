@@ -127,13 +127,28 @@ class FileFuseMount(LoggingMixIn, Operations):
     def write(self, path, data, offset, fh):
         pass
 
+class FileFuseThread(threading.Thread):
 
-
-class FileFuse(threading.Thread):
-
-    def __init__(self, queue, mount, *args, **kwargs):
+    def __init__(self, fuse, mount, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._fuse = fuse
+        self._mount = mount
 
+    def run(self):
+        logging.basicConfig(level=logging.DEBUG)
+        print('fuse started, mount: {}'.format(self._mount))
+        _f = FUSE(self._fuse, self._mount, foreground=True, allow_other=True)
+
+    def do_stop(self):
+        try:
+            fuse_exit()
+        except Exception as e:
+            print('stop fuse exceptions {}'.format(e))
+        self._stop()
+
+class FileFuse:
+
+    def __init__(self, queue, mount = '/tmp/fuse'):
         self.mq_fgw = queue
         self._fuse = FileFuseMount(queue)
         self._mount = mount
@@ -146,13 +161,26 @@ class FileFuse(threading.Thread):
     def mount(self, val):
         self._mount = val
 
-    def run(self):
-        logging.basicConfig(level=logging.DEBUG)
-        _f = FUSE(self._fuse, self.mount, foreground=True, allow_other=True)
+    def do_start(self, mount):
+        self.mount = mount
+        self._th = FileFuseThread(self._fuse, self.mount)
+        self._th.start()
 
     def do_stop(self):
-        try:
-            fuse_exit()
-        except Exception as e:
-            print(f'Fuse Stop error. {e}')
-        
+        self._th.do_stop()
+        self._th.join()
+
+_gfuse = None
+
+def f_fuse_init(queue):
+    global _gfuse
+    _gfuse = FileFuse(queue)
+
+
+def f_fuse_start(mount):
+    global _gfuse
+    _gfuse.do_start(mount)
+
+def f_fuse_stop():
+    global _gfuse
+    _gfuse.do_stop()

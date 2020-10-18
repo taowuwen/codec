@@ -4,6 +4,7 @@ from __future__ import print_function, absolute_import, division
 import logging
 from f_file import file_system
 import threading
+import errno
 
 try:
     from fuse import FUSE, FuseOSError, Operations, LoggingMixIn, fuse_exit
@@ -15,117 +16,87 @@ class FileFuseMount(LoggingMixIn, Operations):
     def __init__(self, mq):
         self._mq = mq
 
-    def do_file_oper(self, evt, path, *args):
+    def do_file_oper(self, evt, fl, *args):
 
-        msg = FuseMsg(file_system.find_file(path), args)
+        msg = FuseMsg(fl, args)
         self._mq.put_msg(FGWEvent(evt, msg))
 
-        print(f'file oper: {evt} , {path}, {args}, {msg}')
+        print(f'file oper: {evt} ,{fl}, {args}, {msg}')
 
-        return msg.wait_finished()
+        return msg.wait()
+
+    def do_oper(self, evt, path, *args):
+        return self.do_file_oper(evt, file_system.find_file(path), *args)
 
     def chmod(self, path, mode):
-        return do_file_oper('chmod', path, mode)
+        return self.do_oper('chmod', path, mode)
 
     def chown(self, path, uid, gid):
-        return do_file_oper('chown', path, uid, gid)
+        return self.do_oper('chown', path, uid, gid)
 
     def create(self, path, mode):
 
         fl = file_system.create(path, mode)
-        msg = FuseMsg(fl, mode)
-        self._mq.put_msg(FGWEvent('create', msg))
-
-        msg.wait_finished()
-
+        self.do_file_oper('create', fl, mode)
         return fl.fd
 
     def getattr(self, path, fh=None):
         return file_system.find_file(path).stat
 
-    def getxattr(self, path, name, position=0):
-        attrs = self.files[path].get('attrs', {})
-
-        try:
-            return attrs[name]
-        except KeyError:
-            return ''       # Should return ENOATTR
-
-    def listxattr(self, path):
-        attrs = self.files[path].get('attrs', {})
-        return attrs.keys()
-
     def mkdir(self, path, mode):
-        self.files[path] = dict(
-            st_mode=(S_IFDIR | mode),
-            st_nlink=2,
-            st_size=0,
-            st_ctime=time(),
-            st_mtime=time(),
-            st_atime=time())
-
-        self.files['/']['st_nlink'] += 1
+        fl = file_system.mkdir(path, mode)
+        self.do_file_oper('mkdir', fl, mode)
 
     def open(self, path, flags):
-        self.fd += 1
-        return self.fd
+        fl = file_system.find_file(path)
+        self.do_file_oper('open', flags)
+        return fl
 
     def read(self, path, size, offset, fh):
-        return self.data[path][offset:offset + size]
+        print('read: {}'.format(fh))
+
+        fl = file_system.find_file(path)
+        self.do_file_oper('read', fl, size, offset, fh)
+
 
     def readdir(self, path, fh):
-        return ['.', '..'] + [x[1:] for x in self.files if x != '/']
+        fl = file_system.find_file(path)
+        if fl.is_dir():
+            return ['.', '..'] + fl.files.keys()
+        else:
+            raise FuseOSError(errno.ENOTDIR)
 
     def readlink(self, path):
-        return self.data[path]
-
-    def removexattr(self, path, name):
-        attrs = self.files[path].get('attrs', {})
-
-        try:
-            del attrs[name]
-        except KeyError:
-            pass        # Should return ENOATTR
+        raise FuseOSError(errno.EIO)
 
     def rename(self, old, new):
-        self.data[new] = self.data.pop(old)
-        self.files[new] = self.files.pop(old)
+        self.do_oper('rename', old, new)
 
     def rmdir(self, path):
-        # with multiple level support, need to raise ENOTEMPTY if contains any files
-        self.files.pop(path)
-        self.files['/']['st_nlink'] -= 1
-
-    def setxattr(self, path, name, value, options, position=0):
-        # Ignore options
-        attrs = self.files[path].setdefault('attrs', {})
-        attrs[name] = value
+        self.do_oper('rmdir', path)
 
     def statfs(self, path):
         return dict(f_bsize=512, f_blocks=4096, f_bavail=2048)
 
     def symlink(self, target, source):
-        self.files[target] = dict(
-            st_mode=(S_IFLNK | 0o777),
-            st_nlink=1,
-            st_size=len(source))
-
-        self.data[target] = source
+        raise FuseOSError(errno.EIO)
+        self.do_oper('symlink', target, source)
 
     def truncate(self, path, length, fh=None):
-        pass
+        return self.do_oper('truncate', path, length, fh)
 
     def unlink(self, path):
-        pass
+        return self.do_oper('unlink', path)
 
     def utimens(self, path, times=None):
+        raise FuseOSError(errno.EIO)
         now = time()
         atime, mtime = times if times else (now, now)
         self.files[path]['st_atime'] = atime
         self.files[path]['st_mtime'] = mtime
 
     def write(self, path, data, offset, fh):
-        pass
+        return self.do_oper('write', path, data, offset, fh)
 
 class FileFuseThread(threading.Thread):
 
@@ -175,7 +146,6 @@ _gfuse = None
 def f_fuse_init(queue):
     global _gfuse
     _gfuse = FileFuse(queue)
-
 
 def f_fuse_start(mount):
     global _gfuse

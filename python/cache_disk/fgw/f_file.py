@@ -87,8 +87,18 @@ class FileNode:
     def parent(self, val):
         self._parent = val
 
+    def is_file(self):
+        return False
+
+    is_dir = is_file
+    is_link = is_file
+
+
 class FileNodeFile(FileNode):
     _type = FileType.FILE
+
+    def is_file(self):
+        return True
 
 class FileNodeDir(FileNode):
     _type = FileType.DIR
@@ -108,8 +118,14 @@ class FileNodeDir(FileNode):
     def files(self):
         return self._files
 
+    def is_dir(self):
+        return True
+
 class FileNodeLink(FileNode):
     _type = FileType.LINK
+
+    def is_link(self):
+        return True
 
 class FileSystem:
     '''
@@ -196,7 +212,7 @@ if __name__ == '__main__':
         else:
             print('{:<100}:{}'.format(path + str(fl), fl.stat))
 
-        if isinstance(fl, FileNodeDir):
+        if fl.is_dir():
             for _fl in fl.files:
                 _show_files(fl.get_file(_fl), path + os.sep + _fl, brief)
 

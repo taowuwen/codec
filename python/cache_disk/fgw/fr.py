@@ -1,6 +1,6 @@
 from f_event import fgwevent_factory, FGWEvent
 
-class FileRouter():
+class FileRouter(FileObserver):
     '''
     1. active table
     2. default routes
@@ -25,18 +25,18 @@ class FileRouter():
         )
         self.reg_events(evts, self.handle_fuse_evt)
 
-    def handle_fuse_evt(self):
-        pass
+    def handle_fuse_evt(self, msg):
+        print(f'handle fuse msg: {msg}')
+        msg.release()
 
     def reg_disk_evt(self):
         pass
 
-    def handle_disk_evt(self):
+    def handle_disk_evt(self, msg):
         pass
 
     def reg_memory_evt(self):
         pass
 
-    def handle_memory_evt(self):
+    def handle_memory_evt(self, msg):
         pass
-

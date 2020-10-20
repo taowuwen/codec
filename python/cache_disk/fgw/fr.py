@@ -1,4 +1,5 @@
 from f_event import fgwevent_factory, FGWEvent
+from f_observer import FileObserver
 
 class FileRouter(FileObserver):
     '''
@@ -11,6 +12,10 @@ class FileRouter(FileObserver):
         '''
         register event handler for all disk handle
         '''
+
+    def update(self, *args, **kwargs):
+        print(f'FR recved update {args}, {kwargs}')
+        
 
     def reg_events(self, events = (), method = None):
         for evt in events:

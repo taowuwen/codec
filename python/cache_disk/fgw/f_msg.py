@@ -1,5 +1,6 @@
 
 import enum
+from threading import Semaphore
 
 FGWModule = enum.Enum(
     value = 'FGWModule',
@@ -19,6 +20,7 @@ class f_msg:
         self._msg = msg
         self._proc = proc
         self._evt = None
+        self._sem = Semaphore(0)
 
     @property
     def event(self):
@@ -73,6 +75,12 @@ class f_msg:
     @property
     def msg(self):
         return self._msg
+
+    def wait(self, blocking=True, timeout=120):
+        self._sem.acquire(blocking, timeout)
+
+    def release(self):
+        self._sem.release()
 
 class CommandMsg(f_msg):
     _type = FGWModule.tool

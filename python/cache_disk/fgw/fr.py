@@ -8,10 +8,13 @@ class FileRouter(FileObserver):
     3. constant hash
     '''
 
-    def __init__(self):
+    def __init__(self, queue):
         '''
         register event handler for all disk handle
         '''
+        self.mq_fgw = queue
+        super().__init__()
+        self.reg_fuse_evt()
 
     def update(self, *args, **kwargs):
         print(f'FR recved update {args}, {kwargs}')
@@ -21,7 +24,6 @@ class FileRouter(FileObserver):
         for evt in events:
             fgwevent_factory.register(evt, method)
          
-
     def reg_fuse_evt(self):
         evts = (
             'chmod', 'chown', 'create', 'mkdir', 'open',

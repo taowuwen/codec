@@ -8,6 +8,7 @@ from f_command import fgwcommand
 from f_tool import FileTool
 from fgw import FGW
 from f_fuse import f_fuse_init
+from fr import FileRouter
 
 def main():
     '''
@@ -26,6 +27,8 @@ def main():
 
     fgwcommand.mq_fgw = queue
     fgwcommand.register_all()
+
+    fr = FileRouter(queue)
 
     FGW(queue).run()
 

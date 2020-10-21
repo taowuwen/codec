@@ -3,6 +3,8 @@ from __future__ import print_function, absolute_import, division
 
 import logging
 from f_file import file_system
+from f_msg import FuseMsg
+from f_event import FGWEvent
 import threading
 import errno
 
@@ -19,9 +21,11 @@ class FileFuseMount(LoggingMixIn, Operations):
     def do_file_oper(self, evt, fl, *args):
 
         msg = FuseMsg(fl, args)
-        self._mq.put_msg(FGWEvent(evt, msg))
+        _evt = FGWEvent(evt, msg)
+        #self._mq.put_msg(FGWEvent(evt, msg))
+        self._mq.put_msg(_evt)
 
-        print(f'file oper: {evt} ,{fl}, {args}, {msg}')
+        print(f'file oper: {evt}, event: {_evt}, file: {fl}, args: {args}, msg: {msg}')
 
         return msg.wait()
 
@@ -41,7 +45,10 @@ class FileFuseMount(LoggingMixIn, Operations):
         return fl.fd
 
     def getattr(self, path, fh=None):
-        return file_system.find_file(path).stat
+        try:
+            return file_system.find_file(path).stat
+        except Exception:
+            raise FuseOSError(errno.ENOENT)
 
     def mkdir(self, path, mode):
         fl = file_system.mkdir(path, mode)
@@ -62,7 +69,7 @@ class FileFuseMount(LoggingMixIn, Operations):
     def readdir(self, path, fh):
         fl = file_system.find_file(path)
         if fl.is_dir():
-            return ['.', '..'] + fl.files.keys()
+            return ['.', '..'] + [key for key in fl.files.keys()]
         else:
             raise FuseOSError(errno.ENOTDIR)
 

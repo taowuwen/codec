@@ -1,4 +1,6 @@
 
+from f_msg import FuseMsg
+
 class FGW:
 
     def __init__(self, queue):
@@ -15,3 +17,6 @@ class FGW:
                 evt.proc()
             except Exception as e:
                 print(f'Exception on handle {evt}, {e}')
+                if isinstance(evt.msg, FuseMsg):
+                    evt.msg.release()
+

@@ -1,7 +1,23 @@
 #!/usr/bin/env bash
 
-root=`pwd`
+running_root=`pwd`
 
-export PYTHONPATH=$root/fgw:$PYTHONPATH
+export PYTHONPATH=$running_root/fgw:$PYTHONPATH
+
+mount | awk '/FileFuseMount/{print $3}' |
+    while read mnt
+    do
+        echo "do umount $mnt"
+        fusermount3 -u $mnt
+    done
+
+cat $running_root/fgw/cache_disk.py | 
+    sed 's/=/ /'g |
+    awk '/^fgwctl_out|^fgwctrl_in/{print $NF}' |
+    while read key
+    do
+        echo "do ipcrm key: $key"
+        ipcrm -Q $key 2>/dev/null
+    done
 
 python3 ./fgw/f_main.py

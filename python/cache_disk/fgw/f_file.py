@@ -156,7 +156,10 @@ class FileSystem:
 
         cur_node = self.root
         for fl in _path:
-            cur_node = cur_node.get_file(fl)
+            try:
+                cur_node = cur_node.get_file(fl)
+            except KeyError:
+                return None
 
         return cur_node
 

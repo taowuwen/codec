@@ -7,18 +7,14 @@ FGWModule = enum.Enum(
     names = 'tool fuse hdd ssd mmd fw unkown'
 )
 
-def unkown_msg(msg):
-    print(f'Error, unkown msg {msg}')
-
 class f_msg:
     _type = FGWModule.unkown
 
-    def __init__(self, msg = [], proc = unkown_msg, tgt = None, pos = None):
+    def __init__(self, msg = [], tgt = None, pos = None):
         self._pos = pos
         self._tgt = tgt
         self._result = None
         self._msg = msg
-        self._proc = proc
         self._evt = None
         self._sem = Semaphore(0)
 
@@ -53,14 +49,6 @@ class f_msg:
     @result.setter
     def result(self, val):
         self._result = val
-
-    @property
-    def proc(self):
-        return self._proc
-
-    @proc.setter
-    def proc(self, val):
-        self._proc = val
 
     def __str__(self):
         return f'{self._type} -> {self._tgt}, current {self._pos}, msg: {self._msg}'

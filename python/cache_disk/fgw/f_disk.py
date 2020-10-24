@@ -2,17 +2,32 @@
 import threading
 from f_queue import FilePriorityQueue
 
+class DiskExist(Exception): pass
+class DiskNotExist(Exception): pass
+class DiskNotSupportForNow(Exception): pass
 
-class Disk:
-    def __init__(self, mq_fgw, name = 'diskname', *kargs, **kwargs):
+
+class Disk(:
+    def __init__(self, mq_fgw, dev = None, root_dir=None, *kargs, **kwargs):
         self._info = {}
         self._info.update(kwargs)
         self._mq_fgw = mq_fgw
         self._mq = FilePriorityQueue(f"mq_{self._info['name']}")
+        self._dev = dev
+        self._root = root_dir
+        self._thread_main = None
+        self._thread_pool = None
 
     @property
-    def mq(self):
+    def queue(self):
         return self._mq
+
+    def do_start(self):
+        pass
+
+    def do_stop(self):
+        pass
+
 
 class HDDDisk(Disk):
     pass
@@ -44,16 +59,45 @@ class DiskManager(FileObserveObject):
 
         return None
 
-    def create_hdd_disk(self, *args, **kwargs):
-        pass
+    def create_hdd_disk(self, dev, *args, **kwargs):
+        dev = self.find_disk(dev)
+        if dev:
+            raise DiskExist(f'disk: {dev} existed')
 
-    def create_ssd_disk(self, *args, **kwargs):
-        pass
+        dev = HDDDisk(dev, *args, **kwargs)
+        self.hdd.append(dev)
+        self.notify('disk_add', 'hdd', dev)
 
-    def create_memory_disk(self, *args, **kwargs):
+    def create_ssd_disk(self, dev, *args, **kwargs):
+        raise DiskNotSupportForNow(f'ssd not support for currently')
+
+    def create_memory_disk(self, dev, *args, **kwargs):
+
         mem = MemoryDisk(*args, **kwargs)
         self.memory.append(mem)
-        self.notify('memory_disk_add', mem)
+        self.notify('disk_add', 'mem', mem)
 
     def disk_delete(self, disk):
-        pass
+        dev = self.find_disk(disk)
+        if dev:
+            dev.do_stop()
+            self.notify('disk_del', dev)
+
+            if dev in self.hdd:
+                self.hdd.remove(dev)
+
+            elif dev in self.ssd:
+                self.ssd.remove(dev)
+
+            else:
+                assert dev in self.memory, 'never show up this line'
+                self.memory.remove(dev)
+
+        return True
+
+    def disk_update(self, disk, *args, **kwargs):
+        dev = self.find_disk(disk)
+        if not dev:
+            raise DiskNotExist(f'disk: {disk} not exist')
+
+        dev.do_update(args, **kwargs)

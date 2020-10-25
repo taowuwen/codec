@@ -1,13 +1,24 @@
 
 import threading
+import enum
 from f_queue import FilePriorityQueue
+from f_observer import FileObserveObject
 
 class DiskExist(Exception): pass
 class DiskNotExist(Exception): pass
 class DiskNotSupportForNow(Exception): pass
 
+DiskType = enum.Enum(
+    value = 'DiskType'
+    names = 'HDD SSD MEMORY'
+)
 
-class Disk(:
+DiskStatus = enum.Enum(
+    value = 'DiskStatus'
+    names = 'INIT SCANNING RUNING STOPPED ERROR'
+)
+
+class Disk:
     def __init__(self, mq_fgw, dev = None, root_dir=None, *kargs, **kwargs):
         self._info = {}
         self._info.update(kwargs)
@@ -17,6 +28,7 @@ class Disk(:
         self._root = root_dir
         self._thread_main = None
         self._thread_pool = None
+        self._status = None
 
     @property
     def queue(self):
@@ -28,15 +40,25 @@ class Disk(:
     def do_stop(self):
         pass
 
+    def do_update(self, **kwargs):
+        pass
+
+    @property
+    def disk_type(self):
+        return self._type
+
 
 class HDDDisk(Disk):
+    self._type = DiskType.HDD
     pass
 
 class SSDDisk(Disk):
+    self._type = DiskType.SSD
     pass
 
 
 class MemoryDisk(Disk):
+    self._type = DiskType.MEMORY
     pass
 
 

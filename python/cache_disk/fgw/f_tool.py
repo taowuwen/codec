@@ -35,7 +35,7 @@ class FileTool(threading.Thread):
             _msg = _msg.decode().split()
             print(f'Req: Type: {_type}, msg:{_msg}')
 
-            msg = CommandMsg(_msg)
+            msg = CommandMsg(*_msg)
             msg.proc = self.unkown_cmd
 
             evt = _msg[0] if _msg else 'CmdUnkown'

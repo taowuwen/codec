@@ -30,7 +30,7 @@ class FGWCommand:
 
     def disk_handler(self, msg):
         print(f'handle disk request, {msg}')
-        msg.result = 'OK'
+        msg.result = (0, 'OK')
         self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
 
     def fuse_handler(self, msg):
@@ -44,15 +44,15 @@ class FGWCommand:
                 raise InvalidArgument('fuse invalid argument')
 
         except Exception as e:
-            msg.result = 'Failed, {}'.format(e)
+            msg.result = (-1, 'Failed, {}'.format(e))
             self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
         else:
-            msg.result = 'OK'
+            msg.result = (0, 'OK')
             self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
 
     def memory_handler(self, msg):
         print(f'handle memory request, {msg}')
-        msg.result = 'OK'
+        msg.result = (-1, 'Failed')
         self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
 
     def register_all(self):

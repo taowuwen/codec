@@ -18,6 +18,26 @@ DiskStatus = enum.Enum(
     names = 'INIT SCANNING RUNING STOPPED ERROR'
 )
 
+class DiskThread(threading.Thread):
+
+    def __init__(self, disk):
+        super().__init__()
+        self.disk = disk
+        self.running = 0
+
+    def run(self):
+
+        self.running = 1
+        while self.running:
+            evt = self.disk.get_evt()
+            try:
+                evt.proc()
+            except Exception as e:
+                print(f'Exception on handle {evt}, {e}')
+                evt.msg.result = (-1, f'{e}')
+                self.disk.queue.put_msg(FGWEvent('DiskRsp', evt.msg))
+
+
 class Disk:
     def __init__(self, mq_fgw, dev = None, root_dir=None, *kargs, **kwargs):
         self._info = {}
@@ -30,9 +50,12 @@ class Disk:
         self._thread_pool = None
         self._status = None
 
+    def get_evt(self):
+        return self._mq.get_msg()
+
     @property
     def queue(self):
-        return self._mq
+        return self._mq_fgw
 
     def do_start(self):
         pass

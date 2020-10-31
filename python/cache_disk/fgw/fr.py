@@ -19,7 +19,6 @@ class FileRouter(FileObserver):
     def update(self, *args, **kwargs):
         print(f'FR recved update {args}, {kwargs}')
         
-
     def reg_events(self, events = (), method = None):
         for evt in events:
             fgwevent_factory.register(evt, method)
@@ -33,7 +32,9 @@ class FileRouter(FileObserver):
         self.reg_events(evts, self.handle_fuse_evt)
 
     def handle_fuse_evt(self, msg):
-        print(f'handle fuse msg: {msg}')
+        print(f'handle fuse msg: {msg.evt}: {msg}')
+
+
         msg.release()
 
     def reg_disk_evt(self):

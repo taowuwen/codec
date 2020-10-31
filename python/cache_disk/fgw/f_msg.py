@@ -10,9 +10,9 @@ FGWModule = enum.Enum(
 class f_msg:
     _type = FGWModule.unkown
 
-    def __init__(self, msg = [], tgt = None, pos = None):
-        self._pos = pos
-        self._tgt = tgt
+    def __init__(self, *msg):
+        self._pos = None
+        self._tgt = None
         self._result = None
         self._msg = msg
         self._evt = None

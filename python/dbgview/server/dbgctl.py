@@ -178,8 +178,18 @@ class DbgCtrlFilter(DbgCtrl):
     def upt(self, *args, **kwargs):
         dbg_print(args, kwargs)
 
-        name = kwargs.get('name', None)
+        try:
+            if 'enable' in kwargs:
+                kwargs['enable'] = bool(eval(kwargs.get('enable')))
 
+            if 'ignorecase' in kwargs:
+                kwargs['ignorecase'] = bool(eval(kwargs.get('ignorecase')))
+
+        except NameError as e:
+            dbg_print(f"argument error, enable = {kwargs.get('enable')}, error:  {e}")
+            return
+
+        name = kwargs.get('name', None)
         if not name:
             dbg_print("rule name missing")
             return

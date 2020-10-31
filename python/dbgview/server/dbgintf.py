@@ -126,8 +126,8 @@ class DbgIntfColor(DbgIntf):
 
     def evt_upt(self, *args, **kwargs):
         self.evt_del(**kwargs)
-        self.evt_new(True, *args, **kwargs)
-        return True
+        if kwargs.get('enable', False) is True:
+            self.evt_new(True, *args, **kwargs)
 
     def evt_del(self, *args, **kwargs):
         for act in self._act:
@@ -145,6 +145,9 @@ class DbgIntfFilter(DbgIntf):
         if not hasattr(self, '_act'):
             self._act = []
 
+        if not kwargs['enable']:
+            return
+
         rule = FilterRule(**kwargs)
         act = self.action_ctrl.create_action(action_filter_type(rule.match_condition, rule.ignorecase), rule)
 
@@ -155,16 +158,18 @@ class DbgIntfFilter(DbgIntf):
         if refresh_table:
             self.action_ctrl.refresh_filter_table()
 
-
     def evt_upt(self, *args, **kwargs):
         self.evt_del(**kwargs)
-        self.evt_new(True, *args, **kwargs)
+        if kwargs.get('enable', False) is True:
+            self.evt_new(True, *args, **kwargs)
 
     def evt_del(self, *args, **kwargs):
+        dbg_print(f"{self._act}")
 
         for act in self._act:
             if act.rule.name == kwargs.get('name'):
                 self._act.remove(act)
+                dbg_print(f"got action : {act}, do remove {self._act}")
                 self.action_ctrl.write_action(self._mod, act, add = False)
                 break
 

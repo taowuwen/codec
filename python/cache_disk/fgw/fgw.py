@@ -1,5 +1,6 @@
 
-from f_msg import FuseMsg
+from f_msg import FuseMsg, CommandMsg
+from f_event import FGWEvent
 
 class FGW:
 
@@ -19,4 +20,8 @@ class FGW:
                 print(f'Exception on handle {evt}, {e}')
                 if isinstance(evt.msg, FuseMsg):
                     evt.msg.release()
+                elif isinstance(evt.msg, CommandMsg):
+                    evt.msg.result = (-1, f'Exceptoin on handle {evt}, {e}')
+                    self._queue.put_msg(FGWEvent('CmdRsp', evt.msg))
+
 

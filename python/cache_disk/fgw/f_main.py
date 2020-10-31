@@ -9,6 +9,7 @@ from f_tool import FileTool
 from fgw import FGW
 from f_fuse import f_fuse_init
 from fr import FileRouter
+from f_event import FGWEventFactory
 
 def main():
     '''

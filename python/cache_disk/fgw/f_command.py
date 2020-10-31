@@ -55,11 +55,17 @@ class FGWCommand:
         msg.result = (-1, 'Failed')
         self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
 
+    def ssd_handler(self, msg):
+        print(f'handle ssd request, {msg}')
+        msg.result = (-1, 'failed')
+        self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
+
     def register_all(self):
         evt_handler = {
+            'ssd':  self.ssd_handler,
             'disk': self.disk_handler,
             'fuse': self.fuse_handler,
-            'memory': self.memory_handler,
+            'mem':  self.memory_handler,
         }
 
         for key, val in evt_handler.items():

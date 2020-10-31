@@ -1,4 +1,4 @@
-from f_event import fgwevent_factory, FGWEvent
+from f_event import FGWEventFactory, FGWEvent
 from f_observer import FileObserver
 
 class FileRouter(FileObserver):
@@ -21,7 +21,7 @@ class FileRouter(FileObserver):
         
     def reg_events(self, events = (), method = None):
         for evt in events:
-            fgwevent_factory.register(evt, method)
+            FGWEventFactory().register(evt, method)
          
     def reg_fuse_evt(self):
         evts = (

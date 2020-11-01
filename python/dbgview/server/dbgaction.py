@@ -49,26 +49,26 @@ class ActionCommonShowLineNumber(ActionCommon):
 class ActionCommonShowTimeStamp(ActionCommon):
     _config = CtrlModID.ShowTimeStamp.name
     def __call__(self, *args, **kwargs):
-        msg, listbox, *_ = args
+        msg, *_ = args
         msg.prefix += f' {time.ctime(msg.tm)}'
 
 
 class ActionCommonShowClient(ActionCommon):
     _config = CtrlModID.ShowClient.name
     def __call__(self, *args, **kwargs):
-        msg, listbox, *_ = args
+        msg, *_ = args
         msg.prefix += f' {msg.client}'
 
 class ActionCommonShowServer(ActionCommon):
     _config = CtrlModID.ShowServer.name
     def __call__(self, *args, **kwargs):
-        msg, listbox, *_ = args
+        msg, *_ = args
         msg.prefix += f' {msg.server}'
 
 class ActionCommonShowLength(ActionCommon):
     _config = CtrlModID.ShowLength.name
     def __call__(self, *args, **kwargs):
-        msg, listbox, *_ = args
+        msg, *_ = args
         msg.prefix += ' {:0>5d}'.format(len(msg))
 
 '''
@@ -92,7 +92,7 @@ class ActionPostListBoxInsert(ActionPostConfig):
 class ActionPostEnableLog(ActionPostConfig):
     _config = CtrlModID.EnableLog.name
     def __call__(self, *args, **kwargs):
-        msg, listbox, *_ = args
+        msg, *_ = args
         print(msg)
 
 '''
@@ -112,6 +112,9 @@ class ActionColor(Action):
         if self._rule.match(self.match, msg):
             self._rule.matched()
             listbox.itemconfig(tkinter.END, **self._rule.itemconfig)
+
+    def match(self,*args,**kwargs):
+        pass
 
     def show(self):
         return f'{self} >> {self._rule}'

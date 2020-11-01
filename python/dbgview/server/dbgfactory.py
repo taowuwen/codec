@@ -8,7 +8,6 @@ class Factory:
         self._name = name
         self.products = {}
 
-
     def register(self, key, val):
         self.products[key] = val
 
@@ -26,7 +25,7 @@ class BuildFactory(Factory):
         try:
             return self.get(key)(*args, **kwargs)
         except Exception as e:
-            print(f"Error, Unkown product {key}")
+            print(f"Error, Unkown product {key}, Exception: {e}")
             raise BuildFailed(f"unkown product {key}")
 
 

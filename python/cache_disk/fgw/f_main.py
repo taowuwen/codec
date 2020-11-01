@@ -10,6 +10,8 @@ from fgw import FGW
 from f_fuse import f_fuse_init
 from fr import FileRouter
 from f_event import FGWEventFactory
+from f_disk import DiskManager
+from f_file import file_system
 
 def main():
     '''
@@ -26,10 +28,15 @@ def main():
     tool = FileTool(queue)
     tool.start()
 
+    fr = FileRouter(queue)
+    diskmgr = DiskManager(queue)
+
     fgwcommand.mq_fgw = queue
+    fgwcommand.disk_mgr = diskmgr
     fgwcommand.register_all()
 
-    fr = FileRouter(queue)
+    fr.subscribe(diskmgr)
+    file_system.subscribe(diskmgr)
 
     FGW(queue).run()
 

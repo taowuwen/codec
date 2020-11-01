@@ -7,6 +7,8 @@ from f_observer import FileObserveObject
 class DiskExist(Exception): pass
 class DiskNotExist(Exception): pass
 class DiskNotSupportForNow(Exception): pass
+class DiskInvalidArgument(Exception): pass
+class DiskAlreadyStarted(Exception): pass
 
 DiskType = enum.Enum(
     value = 'DiskType'
@@ -23,11 +25,11 @@ class DiskThread(threading.Thread):
     def __init__(self, disk):
         super().__init__()
         self.disk = disk
-        self.running = 0
+        self.running = False
 
     def run(self):
 
-        self.running = 1
+        self.running = True
         while self.running:
             evt = self.disk.get_evt()
             try:
@@ -39,13 +41,16 @@ class DiskThread(threading.Thread):
 
 
 class Disk:
-    def __init__(self, mq_fgw, dev = None, root_dir=None, *kargs, **kwargs):
+    def __init__(self, mq_fgw, root_dir=None, size=0, *kargs, **kwargs):
         self._info = {}
         self._info.update(kwargs)
         self._mq_fgw = mq_fgw
         self._mq = FilePriorityQueue(f"mq_{self._info['name']}")
-        self._dev = dev
         self._root = root_dir
+        self._disk_size = size
+
+        if not self._root or self._disk_size <= 0:
+            raise DiskInvalidArgument(f'invalid argument, root: {root} invalid or size: {self._disk_size} invalid')
         self._thread_main = None
         self._thread_pool = None
         self._status = None
@@ -54,48 +59,75 @@ class Disk:
         return self._mq.get_msg()
 
     @property
+    def dev(self):
+        return self._root
+
+    @property
+    def root(self):
+        return self._root
+
+    @property
     def queue(self):
         return self._mq_fgw
 
     def do_start(self):
-        pass
+
+        if self._thread_main:
+            raise DiskAlreadyStarted('disk already started')
+
+        # send self a msg with high priority
+        self._mq.put_level1(FGWEvent('disk_scan', HDDMsg(self)))
+        self._thread_main = DiskThread(self)
+        self._thread_main.start()
 
     def do_stop(self):
-        pass
+        if self._thread_main:
+            self._thread_main.running = False
+            self._thread_main.join()
+            self._thread_main = None
+
 
     def do_update(self, **kwargs):
-        pass
+        print(f'do update {kwargs}')
 
     @property
     def disk_type(self):
         return self._type
 
+    def __str__(self):
+        return f'({self._type}:>{self._root} {self._size})'
+
+    def create_msg(self, *args):
+        return UnkownMsg(*args)
 
 class HDDDisk(Disk):
     self._type = DiskType.HDD
-    pass
+
+    def create_msg(self, *args):
+        return HDDMsg(*args)
 
 class SSDDisk(Disk):
     self._type = DiskType.SSD
-    pass
+
+    def create_msg(self, *args):
+        return SSDMsg(*args)
 
 
 class MemoryDisk(Disk):
     self._type = DiskType.MEMORY
-    pass
+
+    def create_msg(self, *args):
+        return MMDMsg(*aargs)
 
 
 class DiskManager(FileObserveObject):
 
-    def __init__(self):
+    def __init__(self, queue = None):
 
         self.hdd = []
         self.ssd = []
         self.memory = []
-        self.mq_fgw = None
-
-    def set_fgw_mq(self, _q):
-        self.mq_fgw = _q
+        self.mq_fgw = queue
 
     def find_disk(self, dev):
         for disk in self.hdd + self.ssd + self.memory:
@@ -109,7 +141,7 @@ class DiskManager(FileObserveObject):
         if dev:
             raise DiskExist(f'disk: {dev} existed')
 
-        dev = HDDDisk(dev, *args, **kwargs)
+        dev = HDDDisk(self.mq_fgw, dev, *args, **kwargs)
         self.hdd.append(dev)
         self.notify('disk_add', 'hdd', dev)
 

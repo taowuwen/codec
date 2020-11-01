@@ -9,16 +9,13 @@ class InvalidArgument(Exception):
 class FGWCommand:
     _inst = None
     _mq_fgw = None
+    _disk_mgr = None
 
     def __new__(cls, *kargs, **kwargs):
         if not cls._inst:
             cls._inst = super().__new__(cls)
 
         return cls._inst
-
-    def __init__(self, fgw = None, tool = None, *kargs, **kwargs):
-        self._fgw = fgw
-        self._tool = tool
 
     @property
     def mq_fgw(self):
@@ -28,8 +25,27 @@ class FGWCommand:
     def mq_fgw(self, mq):
         self._mq_fgw = mq
 
+    @property
+    def disk_mgr(self):
+        return self._disk_mgr
+
+    @disk_mgr.setter
+    def disk_mgr(self, d):
+        self._disk_mgr = disk
+
     def disk_handler(self, msg):
         print(f'handle disk request, {msg}')
+
+        if msg.msg[1] not in ('start', 'stop', 'update'):
+            raise InvalidArgument(f'disk invalid argument {msg.msg[1]}')
+
+        if msg.msg[1] == 'start':
+            self._disk_mgr.create_hdd_disk(*msg.msg[2:])
+        elif msg.msg[1] == 'stop':
+            self._disk_mgr.disk_delete(*msg.msg[2:])
+        else:
+            self._disk_mgr.disk_update(*msg.msg[2:])
+
         msg.result = (0, 'OK')
         self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
 

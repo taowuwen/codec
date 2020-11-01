@@ -179,12 +179,7 @@ class FileSystem:
     def root(self):
         return self._root
 
-class FileActiveTable(dict):
-    def __init__(self, *args, **kwargs):
-        super().__init__(self, *args, **kwargs)
-
 file_system = FileSystem()
-file_active_table = FileActiveTable()
 
 if __name__ == '__main__':
     import glob

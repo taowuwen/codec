@@ -3,6 +3,7 @@ import enum
 from stat import S_IFDIR, S_IFLNK, S_IFREG
 import os
 import time
+from f_observer import FileObject
 
 FileType = enum.Enum(
     value = 'FileType',
@@ -127,7 +128,7 @@ class FileNodeLink(FileNode):
     def is_link(self):
         return True
 
-class FileSystem:
+class FileSystem(FileObject):
     '''
         file system for our cache disk
     '''
@@ -140,10 +141,14 @@ class FileSystem:
         return cls._inst
 
     def __init__(self):
+        super().__init__()
         self._uid = os.getuid()
         self._gid = os.getgid()
         self._root = FileNodeDir('/', 0o755)
         self._root.parent = self._root
+
+    def update(self, *args, **kwargs):
+        print(f'file_system be updated with {args}, {kwargs}')
 
     def find_file(self, path):
 

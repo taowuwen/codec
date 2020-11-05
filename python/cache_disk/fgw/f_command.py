@@ -30,8 +30,8 @@ class FGWCommand:
         return self._disk_mgr
 
     @disk_mgr.setter
-    def disk_mgr(self, d):
-        self._disk_mgr = disk
+    def disk_mgr(self, mgr):
+        self._disk_mgr = mgr
 
     def disk_handler(self, msg):
         print(f'handle disk request, {msg}')

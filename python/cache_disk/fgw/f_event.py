@@ -59,3 +59,6 @@ class FGWEvent:
     def __repr__(self):
         return str(self)
 
+    def __lt__(self, other):
+        return True
+

@@ -3,6 +3,9 @@ import threading
 import enum
 from f_queue import FilePriorityQueue
 from f_observer import FileObserveObject
+import os
+from f_event import FGWEventFactory, FGWEvent
+from f_msg import *
 
 class DiskExist(Exception): pass
 class DiskNotExist(Exception): pass
@@ -11,12 +14,12 @@ class DiskInvalidArgument(Exception): pass
 class DiskAlreadyStarted(Exception): pass
 
 DiskType = enum.Enum(
-    value = 'DiskType'
+    value = 'DiskType',
     names = 'HDD SSD MEMORY'
 )
 
 DiskStatus = enum.Enum(
-    value = 'DiskStatus'
+    value = 'DiskStatus',
     names = 'INIT SCANNING RUNING STOPPED ERROR'
 )
 
@@ -45,15 +48,16 @@ class Disk:
         self._info = {}
         self._info.update(kwargs)
         self._mq_fgw = mq_fgw
-        self._mq = FilePriorityQueue(f"mq_{self._info['name']}")
+        self._mq = FilePriorityQueue(f"mq_{root_dir}")
         self._root = root_dir
-        self._disk_size = size
+        self._disk_size = int(size)
 
         if not self._root or self._disk_size <= 0:
-            raise DiskInvalidArgument(f'invalid argument, root: {root} invalid or size: {self._disk_size} invalid')
+            raise DiskInvalidArgument(f'invalid argument, root: {self._root} invalid or size: {self._disk_size} invalid')
         self._thread_main = None
         self._thread_pool = None
         self._status = None
+        print(f'{self._type} create with root: {self._root}, size: {self._disk_size}')
 
     def get_evt(self):
         return self._mq.get_msg()
@@ -101,20 +105,20 @@ class Disk:
         return UnkownMsg(*args)
 
 class HDDDisk(Disk):
-    self._type = DiskType.HDD
+    _type = DiskType.HDD
 
     def create_msg(self, *args):
         return HDDMsg(*args)
 
 class SSDDisk(Disk):
-    self._type = DiskType.SSD
+    _type = DiskType.SSD
 
     def create_msg(self, *args):
         return SSDMsg(*args)
 
 
 class MemoryDisk(Disk):
-    self._type = DiskType.MEMORY
+    _type = DiskType.MEMORY
 
     def create_msg(self, *args):
         return MMDMsg(*aargs)
@@ -123,6 +127,7 @@ class MemoryDisk(Disk):
 class DiskManager(FileObserveObject):
 
     def __init__(self, queue = None):
+        super().__init__()
 
         self.hdd = []
         self.ssd = []
@@ -136,14 +141,16 @@ class DiskManager(FileObserveObject):
 
         return None
 
-    def create_hdd_disk(self, dev, *args, **kwargs):
-        dev = self.find_disk(dev)
+    def create_hdd_disk(self, root_dir, *args, **kwargs):
+        print(f'disk create hdd disk {root_dir}, {args}, {kwargs}')
+        dev = self.find_disk(root_dir)
         if dev:
             raise DiskExist(f'disk: {dev} existed')
 
-        dev = HDDDisk(self.mq_fgw, dev, *args, **kwargs)
+        dev = HDDDisk(self.mq_fgw, root_dir, *args, **kwargs)
         self.hdd.append(dev)
         self.notify('disk_add', 'hdd', dev)
+        dev.do_start()
 
     def create_ssd_disk(self, dev, *args, **kwargs):
         raise DiskNotSupportForNow(f'ssd not support for currently')

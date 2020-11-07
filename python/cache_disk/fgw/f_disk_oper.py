@@ -8,10 +8,12 @@ def scan_path(disk, path = None):
         return
 
     for fl in glob.glob(path + '/*'):
-        print(f'put msg on queue for : {fl}')
-        disk.queue.put_msg(FGWEvent('refresh_file_stat', disk.create_msg(fl, os.stat(fl))))
         if os.path.isdir(fl):
-            scan_path(fl)
+            disk.queue.put_msg(FGWEvent('refresh_dir_stat', disk.create_msg(disk, disk.phy2fuse(fl), os.stat(fl))))
+            scan_path(disk, fl)
+        else:
+            disk.queue.put_msg(FGWEvent('refresh_file_stat', disk.create_msg(disk, disk.phy2fuse(fl), os.stat(fl))))
+
 
 def disk_scan(msg):
     disk = msg.msg[0]

@@ -50,14 +50,15 @@ class Disk:
         self._mq_fgw = mq_fgw
         self._mq = FilePriorityQueue(f"mq_{root_dir}")
         self._root = root_dir
-        self._disk_size = int(size)
+        self._size = int(size)
+        self._usedsize = 0
 
-        if not self._root or self._disk_size <= 0:
-            raise DiskInvalidArgument(f'invalid argument, root: {self._root} invalid or size: {self._disk_size} invalid')
+        if not self._root or self._size <= 0:
+            raise DiskInvalidArgument(f'invalid argument, root: {self._root} invalid or size: {self._size} invalid')
         self._thread_main = None
         self._thread_pool = None
         self._status = None
-        print(f'{self._type} create with root: {self._root}, size: {self._disk_size}')
+        print(f'{self._type} create with root: {self._root}, size: {self._size}')
 
     def get_evt(self):
         return self._mq.get_msg()
@@ -73,6 +74,14 @@ class Disk:
     @property
     def queue(self):
         return self._mq_fgw
+
+    @property
+    def totalsize(self):
+        return self._size
+
+    @property
+    def usedsize(self):
+        return self._usedsize
 
     def do_start(self):
 
@@ -90,7 +99,6 @@ class Disk:
             self._thread_main.join()
             self._thread_main = None
 
-
     def do_update(self, **kwargs):
         print(f'do update {kwargs}')
 
@@ -103,6 +111,13 @@ class Disk:
 
     def create_msg(self, *args):
         return UnkownMsg(*args)
+
+    def phy2fuse(self, path):
+        assert len(path) > len(self._root), 'never show up this line'
+        return path[len(self._root):]
+
+    def fuse2phy(self, path):
+        return self._root + path
 
 class HDDDisk(Disk):
     _type = DiskType.HDD
@@ -149,13 +164,18 @@ class DiskManager(FileObserveObject):
 
         dev = HDDDisk(self.mq_fgw, root_dir, *args, **kwargs)
         self.hdd.append(dev)
+        self.hdd.append(dev)
+
         self.notify('disk_add', 'hdd', dev)
         dev.do_start()
 
-    def create_ssd_disk(self, dev, *args, **kwargs):
+    def create_ssd_disk(self, root_dir, *args, **kwargs):
         raise DiskNotSupportForNow(f'ssd not support for currently')
 
-    def create_memory_disk(self, dev, *args, **kwargs):
+    def create_memory_disk(self, root_dir, *args, **kwargs):
+        dev = self.find_disk(root_dir)
+        if dev:
+            raise DiskExist(f'Memory disk: {dev} existed')
 
         mem = MemoryDisk(*args, **kwargs)
         self.memory.append(mem)

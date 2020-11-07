@@ -60,5 +60,5 @@ class FGWEvent:
         return str(self)
 
     def __lt__(self, other):
-        return True
+        return False
 

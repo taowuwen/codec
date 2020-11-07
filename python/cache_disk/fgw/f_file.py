@@ -24,6 +24,7 @@ class FileNode:
     def __init__(self, name, mode):
         self._name = name
         self._parent = None
+        self.fd = None,
 
         '''
             file extension infomartions:
@@ -36,7 +37,6 @@ class FileNode:
             hdd = [],
             ssd = [],
             memory = [],
-            fd = None,
         )
 
         self._stat = dict(

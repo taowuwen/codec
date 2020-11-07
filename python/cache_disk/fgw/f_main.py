@@ -13,6 +13,7 @@ from f_event import FGWEventFactory
 from f_disk import DiskManager
 from f_file import file_system
 from f_disk_oper import disk_oper_register_all_event
+from f_file_oper import file_oper_register_all_event
 
 def main():
     '''
@@ -36,6 +37,7 @@ def main():
     fgwcommand.disk_mgr = diskmgr
     fgwcommand.register_all()
     disk_oper_register_all_event()
+    file_oper_register_all_event()
 
     fr.subscribe(diskmgr)
     file_system.subscribe(diskmgr)

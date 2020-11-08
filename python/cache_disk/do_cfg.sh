@@ -26,8 +26,9 @@ disk_mount()
 
 mem_mount()
 {
-    [ -d $disk_root/mem ] || mkdir -p $disk_root/mem
-    ./fgwctl mem start $disk_root/mem 1073741824
+    mem_root=/tmp/mem
+    [ -d $mem_root ] || mkdir -p $mem_root
+    ./fgwctl mem start $mem_root 1073741824
 }
 
 ssd_mount()

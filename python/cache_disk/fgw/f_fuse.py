@@ -129,6 +129,7 @@ class FileFuse:
         self.mq_fgw = queue
         self._fuse = FileFuseMount(queue)
         self._mount = mount
+        self._th = None
 
     @property
     def mount(self):
@@ -139,13 +140,19 @@ class FileFuse:
         self._mount = val
 
     def do_start(self, mount):
+        if self._th and self._th.is_alive():
+            return
+
         self.mount = mount
         self._th = FileFuseThread(self._fuse, self.mount)
         self._th.start()
 
     def do_stop(self):
-        self._th.do_stop()
-        self._th.join()
+        if self._th:
+            self._th.do_stop()
+            self._th.join()
+            self._th = None
+
 
 _gfuse = None
 

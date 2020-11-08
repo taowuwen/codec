@@ -2,9 +2,7 @@
 from f_event import FGWEventFactory, FGWEvent
 from f_msg import *
 from f_fuse import f_fuse_start, f_fuse_stop
-
-class InvalidArgument(Exception):
-    pass
+from f_exception import *
 
 class FGWCommand:
     _inst = None
@@ -33,14 +31,12 @@ class FGWCommand:
     def disk_mgr(self, mgr):
         self._disk_mgr = mgr
 
-    def disk_handler(self, msg):
-        print(f'handle disk request, {msg}')
-
+    def diskmgr_handler(self, disk_type, msg):
         if msg.msg[1] not in ('start', 'stop', 'update'):
             raise InvalidArgument(f'disk invalid argument {msg.msg[1]}')
 
         if msg.msg[1] == 'start':
-            self._disk_mgr.create_hdd_disk(*msg.msg[2:])
+            self._disk_mgr.disk_create(disk_type, *msg.msg[2:])
         elif msg.msg[1] == 'stop':
             self._disk_mgr.disk_delete(*msg.msg[2:])
         else:
@@ -48,6 +44,10 @@ class FGWCommand:
 
         msg.result = (0, 'OK')
         self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
+
+    def disk_handler(self, msg):
+        print(f'handle disk request, {msg}')
+        return self.diskmgr_handler('disk', msg)
 
     def fuse_handler(self, msg):
         print(f'handle fuse request, {msg}')
@@ -68,13 +68,11 @@ class FGWCommand:
 
     def memory_handler(self, msg):
         print(f'handle memory request, {msg}')
-        msg.result = (-1, 'Failed')
-        self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
+        return self.diskmgr_handler('memory', msg)
 
     def ssd_handler(self, msg):
         print(f'handle ssd request, {msg}')
-        msg.result = (-1, 'failed')
-        self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
+        return self.diskmgr_handler('ssd', msg)
 
     def register_all(self):
         evt_handler = {

@@ -1,8 +1,6 @@
 
 import enum
-
-class EventInvalidArgument(Exception): pass
-class EventUnregisted(Exception): pass
+from f_exception import *
 
 class FGWEventFactory:
     _inst = None

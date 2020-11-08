@@ -6,12 +6,7 @@ from f_observer import FileObserveObject
 import os
 from f_event import FGWEventFactory, FGWEvent
 from f_msg import *
-
-class DiskExist(Exception): pass
-class DiskNotExist(Exception): pass
-class DiskNotSupportForNow(Exception): pass
-class DiskInvalidArgument(Exception): pass
-class DiskAlreadyStarted(Exception): pass
+from f_exception import *
 
 DiskType = enum.Enum(
     value = 'DiskType',
@@ -109,6 +104,9 @@ class Disk:
     def __str__(self):
         return f'({self._type}:>{self._root} {self._size})'
 
+    def __repr__(self):
+        return self.__str__()
+
     def create_msg(self, *args):
         return UnkownMsg(*args)
 
@@ -158,10 +156,6 @@ class DiskManager(FileObserveObject):
 
     def create_hdd_disk(self, root_dir, *args, **kwargs):
         print(f'disk create hdd disk {root_dir}, {args}, {kwargs}')
-        dev = self.find_disk(root_dir)
-        if dev:
-            raise DiskExist(f'disk: {dev} existed')
-
         dev = HDDDisk(self.mq_fgw, root_dir, *args, **kwargs)
         self.hdd.append(dev)
         self.hdd.append(dev)
@@ -173,13 +167,27 @@ class DiskManager(FileObserveObject):
         raise DiskNotSupportForNow(f'ssd not support for currently')
 
     def create_memory_disk(self, root_dir, *args, **kwargs):
+        mem = MemoryDisk(self.mq_fgw, root_dir, *args, **kwargs)
+        self.memory.append(mem)
+
+        self.notify('disk_add', 'mem', mem)
+        mem.do_start()
+
+    def disk_create(self, disk_type, root_dir, *args, **kwargs):
         dev = self.find_disk(root_dir)
         if dev:
             raise DiskExist(f'Memory disk: {dev} existed')
 
-        mem = MemoryDisk(*args, **kwargs)
-        self.memory.append(mem)
-        self.notify('disk_add', 'mem', mem)
+        create_disk = {
+            'disk': self.create_hdd_disk,
+            'ssd': self.create_ssd_disk,
+            'memory': self.create_memory_disk
+        }.get(disk_type, None)
+
+        if not create_disk:
+            raise InvalidArgument(f'Invlaid argument for disk create {disk_type}')
+
+        create_disk(root_dir, *args, **kwargs)
 
     def disk_delete(self, disk):
         dev = self.find_disk(disk)

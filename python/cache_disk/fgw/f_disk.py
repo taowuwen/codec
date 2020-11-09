@@ -158,9 +158,8 @@ class DiskManager(FileObserveObject):
         print(f'disk create hdd disk {root_dir}, {args}, {kwargs}')
         dev = HDDDisk(self.mq_fgw, root_dir, *args, **kwargs)
         self.hdd.append(dev)
-        self.hdd.append(dev)
 
-        self.notify('disk_add', 'hdd', dev)
+        self.notify('disk_add', dev)
         dev.do_start()
 
     def create_ssd_disk(self, root_dir, *args, **kwargs):
@@ -170,7 +169,7 @@ class DiskManager(FileObserveObject):
         mem = MemoryDisk(self.mq_fgw, root_dir, *args, **kwargs)
         self.memory.append(mem)
 
-        self.notify('disk_add', 'mem', mem)
+        self.notify('disk_add', mem)
         mem.do_start()
 
     def disk_create(self, disk_type, root_dir, *args, **kwargs):

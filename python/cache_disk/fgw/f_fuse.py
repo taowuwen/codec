@@ -82,7 +82,7 @@ class FileFuseMount(LoggingMixIn, Operations):
         self.do_oper('rmdir', path)
 
     def statfs(self, path):
-        return dict(f_bsize=512, f_blocks=4096, f_bavail=2048)
+        return file_system.statfs
 
     def symlink(self, target, source):
         raise FuseOSError(errno.EIO)

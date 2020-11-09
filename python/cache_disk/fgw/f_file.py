@@ -4,6 +4,8 @@ from stat import S_IFDIR, S_IFLNK, S_IFREG
 import os
 import time
 from f_observer import FileObject
+from f_exception import *
+from f_disk import DiskType
 
 FileType = enum.Enum(
     value = 'FileType',
@@ -146,9 +148,36 @@ class FileSystem(FileObject):
         self._gid = os.getgid()
         self._root = FileNodeDir('/', 0o755)
         self._root.parent = self._root
+        self._cmd_table = {}
+        self._disks = []
+
+    def update_unkown_oper(self, *args, **kwargs):
+        raise InvalidArgument(f'Invalid argument {args}, {kwargs}')
 
     def update(self, *args, **kwargs):
         print(f'file_system be updated with {args}, {kwargs}')
+
+        cmd, *_ = args
+
+        if not self._cmd_table:
+            self._cmd_table = {
+                'disk_add': self.handle_disk_add,
+                'disk_del': self.handle_disk_del,
+                'disk_upt': self.handle_disk_upt,
+            }
+
+        return self._cmd_table.get(cmd, self.update_unkown_oper)(*args[1:], **kwargs)
+
+    def handle_disk_add(self, disk):
+        if disk not in self._disks:
+            self._disks.append(disk)
+
+    def handle_disk_del(self, disk):
+        if disk in self._disks:
+            self._disks.remove(disk)
+
+    def handle_disk_upt(self, disk):
+        pass
 
     def find_file(self, path):
 
@@ -183,6 +212,33 @@ class FileSystem(FileObject):
     @property
     def root(self):
         return self._root
+
+    def disk_size(self, ty):
+
+        _total = 0
+        _used  = 0
+
+        for disk in self._disks:
+            if disk.disk_type is ty:
+                _total += disk.totalsize
+                _used  += disk.usedsize
+
+        return (_total, _used)
+
+    @property
+    def statfs(self):
+        hdd_total, hdd_used = self.disk_size(DiskType.HDD)
+        mem_total, mem_used = self.disk_size(DiskType.MEMORY)
+        ssd_total, ssd_used = self.disk_size(DiskType.SSD)
+
+        return dict(
+                f_type=0x65735546,
+                f_bsize=512,
+                f_blocks=hdd_total>>9, 
+                f_bavail=(hdd_total - hdd_used) >>9,
+                f_bfree=(hdd_total - hdd_used) >>9,
+                )
+
 
 file_system = FileSystem()
 

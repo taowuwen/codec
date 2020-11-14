@@ -4,7 +4,7 @@ from threading import Semaphore
 
 FGWModule = enum.Enum(
     value = 'FGWModule',
-    names = 'tool fuse hdd ssd mmd fw unkown'
+    names = 'tool fuse hdd ssd memory fw unkown'
 )
 
 class f_msg:
@@ -83,7 +83,7 @@ class SSDMsg(f_msg):
     _type = FGWModule.ssd
 
 class MMDMsg(f_msg):
-    _type = FGWModule.mmd
+    _type = FGWModule.memory
 
 class FWMsg(f_msg):
     _type = FGWModule.fw

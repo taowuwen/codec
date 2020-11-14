@@ -3,30 +3,39 @@ import os
 from f_event import FGWEventFactory, FGWEvent
 from f_file import file_system
 
-def file_refresh_file_stat(msg):
-    print(f'file_refresh_file_stat; msg: {msg}')
-    disk, _fl, stat = msg.msg
+class FileStatRefresh:
 
-    fn = file_system.find_file(_fl)
-    if not fn:
-        fn = file_system.create(_fl)
+    def __init__(self, name = 'file_refresh_stat', mkdir=0):
 
-    fn.stat = stat
-    if disk not in fn.ext['hdd']:
-        fn.ext['hdd'].append(disk)
+        self._name = name
+        self._make = file_system.mkdir if mkdir else file_system.create
 
-def file_refresh_dir_stat(msg):
-    print(f'file_refresh_dir_stat, msg: {msg}')
-    disk, _dir, stat = msg.msg
-    fn = file_system.find_file(_dir)
-    if not fn:
-        fn = file_system.mkdir(_dir)
+    def __str__(self):
+        return self._name
 
-    fn.stat = stat
+    def __repr__(self):
+        return str(self)
 
-    if disk not in fn.ext['hdd']:
-        fn.ext['hdd'].append(disk)
+    def __call__(self, msg):
 
+        print(f'{self}, msg: {msg}')
+        disk, _fl, stat = msg.msg
+
+        fn = file_system.find_file(_fl)
+        if not fn:
+            fn = self._make(_fl)
+
+        fn.stat = stat
+
+        if disk != fn.ext[msg.type.name]:
+
+            if fn.ext[msg.type.name]:
+                print(f'Warnning: {self} may exist')
+
+            fn.ext[msg.type.name] = disk
+
+file_refresh_file_stat = FileStatRefresh('file_refresh_file_stat')
+file_refresh_dir_stat  = FileStatRefresh('file_refresh_dir_stat', 1)
 
 def file_oper_register_all_event():
 

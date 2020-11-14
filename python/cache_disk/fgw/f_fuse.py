@@ -20,7 +20,7 @@ class FileFuseMount(LoggingMixIn, Operations):
 
     def do_file_oper(self, evt, fl, *args):
 
-        msg = FuseMsg(fl, args)
+        msg = FuseMsg(fl, *args)
         _evt = FGWEvent(evt, msg)
         self._mq.put_msg(_evt)
 

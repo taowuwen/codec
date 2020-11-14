@@ -134,7 +134,7 @@ class MemoryDisk(Disk):
     _type = DiskType.MEMORY
 
     def create_msg(self, *args):
-        return MMDMsg(*aargs)
+        return MMDMsg(*args)
 
 
 class DiskManager(FileObserveObject):

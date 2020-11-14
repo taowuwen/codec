@@ -36,9 +36,9 @@ class FileNode:
             4. fd, current open flag handle
         '''
         self._ext  = dict(
-            hdd = [],
-            ssd = [],
-            memory = [],
+            hdd = None,
+            ssd = None,
+            memory = None,
         )
 
         self._stat = dict(

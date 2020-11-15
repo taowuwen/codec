@@ -41,7 +41,7 @@ class FileFuseMount(LoggingMixIn, Operations):
 
         fl = file_system.create(path, mode)
         self.do_file_oper('create', fl, mode)
-        return fl.fd
+        return fl
 
     def getattr(self, path, fh=None):
         try:

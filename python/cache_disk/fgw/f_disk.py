@@ -31,12 +31,11 @@ class DiskThread(threading.Thread):
         while self.running:
             evt = self.disk.get_evt()
             try:
-                evt.proc()
+                evt.proc(self.disk)
             except Exception as e:
-                print(f'Exception on handle {evt}, {e}')
+                print(f'DISK: Exception({self.disk}) handle evt: {evt} --> Exceptin is {e}')
                 evt.msg.result = (-1, f'{e}')
-                self.disk.queue.put_msg(FGWEvent('DiskRsp', evt.msg))
-
+                self.disk.send_rsp_msg(msg)
 
 class Disk:
     def __init__(self, mq_fgw, root_dir=None, size=0, *kargs, **kwargs):
@@ -69,6 +68,10 @@ class Disk:
     @property
     def queue(self):
         return self._mq_fgw
+
+    @property
+    def msg_queue(self):
+        return self._mq
 
     @property
     def totalsize(self):
@@ -116,6 +119,31 @@ class Disk:
 
     def fuse2phy(self, path):
         return self._root + path
+
+    def send_rsp_msg(self, msg):
+        print(f'{self}, build response msg for event: {msg.event} on {msg}')
+        self.queue.put_msg(FGWEvent(f'rsp_{msg.event}', msg))
+
+    def mkdir(self, msg):
+
+        fn, mode = msg.msg
+
+        fl = self.fuse2phy(fn.abs_path)
+
+        print(f'{self} handle mkdir for {msg.msg} {fl} {oct(mode)}')
+
+        try:
+            os.mkdir(fl, mode)
+            msg.result = (0, os.stat(fl))
+        except Exception as e:
+            msg.result = (-1, f'failed on {fl} {mode}')
+        finally:
+            self.send_rsp_msg(msg)
+
+    def open(self, msg):
+        print(f'{self} handle open for {msg.msg}')
+        msg.result = (-1, f'failed')
+        self.send_rsp_msg(msg)
 
 class HDDDisk(Disk):
     _type = DiskType.HDD

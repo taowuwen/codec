@@ -2,6 +2,7 @@ from f_event import FGWEventFactory, FGWEvent
 from f_observer import FileObserver
 from f_exception import *
 from f_disk import DiskType
+from cache_disk import fuse_evts
 
 class FileRouter(FileObserver):
     '''
@@ -17,10 +18,42 @@ class FileRouter(FileObserver):
         self.mq_fgw = queue
         super().__init__()
         self.reg_fuse_evt()
+        self.reg_disk_evt()
+
         self._cmd_table = {}
         self._hdd_disks = []
         self._mem_disks = []
         self._ssd_disks = []
+
+        self._current_memory = 0
+        self._current_hdd    = 0
+        self._current_ssd    = 0
+
+    def _find_memory_node(self):
+        if len(self._mem_disks) > 0:
+            ret = self._mem_disks[self._current_memory]
+            self._current_memory = (self._current_memory + 1) % len(self._mem_disks)
+            return ret
+
+        else:
+            return None
+
+    def _find_disk_node(self):
+        if len(self._hdd_disks) > 0:
+            ret = self._hdd_disks[self._current_hdd]
+            self._current_hdd = (self._current_hdd + 1) % len(self._hdd_disks)
+            return ret
+        else:
+            return None
+
+    def _find_ssd_node(self):
+        if len(self._ssd_disks) > 0:
+            ret = self._ssd_disks[self._current_ssd]
+            self._current_ssd = (self._current_ssd + 1) % len(self._current_ssd)
+            return ret
+        else:
+            return None
+
 
     def update_unkown(self, *args, **kwargs):
         raise InvalidArgument(f'FR: invalid argument, {args} {kwargs}')
@@ -59,6 +92,11 @@ class FileRouter(FileObserver):
         if disk in dt:
             dt.remove(disk)
 
+        # reset disk current pos
+        self._current_memory = 0
+        self._current_hdd    = 0
+        self._current_ssd    = 0
+
     def handle_disk_upt(self, disk):
         pass
         
@@ -67,12 +105,7 @@ class FileRouter(FileObserver):
             FGWEventFactory().register(evt, method)
          
     def reg_fuse_evt(self):
-        evts = (
-            'chmod', 'chown', 'create', 'mkdir', 'open',
-            'read', 'rename', 'rmdir', 'symlink', 'readlink',
-            'truncate', 'unlink', 'utimens', 'write'
-        )
-        self.reg_events(evts, self.handle_fuse_evt)
+        self.reg_events(fuse_evts, self.handle_fuse_evt)
 
     def handle_fuse_evt(self, msg):
         '''
@@ -96,37 +129,83 @@ class FileRouter(FileObserver):
         if any(fn.ext.values()):
             # file/dir exist
             if msg.event in ('read'):
-
-                # check file read from? from disk? send msg to disk from ssd? send msg to ssd, from memory? send msg to memory
-                # need sync? do sync from disk
-
-                # handle memory
-                # handle ssd
-                # handle disk
+                for key in ('memory', 'ssd', 'hdd'):
+                    tgt = fn.ext[key]
+                    if fn.file_desc[key] and tgt:
+                        tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{msg.event}', msg))
+                        return
+                else:
+                    assert False, f'should never show up this line for: {msg.event}'
+                    raise InvalidArgument(f'{msg.event}, invalid')
             else:
                 for tgt in fn.ext.values():
                     if tgt:
-                        tgt.put_msg(FGWEvent(f'{tgt.disk_type.name}_{msg.event}', msg))
+                        tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{msg.event}', msg))
 
         else:
-            # file/dir not exist
-            pass
+            if msg.event not in ('open', 'mkdir', 'create'):
+                msg.release()
+                raise InvalidArgument(f'invalid request event: {msg.event}') 
+            else:
 
+                # find a memory
+                fn.ext['memory'] = self._find_memory_node()
+                # find a ssd
+                fn.ext['ssd']    = self._find_ssd_node()
+                # find a disk
+                fn.ext['disk']   = self._find_disk_node()
 
-
-        msg.release()
+                if any(fn.ext.values()):
+                    for tgt in fn.ext.values():
+                        if tgt:
+                            tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{msg.event}', msg))
+                else:
+                    msg.release()
+                    raise DiskNotAvaliable(f'There is no disk available for now {msg.event}')
 
     def reg_disk_evt(self):
-        pass
 
-    def handle_disk_evt(self, msg):
+        # hdd
+        evts = [f'rsp_{DiskType.HDD.name}_{evt}' for evt in fuse_evts ]
+        self.reg_events(evts, self.handle_hdd_evt)
+
+        # memory
+        evts = [f'rsp_{DiskType.MEMORY.name}_{evt}' for evt in fuse_evts ]
+        self.reg_events(evts, self.handle_memory_evt)
+
+        # ssd
+        evts = [f'rsp_{DiskType.SSD.name}_{evt}' for evt in fuse_evts ]
+        self.reg_events(evts, self.handle_ssd_evt)
+
+    def handle_disk_evt(self, evt, msg):
         '''
             read from disk
         '''
-        pass
+        print(f'[FR]handle event {msg.event}, --> {evt}, {msg}') 
 
-    def reg_memory_evt(self):
-        pass
+        if evt in fuse_evts:
+            st, stat = msg.result
+            fn = msg.msg[0]
+            if st == 0:
+                fn.stat = stat
+            else:
+                if evt in ('open', 'create', 'mkdir'):
+                    assert str(fn) != '/', 'never show up this line'
+                    if str(fn) in self.parent.files:
+                        # here should call parent do delete file and send msg for all disks to unlink this file.
+                        # should identify action; create? or open. sometimes there's no create, just open
+                        # here, we need to handle  and create FGW message. do a notify to all relative disks.
+                        fn.parent.pop(str(fn))
+            msg.release()
+
+    def handle_hdd_evt(self, msg):
+        return self.handle_disk_evt(msg.event.lstrip('rsp_HDD_'), msg)
 
     def handle_memory_evt(self, msg):
-        pass
+        return self.handle_disk_evt(msg.event.lstrip('rsp_MEMORY_'), msg)
+
+    def handle_ssd_evt(self, msg):
+        return self.handle_disk_evt(msg.event.lstrip('rsp_SSD_'), msg)
+
+
+

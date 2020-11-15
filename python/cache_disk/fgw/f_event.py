@@ -29,6 +29,10 @@ class FGWEventFactory:
         print(f'Error, did not register handler for event: {msg.event}, msg: {msg}')
         raise EventUnregisted(f'event {msg.event} unregisted yet')
 
+    def show_all(self):
+        for evt,cb in self._evt_cb.items():
+            print(f'{evt:>20} = {cb}')
+
 fgwevent_factory = FGWEventFactory()
 
 class FGWEvent:
@@ -47,9 +51,9 @@ class FGWEvent:
     def msg(self):
         return self._msg
 
-    def proc(self):
+    def proc(self, *args, **kwargs):
         self._msg.event = self._evt
-        self._proc(self._msg)
+        self._proc(self._msg, *args, **kwargs)
 
     def __str__(self):
         return f'<{self._evt}: {self._proc}>'

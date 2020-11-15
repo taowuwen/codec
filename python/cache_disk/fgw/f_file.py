@@ -26,19 +26,29 @@ class FileNode:
     def __init__(self, name, mode):
         self._name = name
         self._parent = None
-        self.fd = None,
 
         '''
             file extension infomartions:
             1. file on disk(which disk)
             2. file on memory(which memory)
             3. file on cache(which cache)
-            4. fd, current open flag handle
         '''
         self._ext  = dict(
             hdd = None,
             ssd = None,
             memory = None,
+        )
+
+        self._fd = dict(
+            hdd = None,
+            ssd = None,
+            memory = None,
+        )
+
+        self._info = dict(
+            hdd    = dict(status = 0, sync = 0),
+            ssd    = dict(status = 0, sync = 0),
+            memory = dict(status = 0, sync = 0)
         )
 
         self._stat = dict(
@@ -51,6 +61,14 @@ class FileNode:
             st_uid   = os.getuid(),
             st_gid   = os.getgid(),
         )
+
+    @property
+    def info(self):
+        return self._info
+
+    @property
+    def file_desc(self):
+        return self._fd
 
     def __str__(self):
         return f'{self._name}'
@@ -93,6 +111,18 @@ class FileNode:
     def is_file(self):
         return False
 
+    @property
+    def abs_path(self):
+
+        _p = str(self)
+
+        parent = self._parent
+        while parent != parent.parent:
+            _p = f'{str(parent)}/{_p}'
+            parent = parent.parent
+
+        return '/' + _p
+
     is_dir = is_file
     is_link = is_file
 
@@ -123,6 +153,9 @@ class FileNodeDir(FileNode):
 
     def is_dir(self):
         return True
+
+    def pop(self, fl):
+        return self._files.pop(fl)
 
 class FileNodeLink(FileNode):
     _type = FileType.LINK

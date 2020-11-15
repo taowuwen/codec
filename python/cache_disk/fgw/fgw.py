@@ -17,11 +17,11 @@ class FGW:
             try:
                 evt.proc()
             except Exception as e:
-                print(f'Exception on handle {evt}, {e}')
+                print(f'[FGW] Exception on handle {evt}, {e}')
                 if isinstance(evt.msg, FuseMsg):
                     evt.msg.release()
                 elif isinstance(evt.msg, CommandMsg):
-                    evt.msg.result = (-1, f'Exceptoin on handle {evt}, {e}')
+                    evt.msg.result = (-1, f'[FGW]Exceptoin on handle {evt}, {e}')
                     self._queue.put_msg(FGWEvent('CmdRsp', evt.msg))
 
 

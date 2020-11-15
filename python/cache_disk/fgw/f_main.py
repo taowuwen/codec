@@ -42,6 +42,7 @@ def main():
     fr.subscribe(diskmgr)
     file_system.subscribe(diskmgr)
 
+    FGWEventFactory().show_all()
     FGW(queue).run()
 
 if __name__ == '__main__':

@@ -27,12 +27,8 @@ class FileStatRefresh:
 
         fn.stat = stat
 
-        if disk != fn.ext[msg.type.name]:
-
-            if fn.ext[msg.type.name]:
-                print(f'Warnning: {self} may exist')
-
-            fn.ext[msg.type.name] = disk
+        if disk not in fn.ext[msg.type.name]:
+            fn.ext[msg.type.name].append(disk)
 
 file_refresh_file_stat = FileStatRefresh('file_refresh_file_stat')
 file_refresh_dir_stat  = FileStatRefresh('file_refresh_dir_stat', 1)

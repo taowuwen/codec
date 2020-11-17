@@ -34,21 +34,15 @@ class FileNode:
             3. file on cache(which cache)
         '''
         self._ext  = dict(
-            hdd = None,
-            ssd = None,
-            memory = None,
-        )
-
-        self._fd = dict(
-            hdd = None,
-            ssd = None,
-            memory = None,
+            hdd = [],
+            ssd = [],
+            memory = [],
         )
 
         self._info = dict(
-            hdd    = dict(status = 0, sync = 0),
-            ssd    = dict(status = 0, sync = 0),
-            memory = dict(status = 0, sync = 0)
+            hdd    = dict(status = 0, sync = 0, fd = None, disk = None),
+            ssd    = dict(status = 0, sync = 0, fd = None, disk = None),
+            memory = dict(status = 0, sync = 0, fd = None, disk = None)
         )
 
         self._stat = dict(
@@ -65,10 +59,6 @@ class FileNode:
     @property
     def info(self):
         return self._info
-
-    @property
-    def file_desc(self):
-        return self._fd
 
     def __str__(self):
         return f'{self._name}'

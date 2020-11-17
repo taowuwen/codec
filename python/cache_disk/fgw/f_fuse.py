@@ -55,7 +55,7 @@ class FileFuseMount(LoggingMixIn, Operations):
 
     def open(self, path, flags):
         fl = file_system.find_file(path)
-        self.do_file_oper('open', flags)
+        self.do_file_oper('open', fl, flags)
         return fl
 
     def read(self, path, size, offset, fh):

@@ -25,8 +25,8 @@ class FGWEventFactory:
     def get_proc(self, key):
         return self._evt_cb.get(key, self.unknown_evt)
 
-    def unknown_evt(self, msg):
-        print(f'Error, did not register handler for event: {msg.event}, msg: {msg}')
+    def unknown_evt(self, msg, *args, **kwargs):
+        print(f'Error, did not register handler for event: {msg.event}, msg: {msg} {args} ,{kwargs}')
         raise EventUnregisted(f'event {msg.event} unregisted yet')
 
     def show_all(self):

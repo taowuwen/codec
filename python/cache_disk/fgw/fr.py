@@ -3,6 +3,7 @@ from f_observer import FileObserver
 from f_exception import *
 from f_disk import DiskType
 from cache_disk import fuse_evts
+from f_msg import *
 
 class FileRouter(FileObserver):
     '''
@@ -123,45 +124,72 @@ class FileRouter(FileObserver):
                 4. file write? ---> (mirror oper)
         '''
         print(f'handle fuse msg: {msg.event}: {msg}')
+        oper_event = msg.event
 
         fn = msg.msg[0]
 
         if any(fn.ext.values()):
             # file/dir exist
-            if msg.event in ('read'):
+            if oper_event in ('read'):
                 for key in ('memory', 'ssd', 'hdd'):
-                    tgt = fn.ext[key]
-                    if fn.file_desc[key] and tgt:
-                        tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{msg.event}', msg))
-                        return
-                else:
-                    assert False, f'should never show up this line for: {msg.event}'
-                    raise InvalidArgument(f'{msg.event}, invalid')
-            else:
-                for tgt in fn.ext.values():
+                    tgt = fn.info[key][disk]
                     if tgt:
-                        tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{msg.event}', msg))
+                        tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{oper_event}', msg))
+                        break
+                else:
+                    assert False, f'should never show up this line for: {oper_event}'
+                    raise InvalidArgument(f'{oper_event}, invalid')
+            else:
+
+                # total msgs that gonna send
+                total = sum([ len(tgt) for tgt in fn.ext.values() ])
+                print(f'[FR] there are {total} msgs gonna be sent out for {fn.abs_path}')
+
+                # build msgs 
+                msgs = [ FWMsg(*msg.msg)  for a in range(total -1)]
+                msgs.insert(0, msg)
+
+                for key in ('memory', 'ssd', 'hdd'):
+                    for tgt in fn.ext[key]:
+                        if tgt:
+                            print(f'[FR] current send msg to: {tgt}')
+                            tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{oper_event}', msgs.pop(0)))
 
         else:
-            if msg.event not in ('open', 'mkdir', 'create'):
+            if oper_event not in ('open', 'mkdir', 'create'):
                 msg.release()
-                raise InvalidArgument(f'invalid request event: {msg.event}') 
+                raise InvalidArgument(f'invalid request event: {oper_event}') 
             else:
 
-                # find a memory
-                fn.ext['memory'] = self._find_memory_node()
-                # find a ssd
-                fn.ext['ssd']    = self._find_ssd_node()
-                # find a disk
-                fn.ext['disk']   = self._find_disk_node()
+                _node = self._find_memory_node()
+                if _node:
+                    fn.ext['memory'].append(_node)
+
+                _node = self._find_ssd_node()
+                if _node:
+                    fn.ext['ssd'].append(_node)
+
+                _node = self._find_disk_node()
+                if _node:
+                    fn.ext['hdd'].append(_node)
+
+                # total msgs that gonna send
+                total = sum([ len(tgt) for tgt in fn.ext.values() ])
+                print(f'[FR] there are {total} msgs gonna be sent out for {fn.abs_path}')
+
+                # build msgs 
+                msgs = [ FWMsg(*msg.msg)  for a in range(total -1)]
+                msgs.insert(0, msg)
 
                 if any(fn.ext.values()):
-                    for tgt in fn.ext.values():
-                        if tgt:
-                            tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{msg.event}', msg))
+                    for key in ('memory', 'ssd', 'hdd'):
+                        for tgt in fn.ext[key]:
+                            if tgt:
+                                print(f'[FR] current send msg to: {tgt}')
+                                tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{oper_event}', msgs.pop(0)))
                 else:
                     msg.release()
-                    raise DiskNotAvaliable(f'There is no disk available for now {msg.event}')
+                    raise DiskNotAvaliable(f'There is no disk available for now {oper_event}')
 
     def reg_disk_evt(self):
 
@@ -191,11 +219,11 @@ class FileRouter(FileObserver):
             else:
                 if evt in ('open', 'create', 'mkdir'):
                     assert str(fn) != '/', 'never show up this line'
-                    if str(fn) in self.parent.files:
+                    if str(fn) in fn.parent.files:
                         # here should call parent do delete file and send msg for all disks to unlink this file.
                         # should identify action; create? or open. sometimes there's no create, just open
                         # here, we need to handle  and create FGW message. do a notify to all relative disks.
-                        fn.parent.pop(str(fn))
+                        print(f'do delete file {fn} {fn.abs_path}')
             msg.release()
 
     def handle_hdd_evt(self, msg):

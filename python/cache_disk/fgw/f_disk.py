@@ -124,24 +124,12 @@ class Disk:
         print(f'{self}, build response msg for event: {msg.event} on {msg}')
         self.queue.put_msg(FGWEvent(f'rsp_{msg.event}', msg))
 
-    def mkdir(self, msg):
+    def mkdir(self, msg, fl, mode):
+        printf(f'{self} mkdir {msg}, {fl} {oct(mode}')
+        os.mkdir(fl, mode)
 
-        fn, mode = msg.msg
-
-        fl = self.fuse2phy(fn.abs_path)
-
-        print(f'{self} handle mkdir for {msg.msg} {fl} {oct(mode)}')
-
-        try:
-            os.mkdir(fl, mode)
-            msg.result = (0, os.stat(fl))
-        except Exception as e:
-            msg.result = (-1, f'failed on {fl} {mode}')
-        finally:
-            self.send_rsp_msg(msg)
-
-    def open(self, msg):
-        print(f'{self} handle open for {msg.msg}')
+    def open(self, msg, fl, flags):
+        printf(f'{self} open {msg}, {fl} {oct(flags}')
         msg.result = (-1, f'failed')
         self.send_rsp_msg(msg)
 

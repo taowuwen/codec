@@ -26,7 +26,13 @@ class FileFuseMount(LoggingMixIn, Operations):
 
         print(f'file oper: {evt}, event: {_evt}, file: {fl}, args: {args}, msg: {msg}')
 
-        return msg.wait()
+        msg.wait()
+
+        ret, msg = msg.result
+        if ret != 0:
+            raise FuseOSError(errno.EIO)
+
+        return msg
 
     def do_oper(self, evt, path, *args):
         return self.do_file_oper(evt, file_system.find_file(path), *args)
@@ -39,7 +45,7 @@ class FileFuseMount(LoggingMixIn, Operations):
 
     def create(self, path, mode):
 
-        fl = file_system.create(path, mode)
+        fl = file_system.tmpfile(path, mode)
         self.do_file_oper('create', fl, mode)
         return fl
 
@@ -55,15 +61,17 @@ class FileFuseMount(LoggingMixIn, Operations):
 
     def open(self, path, flags):
         fl = file_system.find_file(path)
+        if not fl:
+            fl = file_system.tmpfile(path, flags)
+
         self.do_file_oper('open', fl, flags)
-        return fl
+        return fl.fd
 
     def read(self, path, size, offset, fh):
         print('read: {}'.format(fh))
 
         fl = file_system.find_file(path)
-        self.do_file_oper('read', fl, size, offset, fh)
-
+        return self.do_file_oper('read', fl, size, offset, fh)
 
     def readdir(self, path, fh):
         fl = file_system.find_file(path)
@@ -89,7 +97,7 @@ class FileFuseMount(LoggingMixIn, Operations):
         self.do_oper('symlink', target, source)
 
     def truncate(self, path, length, fh=None):
-        return self.do_oper('truncate', path, length, fh)
+        self.do_oper('truncate', path, length, fh)
 
     def unlink(self, path):
         return self.do_oper('unlink', path)
@@ -103,6 +111,9 @@ class FileFuseMount(LoggingMixIn, Operations):
 
     def write(self, path, data, offset, fh):
         return self.do_oper('write', path, data, offset, fh)
+
+    def release(self, path, fip):
+        return self.do_oper('release', path, fip)
 
 class FileFuseThread(threading.Thread):
 

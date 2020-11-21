@@ -5,7 +5,7 @@ import os
 import time
 from f_observer import FileObject
 from f_exception import *
-from f_disk import DiskType
+from cache_disk import *
 
 FileType = enum.Enum(
     value = 'FileType',
@@ -23,8 +23,9 @@ class FileNode:
         }
         return (mode | _m_table.get(self._type))
 
-    def __init__(self, name, mode):
-        self._name = name
+    def __init__(self, path, mode):
+        self._name = os.path.basename(path)
+        self._path = path
         self._parent = None
 
         '''
@@ -60,8 +61,17 @@ class FileNode:
     def info(self):
         return self._info
 
+    @property
+    def fd(self):
+        for key in ('memory', 'ssd', 'hdd'):
+            if self._info[key]['status'] is FileStatus.opened:
+                assert self._info[key]['fd'] != None, 'never show up this line'
+                return self._info[key]['fd']
+
+        return -1
+
     def __str__(self):
-        return f'{self._name}'
+        return f'{self._path}'
 
     def __repr__(self):
         return f'{self.__class__.__name__}({str(self)})'
@@ -103,15 +113,9 @@ class FileNode:
 
     @property
     def abs_path(self):
+        return self._path
 
-        _p = str(self)
-
-        parent = self._parent
-        while parent != parent.parent:
-            _p = f'{str(parent)}/{_p}'
-            parent = parent.parent
-
-        return '/' + _p
+    path = abs_path
 
     is_dir = is_file
     is_link = is_file
@@ -220,17 +224,23 @@ class FileSystem(FileObject):
 
         return cur_node
 
-    def _do_create(self, path, _fl):
-        _dir = self.find_file(os.path.dirname(path))
-        _dir.add_file(_fl)
-        _fl.parent = _dir
-        return _fl
+    def insert(self, fn):
+        _dir = self.find_file(os.path.dirname(fn.abs_path))
+        _dir.add_file(fn)
+        fn.parent = _dir
+        return fn
 
     def create(self, path, mode=0o755):
-        return self._do_create(path, FileNodeFile(os.path.basename(path), mode))
+        return self.insert(FileNodeFile(path, mode))
 
     def mkdir(self, path, mode=0o755):
-        return self._do_create(path ,FileNodeDir(os.path.basename(path), mode))
+        return self.insert(FileNodeDir(path, mode))
+
+    def tmpfile(self, path, mode):
+        return FileNodeFile(path, mode)
+
+    def tmpdir(self, path, mode):
+        return FileNodeDir(path, mode)
 
     @property
     def root(self):
@@ -255,11 +265,11 @@ class FileSystem(FileObject):
         ssd_total, ssd_used = self.disk_size(DiskType.SSD)
 
         return dict(
-                f_type=0x65735546,
-                f_bsize=512,
-                f_blocks=hdd_total>>9, 
-                f_bavail=(hdd_total - hdd_used) >>9,
-                f_bfree=(hdd_total - hdd_used) >>9,
+                    f_type=0x65735546,
+                    f_bsize=512,
+                    f_blocks=hdd_total>>9, 
+                    f_bavail=(hdd_total - hdd_used) >>9,
+                    f_bfree=(hdd_total - hdd_used) >>9,
                 )
 
 

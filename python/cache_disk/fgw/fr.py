@@ -1,9 +1,10 @@
 from f_event import FGWEventFactory, FGWEvent
 from f_observer import FileObserver
 from f_exception import *
-from f_disk import DiskType
+from cache_disk import DiskType
 from cache_disk import fuse_evts
 from f_msg import *
+from f_file import file_system
 
 class FileRouter(FileObserver):
     '''
@@ -132,7 +133,7 @@ class FileRouter(FileObserver):
             # file/dir exist
             if oper_event in ('read'):
                 for key in ('memory', 'ssd', 'hdd'):
-                    tgt = fn.info[key][disk]
+                    tgt = fn.info[key]['disk']
                     if tgt:
                         tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{oper_event}', msg))
                         break
@@ -216,24 +217,31 @@ class FileRouter(FileObserver):
             fn = msg.msg[0]
             if st == 0:
                 fn.stat = stat
+                if evt in ('open', 'create', 'mkdir') and not fn.parent:
+                    '''
+                        insert file node into file_system
+                    '''
+                    file_system.insert(fn)
             else:
-                if evt in ('open', 'create', 'mkdir'):
-                    assert str(fn) != '/', 'never show up this line'
-                    if str(fn) in fn.parent.files:
-                        # here should call parent do delete file and send msg for all disks to unlink this file.
-                        # should identify action; create? or open. sometimes there's no create, just open
-                        # here, we need to handle  and create FGW message. do a notify to all relative disks.
-                        print(f'do delete file {fn} {fn.abs_path}')
+                '''
+                    maybe report file system error here?
+                '''
+                pass
+
+            print(f'[FR]handle event {msg.event}, --> {evt}, {msg}, do release') 
             msg.release()
 
     def handle_hdd_evt(self, msg):
-        return self.handle_disk_evt(msg.event.lstrip('rsp_HDD_'), msg)
+        # len('rsp_HDD_') == 8
+        return self.handle_disk_evt(msg.event[8:], msg)
 
     def handle_memory_evt(self, msg):
-        return self.handle_disk_evt(msg.event.lstrip('rsp_MEMORY_'), msg)
+        # len('rsp_MEMORY_') ==  11
+        return self.handle_disk_evt(msg.event[11:], msg)
 
     def handle_ssd_evt(self, msg):
-        return self.handle_disk_evt(msg.event.lstrip('rsp_SSD_'), msg)
+        # len('rsp_SSD_') == 8
+        return self.handle_disk_evt(msg.event[8:], msg)
 
 
 

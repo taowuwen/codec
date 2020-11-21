@@ -2,8 +2,7 @@
 import glob
 import os
 from f_event import FGWEventFactory, FGWEvent
-from f_disk import DiskType
-from cache_disk import fuse_evts
+from cache_disk import *
 
 def scan_path(disk, path = None):
     if not path:
@@ -24,7 +23,7 @@ def disk_scan(msg, *args, **kwargs):
 def disk_oper(msg, *args, **kwargs):
     disk, *_ = args
 
-    attr = msg.event.lstrip(f'{disk.disk_type.name}_')
+    attr = msg.event[len(disk.disk_type.name) + 1:]
     print(f'{msg.event}, {disk.disk_type.name}: {disk}->{attr}  handle msg {msg} ')
 
     fn = msg.msg[0]
@@ -38,7 +37,7 @@ def disk_oper(msg, *args, **kwargs):
         else:
             msg.result = (0, ret)
     except Exception as e:
-        msg.result = (-1, f'failed on {fl} {msg}')
+        msg.result = (-1, f'failed on {fl} {msg} {e} {type(e)}')
     finally:
         disk.send_rsp_msg(msg)
 

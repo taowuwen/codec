@@ -7,16 +7,7 @@ import os
 from f_event import FGWEventFactory, FGWEvent
 from f_msg import *
 from f_exception import *
-
-DiskType = enum.Enum(
-    value = 'DiskType',
-    names = 'HDD SSD MEMORY'
-)
-
-DiskStatus = enum.Enum(
-    value = 'DiskStatus',
-    names = 'INIT SCANNING RUNING STOPPED ERROR'
-)
+from cache_disk import *
 
 class DiskThread(threading.Thread):
 
@@ -121,17 +112,52 @@ class Disk:
         return self._root + path
 
     def send_rsp_msg(self, msg):
-        print(f'{self}, build response msg for event: {msg.event} on {msg}')
+        print(f'{self}, build response msg for event: {msg.event} on {msg}, {msg.result}')
         self.queue.put_msg(FGWEvent(f'rsp_{msg.event}', msg))
 
     def mkdir(self, msg, fl, mode):
-        printf(f'{self} mkdir {msg}, {fl} {oct(mode}')
+        print(f'{self} mkdir {msg}, {fl} {oct(mode)}')
         os.mkdir(fl, mode)
 
     def open(self, msg, fl, flags):
-        printf(f'{self} open {msg}, {fl} {oct(flags}')
-        msg.result = (-1, f'failed')
-        self.send_rsp_msg(msg)
+        print(f'{self} open {msg}, {fl} {oct(flags)}')
+        fn = msg.msg[0]
+        fd = os.open(fl, flags)
+        _info = fn.info[self.disk_type.name.lower()]
+
+        print(f'{self} open {msg}, {fl} {oct(flags)} {_info}')
+
+        _info['fd'] = fd
+        _info['status'] = FileStatus.opened
+        _info['disk'] = self
+        _info['sync'] = 0
+
+    def truncate(self, msg, fl, length, fh):
+        print(f'{self} truncate {msg}, {fl} {length}')
+        return os.truncate(fl, length)
+
+    def write(self, msg, fl, data, offset, fh):
+
+        print(f'{self} write {msg}, {fl} {offset} {fh}')
+        os.lseek(fh, offset, os.SEEK_SET)
+        return os.write(fh, data)
+
+    def read(self, msg, fl, size, offset, fh):
+        print(f'{self} read {msg}, {fl} {offset} {fh}')
+        os.lseek(fh, offset, os.SEEK_SET)
+        return os.read(fh, size)
+
+    def release(self, msg, fl, fip):
+        print(f'{self} close {msg}, {fl} {fip}')
+        os.close(fip)
+
+        fn = msg.msg[0]
+        _info = fn.info[self.disk_type.name.lower()]
+        _info['fd'] = 0
+        _info['status'] = FileStatus.closed
+        _info['disk'] = None
+        _info['sync'] = 0
+        return 0
 
 class HDDDisk(Disk):
     _type = DiskType.HDD

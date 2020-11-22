@@ -4,6 +4,18 @@ import os
 from f_event import FGWEventFactory, FGWEvent
 from cache_disk import *
 
+def disk_mkdir_p(disk, path):
+    if not path:
+        return
+
+    try:
+        os.mkdir(path)
+    except FileNotFoundError:
+        disk_mkdir_p(disk, os.path.dirname(path))
+        os.mkdir(path)
+    else:
+        disk.queue.put_msg(FGWEvent('refresh_dir_stat', disk.create_msg(disk, disk.phy2fuse(path), os.stat(path))))
+
 def scan_path(disk, path = None):
     if not path:
         return

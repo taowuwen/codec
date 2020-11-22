@@ -8,6 +8,7 @@ from f_event import FGWEventFactory, FGWEvent
 from f_msg import *
 from f_exception import *
 from cache_disk import *
+from f_disk_oper import disk_mkdir_p
 
 class DiskThread(threading.Thread):
 
@@ -116,43 +117,61 @@ class Disk:
         self.queue.put_msg(FGWEvent(f'rsp_{msg.event}', msg))
 
     def mkdir(self, msg, fl, mode):
-        print(f'{self} mkdir {msg}, {fl} {oct(mode)}')
         os.mkdir(fl, mode)
 
-    def open(self, msg, fl, flags):
-        print(f'{self} open {msg}, {fl} {oct(flags)}')
+    def create_or_open(self, msg, fl, flags, mode=511):
         fn = msg.msg[0]
-        fd = os.open(fl, flags)
-        _info = fn.info[self.disk_type.name.lower()]
 
-        print(f'{self} open {msg}, {fl} {oct(flags)} {_info}')
+        try:
+            fd = os.open(fl, flags, mode)
+        except FileNotFoundError:
+            print(f'file not found, do mkdir for {fl}')
+            disk_mkdir_p(self, os.path.dirname(fl))
+            fd = os.open(fl, flags, mode)
+
+        _info = fn.info[self.disk_type.name.lower()]
 
         _info['fd'] = fd
         _info['status'] = FileStatus.opened
         _info['disk'] = self
         _info['sync'] = 0
 
+
+    def open(self, msg, fl, flags):
+        return self.create_or_open(msg, fl, flags)
+
+    def create(self, msg, fl, mode):
+        return self.create_or_open(msg, fl, os.O_RDWR|os.O_CREAT , mode)
+
+    def refresh_fd(self, msg):
+        fn = msg.msg[0]
+        _info = fn.info[self.disk_type.name.lower()]
+        return _info['fd']
+
     def truncate(self, msg, fl, length, fh):
-        print(f'{self} truncate {msg}, {fl} {length}')
         return os.truncate(fl, length)
 
     def write(self, msg, fl, data, offset, fh):
-
-        print(f'{self} write {msg}, {fl} {offset} {fh}')
+        fh = self.refresh_fd(msg)
         os.lseek(fh, offset, os.SEEK_SET)
         return os.write(fh, data)
 
     def read(self, msg, fl, size, offset, fh):
-        print(f'{self} read {msg}, {fl} {offset} {fh}')
+        fh = self.refresh_fd(msg)
         os.lseek(fh, offset, os.SEEK_SET)
         return os.read(fh, size)
 
-    def release(self, msg, fl, fip):
-        print(f'{self} close {msg}, {fl} {fip}')
-        os.close(fip)
+    def flush(self, msg, fl, fh):
+        fh = self.refresh_fd(msg)
+        return os.fsync(fh)
 
+    def release(self, msg, fl, fh):
         fn = msg.msg[0]
         _info = fn.info[self.disk_type.name.lower()]
+
+        fh = _info['fd']
+        os.close(fh)
+
         _info['fd'] = 0
         _info['status'] = FileStatus.closed
         _info['disk'] = None

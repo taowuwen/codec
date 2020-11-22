@@ -45,9 +45,14 @@ class FileFuseMount(LoggingMixIn, Operations):
 
     def create(self, path, mode):
 
-        fl = file_system.tmpfile(path, mode)
+        fl = file_system.find_file(path)
+        if fl:
+            raise FuseOSError(errno.EEXIST)
+        else:
+            fl = file_system.tmpfile(path, mode)
+
         self.do_file_oper('create', fl, mode)
-        return fl
+        return fl.fd
 
     def getattr(self, path, fh=None):
         try:
@@ -111,6 +116,9 @@ class FileFuseMount(LoggingMixIn, Operations):
 
     def write(self, path, data, offset, fh):
         return self.do_oper('write', path, data, offset, fh)
+
+    def flush(self, path, fip):
+        self.do_oper('flush', path, fip)
 
     def release(self, path, fip):
         return self.do_oper('release', path, fip)

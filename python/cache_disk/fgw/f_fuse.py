@@ -30,7 +30,10 @@ class FileFuseMount(LoggingMixIn, Operations):
 
         ret, msg = msg.result
         if ret != 0:
-            raise FuseOSError(errno.EIO)
+            if isinstance(msg, Exception) and hasattr(msg, 'errno'):
+                raise FuseOSError(msg.errno)
+            else:
+                raise FuseOSError(errno.EIO)
 
         return msg
 

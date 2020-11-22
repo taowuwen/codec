@@ -26,7 +26,7 @@ class DiskThread(threading.Thread):
                 evt.proc(self.disk)
             except Exception as e:
                 print(f'DISK: Exception({self.disk}) handle evt: {evt} --> Exceptin is {e}')
-                evt.msg.result = (-1, f'{e}')
+                evt.msg.result = (-1, e)
                 self.disk.send_rsp_msg(msg)
 
 class Disk:

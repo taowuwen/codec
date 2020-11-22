@@ -52,7 +52,7 @@ def disk_oper(msg, *args, **kwargs):
         else:
             msg.result = (0, ret)
     except Exception as e:
-        msg.result = (-1, f'failed on {fl} {msg} {e} {type(e)}')
+        msg.result = (-1, e)
     finally:
         disk.send_rsp_msg(msg)
 

@@ -230,6 +230,17 @@ class FileSystem(FileObject):
         fn.parent = _dir
         return fn
 
+    def unlink(self, fn):
+        if any(fn.ext.values()):
+            return
+
+        assert fn.parent != None, "never show up this line"
+
+        fn.parent.pop(fn)
+        fn.parent = None
+        print(f'delete file: {fn}')
+        del fn
+
     def create(self, path, mode=0o755):
         return self.insert(FileNodeFile(path, mode))
 

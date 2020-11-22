@@ -51,7 +51,7 @@ class f_msg:
         self._result = val
 
     def __str__(self):
-        return f'{self._type} -> {self._tgt}, current {self._pos}, msg: {self._msg}'
+        return f'{self._type}'
 
     def __repr__(self):
         return str(self)

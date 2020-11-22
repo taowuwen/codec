@@ -9,9 +9,8 @@ fuse_evts = (
     'chmod', 'chown', 'create', 'mkdir', 'open',
     'read', 'rename', 'rmdir', 'symlink', 'readlink',
     'truncate', 'unlink', 'utimens', 'write', 'release',
-    'flush'
+    'flush', 'getxattr', 'listxattr', 'removexattr', 'setxattr'
 )
-
 
 DiskType = enum.Enum(
     value = 'DiskType',

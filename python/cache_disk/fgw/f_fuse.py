@@ -61,7 +61,12 @@ class FileFuseMount(LoggingMixIn, Operations):
             raise FuseOSError(errno.ENOENT)
 
     def mkdir(self, path, mode):
-        fl = file_system.mkdir(path, mode)
+        fl = file_system.find_file(path)
+        if not fl:
+            fl = file_system.tmpdir(path, mode)
+        else:
+            raise FuseOSError(errno.EEXIST)
+
         self.do_file_oper('mkdir', fl, mode)
 
     def open(self, path, flags):
@@ -122,6 +127,18 @@ class FileFuseMount(LoggingMixIn, Operations):
 
     def release(self, path, fip):
         return self.do_oper('release', path, fip)
+
+    def getxattr(self, path, name, position=0):
+        return self.do_oper('getxattr', path, name, position)
+
+    def listxattr(self, path):
+        return self.do_oper('listxattr', path)
+
+    def removexattr(self, path, name):
+        return self.do_oper('removexattr', path, name)
+
+    def setxattr(self, path, name, value, options, position=0):
+        return self.do_oper('setxattr', path, name, value, options, position)
 
 class FileFuseThread(threading.Thread):
 

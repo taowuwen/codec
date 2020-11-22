@@ -222,6 +222,8 @@ class FileRouter(FileObserver):
                         insert file node into file_system
                     '''
                     file_system.insert(fn)
+                elif evt in ('unlink'):
+                    file_system.unlink(fn)
             else:
                 '''
                     maybe report file system error here?
@@ -242,6 +244,4 @@ class FileRouter(FileObserver):
     def handle_ssd_evt(self, msg):
         # len('rsp_SSD_') == 8
         return self.handle_disk_evt(msg.event[8:], msg)
-
-
 

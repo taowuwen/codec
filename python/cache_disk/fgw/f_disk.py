@@ -96,6 +96,10 @@ class Disk:
     def disk_type(self):
         return self._type
 
+    @property
+    def type_name(self):
+        return self.disk_type.name.lower()
+
     def __str__(self):
         return f'({self._type}:>{self._root} {self._size})'
 
@@ -129,7 +133,7 @@ class Disk:
             disk_mkdir_p(self, os.path.dirname(fl))
             fd = os.open(fl, flags, mode)
 
-        _info = fn.info[self.disk_type.name.lower()]
+        _info = fn.info[self.type_name]
 
         _info['fd'] = fd
         _info['status'] = FileStatus.opened
@@ -145,7 +149,7 @@ class Disk:
 
     def refresh_fd(self, msg):
         fn = msg.msg[0]
-        _info = fn.info[self.disk_type.name.lower()]
+        _info = fn.info[self.type_name]
         return _info['fd']
 
     def truncate(self, msg, fl, length, fh):
@@ -167,7 +171,7 @@ class Disk:
 
     def release(self, msg, fl, fh):
         fn = msg.msg[0]
-        _info = fn.info[self.disk_type.name.lower()]
+        _info = fn.info[self.type_name]
 
         fh = _info['fd']
         os.close(fh)
@@ -177,6 +181,26 @@ class Disk:
         _info['disk'] = None
         _info['sync'] = 0
         return 0
+
+    def getxattr(self, msg, fl, name, position=0):
+        return os.getxattr(fl, name)
+
+    def listxattr(self, msg, fl):
+        return os.listxattr(fl)
+
+    def removexattr(self, msg, fl, name):
+        return os.removexattr(fl, name)
+
+    def setxattr(self, msg, fl, name, value, options, position=0):
+        return os.setxattr(fl, name, value, options)
+
+    def unlink(self, msg, fl):
+        fn = msg.msg[0]
+
+        if self in fn.ext[self.type_name]:
+            fn.ext[self.type_name].remove(self)
+
+        return os.unlink(fl)
 
 class HDDDisk(Disk):
     _type = DiskType.HDD

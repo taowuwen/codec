@@ -81,8 +81,6 @@ class FileFuseMount(LoggingMixIn, Operations):
         return fl.fd
 
     def read(self, path, size, offset, fh):
-        print('read: {}'.format(fh))
-
         fl = file_system.find_file(path)
         return self.do_file_oper('read', fl, size, offset, fh)
 
@@ -95,6 +93,7 @@ class FileFuseMount(LoggingMixIn, Operations):
 
     def readlink(self, path):
         raise FuseOSError(errno.EIO)
+        return self.do_oper('readlink', path)
 
     def rename(self, old, new):
         self.do_oper('rename', old, new)

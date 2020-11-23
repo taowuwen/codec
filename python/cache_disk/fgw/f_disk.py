@@ -202,6 +202,18 @@ class Disk:
 
         return os.unlink(fl)
 
+    def chmod(self, msg, fl, mode):
+        return os.chmod(fl, mode)
+
+    def chown(self, msg, fl, uid, gid):
+        return os.chown(fl, uid, gid)
+
+    def readlink(self, msg, fl):
+        return os.readlink(fl)
+
+    def rename(self, msg, fl, tgt):
+        return os.rename(fl, tgt)
+
 class HDDDisk(Disk):
     _type = DiskType.HDD
 
@@ -214,13 +226,11 @@ class SSDDisk(Disk):
     def create_msg(self, *args):
         return SSDMsg(*args)
 
-
 class MemoryDisk(Disk):
     _type = DiskType.MEMORY
 
     def create_msg(self, *args):
         return MMDMsg(*args)
-
 
 class DiskManager(FileObserveObject):
 

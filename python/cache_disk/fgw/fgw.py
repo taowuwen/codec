@@ -24,4 +24,3 @@ class FGW:
                     evt.msg.result = (-1, f'[FGW]Exceptoin on handle {evt}, {e}')
                     self._queue.put_msg(FGWEvent('CmdRsp', evt.msg))
 
-

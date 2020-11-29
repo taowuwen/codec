@@ -158,8 +158,9 @@ class FileRouter(FileObserver):
 
         else:
             if oper_event not in ('open', 'mkdir', 'create'):
-                msg.release()
-                raise InvalidArgument(f'invalid request event: {oper_event}') 
+                e = InvalidArgument(f'FR, invalid request event: {oper_event}')
+                msg.result = (-1, e)
+                raise  e
             else:
 
                 _node = self._find_memory_node()
@@ -189,8 +190,9 @@ class FileRouter(FileObserver):
                                 print(f'[FR] current send msg to: {tgt}')
                                 tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{oper_event}', msgs.pop(0)))
                 else:
-                    msg.release()
-                    raise DiskNotAvaliable(f'There is no disk available for now {oper_event}')
+                    e = DiskNotAvaliable(f'There is no disk available for now {oper_event}')
+                    msg.result = (-1, e)
+                    raise e
 
     def reg_disk_evt(self):
 

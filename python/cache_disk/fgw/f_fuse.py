@@ -112,7 +112,7 @@ class FileFuseMount(LoggingMixIn, Operations):
         self.do_oper('truncate', path, length, fh)
 
     def unlink(self, path):
-        return self.do_oper('unlink', path)
+        self.do_oper('unlink', path)
 
     def utimens(self, path, times=None):
         raise FuseOSError(errno.EIO)
@@ -131,10 +131,7 @@ class FileFuseMount(LoggingMixIn, Operations):
         return self.do_oper('release', path, fip)
 
     def getxattr(self, path, name, position=0):
-        try:
-            return self.do_oper('getxattr', path, name, position)
-        except Exception as e:
-            return ''
+        return self.do_oper('getxattr', path, name, position)
 
     def listxattr(self, path):
         return self.do_oper('listxattr', path)

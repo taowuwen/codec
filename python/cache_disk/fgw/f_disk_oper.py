@@ -36,18 +36,19 @@ def disk_oper(msg, *args, **kwargs):
     disk, *_ = args
 
     attr = msg.event[len(disk.disk_type.name) + 1:]
-    if attr in ('write'):
-        print(f'{msg.event}, {disk.disk_type.name}: {disk}->{attr}  handle msg {msg}')
-    else:
-        print(f'{msg.event}, {disk.disk_type.name}: {disk}->{attr}  handle msg {msg}:  {msg.msg}')
 
     fn = msg.msg[0]
     fl = disk.fuse2phy(fn.abs_path)
 
+    if attr in ('write'):
+        print(f'{msg.event}, {disk.disk_type.name}: {disk}->{attr}  handle msg {msg}, file in phy: {fl}')
+    else:
+        print(f'{msg.event}, {disk.disk_type.name}: {disk}->{attr}  handle msg {msg}:  {msg.msg}, file in phy: {fl}')
+
     try:
         ret = getattr(disk, attr)(msg, fl, *msg.msg[1:])
 
-        if ret is None:
+        if ret is None and not attr in ('unlink', 'rmdir'):
             msg.result = (0, os.stat(fl))
         else:
             msg.result = (0, ret)

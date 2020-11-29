@@ -18,7 +18,7 @@ class FileStatRefresh:
 
     def __call__(self, msg):
 
-        print(f'{self}, msg: {msg}')
+        print(f'{self}, msg: {msg} {msg.type.name} {msg.type}')
         disk, _fl, stat = msg.msg
 
         fn = file_system.find_file(_fl)
@@ -29,6 +29,8 @@ class FileStatRefresh:
 
         if disk not in fn.ext[msg.type.name]:
             fn.ext[msg.type.name].append(disk)
+
+        print(fn.ext.values(), any(fn.ext.values()))
 
 file_refresh_file_stat = FileStatRefresh('file_refresh_file_stat')
 file_refresh_dir_stat  = FileStatRefresh('file_refresh_dir_stat', 1)

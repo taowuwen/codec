@@ -202,6 +202,14 @@ class Disk:
 
         return os.unlink(fl)
 
+    def rmdir(self, msg, fl):
+        fn = msg.msg[0]
+
+        if self in fn.ext[self.type_name]:
+            fn.ext[self.type_name].remove(self)
+
+        return os.rmdir(fl)
+
     def chmod(self, msg, fl, mode):
         return os.chmod(fl, mode)
 

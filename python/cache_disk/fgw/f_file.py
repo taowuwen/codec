@@ -236,9 +236,8 @@ class FileSystem(FileObject):
 
         assert fn.parent != None, "never show up this line"
 
-        fn.parent.pop(fn)
+        fn.parent.pop(fn.name)
         fn.parent = None
-        print(f'delete file: {fn}')
         del fn
 
     def create(self, path, mode=0o755):

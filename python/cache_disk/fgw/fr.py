@@ -224,7 +224,7 @@ class FileRouter(FileObserver):
                         insert file node into file_system
                     '''
                     file_system.insert(fn)
-                elif evt in ('unlink'):
+                elif evt in ('unlink', 'rmdir'):
                     file_system.unlink(fn)
             else:
                 '''
@@ -234,6 +234,8 @@ class FileRouter(FileObserver):
 
             print(f'[FR]handle event {msg.event}, --> {evt}, {msg}, do release') 
             msg.release()
+        else:
+            raise InvalidArgument(f'unkown event {msg.event}, {evt}, {msg}')
 
     def handle_hdd_evt(self, msg):
         # len('rsp_HDD_') == 8

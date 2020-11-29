@@ -17,7 +17,7 @@ class FGW:
             try:
                 evt.proc()
             except Exception as e:
-                print(f'[FGW] Exception on handle {evt}, {e}')
+                print(f'[FGW] Exception on handle {evt}, Exception: {e}')
                 if isinstance(evt.msg, FuseMsg):
                     evt.msg.release()
                 elif isinstance(evt.msg, CommandMsg):

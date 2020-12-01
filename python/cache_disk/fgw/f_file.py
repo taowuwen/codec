@@ -57,6 +57,12 @@ class FileNode:
             st_gid   = os.getgid(),
         )
 
+        self._xattr = {}
+
+    @property
+    def xattr(self):
+        return self._xattr
+
     @property
     def info(self):
         return self._info

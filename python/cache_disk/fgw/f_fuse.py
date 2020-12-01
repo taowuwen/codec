@@ -131,7 +131,14 @@ class FileFuseMount(LoggingMixIn, Operations):
         return self.do_oper('release', path, fip)
 
     def getxattr(self, path, name, position=0):
-        return self.do_oper('getxattr', path, name, position)
+        try:
+            fl = file_system.find_file(path)
+            if name not in fl.xattr:
+                fl.xattr[name] = self.do_oper('getxattr', path, name, position)
+        except Exception as e:
+            fl.xattr[name] = b""
+        finally:
+            return fl.xattr.get(name, b"")
 
     def listxattr(self, path):
         return self.do_oper('listxattr', path)

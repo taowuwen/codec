@@ -3,7 +3,7 @@ import threading
 import sysv_ipc
 from f_msg import CommandMsg
 from f_event import FGWEvent, FGWEventFactory
-from cache_disk import fgwtool_in, fgwtool_out
+from cache_disk import fgwtool_in, fgwtool_out, logger
 
 class FileTool(threading.Thread):
 
@@ -33,7 +33,7 @@ class FileTool(threading.Thread):
             _msg, _type = self._mq_rx.receive()
 
             _msg = _msg.decode().split()
-            print(f'Req: Type: {_type}, msg:{_msg}')
+            logger.debug(f'Req: Type: {_type}, msg:{_msg}')
 
             msg = CommandMsg(*_msg)
             msg.proc = self.unkown_cmd

@@ -3,6 +3,7 @@ from f_event import FGWEventFactory, FGWEvent
 from f_msg import *
 from f_fuse import f_fuse_start, f_fuse_stop
 from f_exception import *
+from cache_disk import *
 
 class FGWCommand:
     _inst = None
@@ -46,11 +47,11 @@ class FGWCommand:
         self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
 
     def disk_handler(self, msg):
-        print(f'handle disk request, {msg}')
+        logger.debug(f'handle disk request, {msg}')
         return self.diskmgr_handler('disk', msg)
 
     def fuse_handler(self, msg):
-        print(f'handle fuse request, {msg}')
+        logger.debug(f'handle fuse request, {msg}')
         try:
             if msg.msg[1] == 'start':
                 f_fuse_start(msg.msg[2])
@@ -67,11 +68,11 @@ class FGWCommand:
             self._mq_fgw.put_msg(FGWEvent('CmdRsp', msg))
 
     def memory_handler(self, msg):
-        print(f'handle memory request, {msg}')
+        logger.debug(f'handle memory request, {msg}')
         return self.diskmgr_handler('memory', msg)
 
     def ssd_handler(self, msg):
-        print(f'handle ssd request, {msg}')
+        logger.debug(f'handle ssd request, {msg}')
         return self.diskmgr_handler('ssd', msg)
 
     def register_all(self):

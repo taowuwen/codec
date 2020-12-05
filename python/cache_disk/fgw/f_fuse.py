@@ -7,11 +7,14 @@ from f_msg import FuseMsg
 from f_event import FGWEvent
 import threading
 import errno
+from cache_disk import *
 
 try:
     from fuse import FUSE, FuseOSError, Operations, LoggingMixIn, fuse_exit
 except ModuleNotFoundError:
     from fusepyng import FUSE, FuseOSError, Operations, LoggingMixIn, fuse_exit
+
+log = logging.getLogger('fgw_fuse')
 
 class FileFuseMount(LoggingMixIn, Operations):
 
@@ -24,7 +27,7 @@ class FileFuseMount(LoggingMixIn, Operations):
         _evt = FGWEvent(evt, msg)
         self._mq.put_msg(_evt)
 
-        print(f'file oper: {evt}, event: {_evt}, file: {fl}, args: {args}, msg: {msg}')
+        log.debug(f'file oper: {evt}, event: {_evt}, file: {fl}, args: {args}, msg: {msg}')
 
         msg.wait()
 
@@ -157,15 +160,14 @@ class FileFuseThread(threading.Thread):
         self._mount = mount
 
     def run(self):
-        logging.basicConfig(level=logging.DEBUG)
-        print('fuse started, mount: {}'.format(self._mount))
+        logger.info('fuse started, mount: {}'.format(self._mount))
         _f = FUSE(self._fuse, self._mount, foreground=True, allow_other=True)
 
     def do_stop(self):
         try:
             fuse_exit()
         except Exception as e:
-            print('stop fuse exceptions {}'.format(e))
+            logger.error('stop fuse exceptions {}'.format(e))
         self._stop()
 
 class FileFuse:

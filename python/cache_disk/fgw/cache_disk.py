@@ -1,4 +1,5 @@
 import enum
+import logging
 
 fgwctl_out  = 0xabababab
 fgwctl_in   = 0xabababaa
@@ -26,3 +27,7 @@ FileStatus = enum.Enum(
     value = 'FileStatus',
     names = 'closed opened sync'
 )
+
+logger = logging.getLogger('fgw')
+
+logging.basicConfig(level=logging.WARN)

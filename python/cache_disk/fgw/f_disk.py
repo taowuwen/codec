@@ -25,7 +25,7 @@ class DiskThread(threading.Thread):
             try:
                 evt.proc(self.disk)
             except Exception as e:
-                print(f'DISK: Exception({self.disk}) handle evt: {evt} --> Exceptin is {e}')
+                logger.warn(f'DISK: Exception({self.disk}) handle evt: {evt} --> Exceptin is {e}')
                 evt.msg.result = (-1, e)
                 self.disk.send_rsp_msg(msg)
 
@@ -44,7 +44,7 @@ class Disk:
         self._thread_main = None
         self._thread_pool = None
         self._status = None
-        print(f'{self._type} create with root: {self._root}, size: {self._size}')
+        logger.debug(f'{self._type} create with root: {self._root}, size: {self._size}')
 
     def get_evt(self):
         return self._mq.get_msg()
@@ -90,7 +90,7 @@ class Disk:
             self._thread_main = None
 
     def do_update(self, **kwargs):
-        print(f'do update {kwargs}')
+        logger.debug(f'do update {kwargs}')
 
     @property
     def disk_type(self):
@@ -117,7 +117,7 @@ class Disk:
         return self._root + path
 
     def send_rsp_msg(self, msg):
-        print(f'{self}, build response msg for event: {msg.event} on {msg}, {msg.result}')
+        logger.debug(f'{self}, build response msg for event: {msg.event} on {msg}, {msg.result}')
         self.queue.put_msg(FGWEvent(f'rsp_{msg.event}', msg))
 
     def mkdir(self, msg, fl, mode):
@@ -129,7 +129,7 @@ class Disk:
         try:
             fd = os.open(fl, flags, mode)
         except FileNotFoundError:
-            print(f'file not found, do mkdir for {fl}')
+            logger.warn(f'file not found, do mkdir for {fl}')
             disk_mkdir_p(self, os.path.dirname(fl))
             fd = os.open(fl, flags, mode)
 
@@ -258,7 +258,7 @@ class DiskManager(FileObserveObject):
         return None
 
     def create_hdd_disk(self, root_dir, *args, **kwargs):
-        print(f'disk create hdd disk {root_dir}, {args}, {kwargs}')
+        logger.debug(f'disk create hdd disk {root_dir}, {args}, {kwargs}')
         dev = HDDDisk(self.mq_fgw, root_dir, *args, **kwargs)
         self.hdd.append(dev)
 

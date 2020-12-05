@@ -1,8 +1,7 @@
 from f_event import FGWEventFactory, FGWEvent
 from f_observer import FileObserver
 from f_exception import *
-from cache_disk import DiskType
-from cache_disk import fuse_evts
+from cache_disk import *
 from f_msg import *
 from f_file import file_system
 
@@ -61,7 +60,7 @@ class FileRouter(FileObserver):
         raise InvalidArgument(f'FR: invalid argument, {args} {kwargs}')
 
     def update(self, *args, **kwargs):
-        print(f'FR recved update {args}, {kwargs}')
+        logger.debug(f'FR recved update {args}, {kwargs}')
 
         cmd, *_ = args
 
@@ -124,7 +123,7 @@ class FileRouter(FileObserver):
                 3. file read? --> (no mirror oper, send to memory only)
                 4. file write? ---> (mirror oper)
         '''
-        print(f'handle fuse msg: {msg.event}: {msg}')
+        logger.debug(f'handle fuse msg: {msg.event}: {msg}')
         oper_event = msg.event
 
         fn = msg.msg[0]
@@ -144,7 +143,7 @@ class FileRouter(FileObserver):
 
                 # total msgs that gonna send
                 total = sum([ len(tgt) for tgt in fn.ext.values() ])
-                print(f'[FR] there are {total} msgs gonna be sent out for {fn.abs_path}')
+                logger.debug(f'[FR] there are {total} msgs gonna be sent out for {fn.abs_path}')
 
                 # build msgs 
                 msgs = [ FWMsg(*msg.msg)  for a in range(total -1)]
@@ -153,7 +152,7 @@ class FileRouter(FileObserver):
                 for key in ('memory', 'ssd', 'hdd'):
                     for tgt in fn.ext[key]:
                         if tgt:
-                            print(f'[FR] current send msg to: {tgt}')
+                            logger.debug(f'[FR] current send msg to: {tgt}')
                             tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{oper_event}', msgs.pop(0)))
 
         else:
@@ -177,7 +176,7 @@ class FileRouter(FileObserver):
 
                 # total msgs that gonna send
                 total = sum([ len(tgt) for tgt in fn.ext.values() ])
-                print(f'[FR] there are {total} msgs gonna be sent out for {fn.abs_path}')
+                logger.debug(f'[FR] there are {total} msgs gonna be sent out for {fn.abs_path}')
 
                 # build msgs 
                 msgs = [ FWMsg(*msg.msg)  for a in range(total -1)]
@@ -187,7 +186,7 @@ class FileRouter(FileObserver):
                     for key in ('memory', 'ssd', 'hdd'):
                         for tgt in fn.ext[key]:
                             if tgt:
-                                print(f'[FR] current send msg to: {tgt}')
+                                logger.debug(f'[FR] current send msg to: {tgt}')
                                 tgt.msg_queue.put_msg(FGWEvent(f'{tgt.disk_type.name}_{oper_event}', msgs.pop(0)))
                 else:
                     e = DiskNotAvaliable(f'There is no disk available for now {oper_event}')
@@ -212,7 +211,7 @@ class FileRouter(FileObserver):
         '''
             read from disk
         '''
-        print(f'[FR]handle event {msg.event}, --> {evt}, {msg}') 
+        logger.debug(f'[FR]handle event {msg.event}, --> {evt}, {msg}')
 
         if evt in fuse_evts:
             st, stat = msg.result
@@ -232,7 +231,7 @@ class FileRouter(FileObserver):
                 '''
                 pass
 
-            print(f'[FR]handle event {msg.event}, --> {evt}, {msg}, do release') 
+            logger.debug(f'[FR]handle event {msg.event}, --> {evt}, {msg}, do release')
             msg.release()
         else:
             raise InvalidArgument(f'unkown event {msg.event}, {evt}, {msg}')

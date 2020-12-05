@@ -1,6 +1,7 @@
 
 import enum
 from f_exception import *
+from cache_disk import *
 
 class FGWEventFactory:
     _inst = None
@@ -26,12 +27,12 @@ class FGWEventFactory:
         return self._evt_cb.get(key, self.unknown_evt)
 
     def unknown_evt(self, msg, *args, **kwargs):
-        print(f'Error, did not register handler for event: {msg.event}, msg: {msg} {args} ,{kwargs}')
+        logger.error(f'Error, did not register handler for event: {msg.event}, msg: {msg} {args} ,{kwargs}')
         raise EventUnregisted(f'event {msg.event} unregisted yet')
 
     def show_all(self):
         for evt,cb in self._evt_cb.items():
-            print(f'{evt:>20} = {cb}')
+            logger.debug(f'{evt:>20} = {cb}')
 
 fgwevent_factory = FGWEventFactory()
 

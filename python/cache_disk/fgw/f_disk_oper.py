@@ -41,9 +41,9 @@ def disk_oper(msg, *args, **kwargs):
     fl = disk.fuse2phy(fn.abs_path)
 
     if attr in ('write'):
-        print(f'{msg.event}, {disk.disk_type.name}: {disk}->{attr}  handle msg {msg}, file in phy: {fl}')
+        logger.debug(f'{msg.event}, {disk.disk_type.name}: {disk}->{attr}  handle msg {msg}, file in phy: {fl}')
     else:
-        print(f'{msg.event}, {disk.disk_type.name}: {disk}->{attr}  handle msg {msg}:  {msg.msg}, file in phy: {fl}')
+        logger.debug(f'{msg.event}, {disk.disk_type.name}: {disk}->{attr}  handle msg {msg}:  {msg.msg}, file in phy: {fl}')
 
     try:
         ret = getattr(disk, attr)(msg, fl, *msg.msg[1:])

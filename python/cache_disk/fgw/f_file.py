@@ -188,7 +188,7 @@ class FileSystem(FileObject):
         raise InvalidArgument(f'Invalid argument {args}, {kwargs}')
 
     def update(self, *args, **kwargs):
-        print(f'file_system be updated with {args}, {kwargs}')
+        logger.debug(f'file_system be updated with {args}, {kwargs}')
 
         cmd, *_ = args
 

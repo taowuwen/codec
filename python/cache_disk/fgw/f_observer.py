@@ -9,7 +9,7 @@ class FileObserveObject:
             try:
                 obs.update(*args, **kwargs)
             except Exception as e:
-                print(f'Exception error: {e} while handle {obs}.update, {args} {kwargs}')
+                logger.error(f'Exception error: {e} while handle {obs}.update, {args} {kwargs}')
                 continue
 
     def register(self, obs):
@@ -25,7 +25,7 @@ class FileObserveObject:
 class FileObserver:
     
     def update(self, *args, **kwargs):
-        print(f'{self.__class__.__name__} do update here {args}, {kwargs}')
+        logger.error(f'{self.__class__.__name__} update {args}, {kwargs}, do not show this line')
 
     def subscribe(self, obj):
         obj.register(self)

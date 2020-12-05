@@ -129,7 +129,7 @@ class Disk:
         try:
             fd = os.open(fl, flags, mode)
         except FileNotFoundError:
-            logger.warn(f'file not found, do mkdir for {fl}')
+            logger.warn(f'{self}: file not found, do mkdir for {fl}')
             disk_mkdir_p(self, os.path.dirname(fl))
             fd = os.open(fl, flags, mode)
 

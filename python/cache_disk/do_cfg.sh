@@ -47,7 +47,7 @@ do_start()
 {
     echo "do start"
     fuse_mount
-    disk_mount
+#    disk_mount
     mem_mount
     ssd_mount
 }

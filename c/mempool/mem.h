@@ -37,10 +37,12 @@ typedef struct {
     uint64_t    _size_real;
     mem_stack_t *_stack;
     mem_class_t *_cls;
-};
+} mem_node_t;
 
 
-
-
+void *mem_malloc(size_t size);
+void mem_free(void *ptr);
+void *mem_realloc(size_t *ptr, size_t size);
+void *mem_calloc(size_t nmemb, size_t size);
 
 #endif

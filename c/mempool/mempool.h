@@ -4,14 +4,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "ems_queue.h"
 #include "mem_lock.h"
 
 typedef struct mem_pool_s  mem_pool_t;
 typedef struct pool_node_s pool_node_t;
 
-typedef pool_node_t (*pfunc_malloc)(mem_pool_t *pool, uint32_t size);
-typedef int (*pfunc_free)(mem_pool_t *pool, uintptr_t ptr);
+typedef pool_node_t *(*pfunc_malloc)(mem_pool_t *pool, uint32_t size);
+typedef int (*pfunc_free)(mem_pool_t *pool, pool_node_t *ptr);
 
 struct pool_node_s {
     union {

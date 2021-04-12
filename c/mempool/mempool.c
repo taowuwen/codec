@@ -1,4 +1,4 @@
-#include "mempoo.h"
+#include "mempool.h"
 
 
 typedef struct {
@@ -7,7 +7,7 @@ typedef struct {
     uint64_t    _size;
 } pool_block_t;
 
-static pool_node_t *pool_malloc(mem_pool_t *pool, uint32_t size);
+static pool_node_t *pool_malloc(mem_pool_t *pool, uint32_t size)
 {
     return NULL;
 }
@@ -17,7 +17,7 @@ static int pool_free(mem_pool_t *pool, pool_node_t *ptr)
     return -1;
 }
 
-static pool_node_t system_malloc(mem_pool_t *pool, uint32_t size)
+static pool_node_t *system_malloc(mem_pool_t *pool, uint32_t size)
 {
     return NULL;
 }
@@ -64,8 +64,8 @@ int mem_pool_uninit(mem_pool_t *pool)
         return -1;
     }
 
-    ems_queue_clean(&pool->entry_freelist)
-    ems_queue_clear(&pool->entry_blocklist, pool_block_t, entry, free)
+    ems_queue_clean(&pool->entry_freelist);
+    ems_queue_clear(&pool->entry_blocklist, pool_block_t, entry, free);
     mem_lock_destroy(&pool->_mtx);
 
     memset(pool, 0, sizeof(mem_pool_t));

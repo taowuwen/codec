@@ -4,14 +4,12 @@
 
 #include <stddef.h>
 
-
 typedef struct ems_queue_s  ems_queue_t, ems_queue;
 
 struct ems_queue_s {
     ems_queue_t  *prev;
     ems_queue_t  *next;
 };
-
 
 #define ems_queue_init(q)                                                     \
     (q)->prev = q;                                                            \
@@ -31,7 +29,6 @@ struct ems_queue_s {
 
 #define ems_queue_insert_after   ems_queue_insert_head
 
-
 #define ems_queue_insert_tail(h, x)                                           \
     (x)->prev = (h)->prev;                                                    \
     (x)->prev->next = x;                                                      \
@@ -42,22 +39,17 @@ struct ems_queue_s {
 #define ems_queue_head(h)                                                     \
     (h)->next
 
-
 #define ems_queue_last(h)                                                     \
     (h)->prev
-
 
 #define ems_queue_sentinel(h)                                                 \
     (h)
 
-
 #define ems_queue_next(q)                                                     \
     (q)->next
 
-
 #define ems_queue_prev(q)                                                     \
     (q)->prev
-
 
 #if (DEBUG)
 
@@ -122,10 +114,6 @@ struct ems_queue_s {
 	}					\
 } while (0)
 
-
-/*
- * well, you gonna not delete a node
- * */
 #define ems_queue_foreach(q, n) 			\
 	for (n  = ems_queue_head(q); 		\
 	     n != ems_queue_sentinel(q); 	\

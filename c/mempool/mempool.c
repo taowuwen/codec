@@ -1,5 +1,5 @@
 #include "mempool.h"
-
+#include <assert.h>
 
 typedef struct {
     ems_queue_t entry;
@@ -9,6 +9,9 @@ typedef struct {
 
 static pool_node_t *pool_malloc(mem_pool_t *pool, uint32_t size)
 {
+    assert(pool && size > 0);
+    assert(size <= pool->_node_size);
+
     return NULL;
 }
 
@@ -19,14 +22,37 @@ static int pool_free(mem_pool_t *pool, pool_node_t *ptr)
 
 static pool_node_t *system_malloc(mem_pool_t *pool, uint32_t size)
 {
-    return NULL;
+    pool_node_t *pn = NULL;
+    uint32_t size_total = size + sizeof(pool_node_t);
+
+    assert(pool && size);
+
+    pn = (pool_node_t *)malloc(size_total);
+    if (pn) {
+        pn->_size = size;
+        pn->_size_real = size_total;
+        pn->_ptr = (uintptr_t)(pn + 1);
+
+        atomic_inc(&pool->_total_blocks);
+        atomic_add(&pool->_total_size, size_total);
+
+        atomic_inc(&pool->_stat_alloc);
+    }
+
+    return pn;
 }
 
-static int system_free(mem_pool_t *pool, pool_node_t *ptr)
+static int system_free(mem_pool_t *pool, pool_node_t *pn)
 {
-    // assert ptr in pool
+    assert(pool && pn && pn->_size && pn->_size_real);
 
-    return -1;
+    atomic_inc(&pool->_stat_free);
+    atomic_dec(&pool->_total_blocks);
+    atomic_sub(&pool->_total_size, pn->_size_real);
+
+    free(pn);
+
+    return 0;
 }
 
 int mem_pool_init(mem_pool_t *pool, uint64_t block_size, uint64_t node_size)

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdatomic.h>
 #include "ems_queue.h"
 #include "mem_lock.h"
 
@@ -71,5 +72,21 @@ static inline int mem_pool_free(mem_pool_t *pool, pool_node_t *ptr)
 #define MIN_POOL_NODE_SIZE      32
 
 #define MAX_BLOCK_SIZE          (2 * 1024 * 1024)
+
+#ifndef atomic_add
+#define atomic_add atomic_fetch_add
+#endif
+
+#ifndef atomic_sub
+#define atomic_sub atomic_fetch_sub
+#endif
+
+#ifndef atomic_inc
+#define atomic_inc(A)   atomic_add(A, 1)
+#endif
+
+#ifndef atomic_dec
+#define atomic_dec(A)   atomic_sub(A, 1)
+#endif
 
 #endif

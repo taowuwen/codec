@@ -17,3 +17,4 @@ test: $(OBJS)
 
 clean:
 	@rm -f *.o
+	@rm test

@@ -39,6 +39,9 @@ typedef struct {
     mem_class_t *_cls;
 } mem_node_t;
 
+int mem_init();
+int mem_uninit();
+int mem_leak_check();
 
 void *mem_malloc(size_t size);
 void mem_free(void *ptr);

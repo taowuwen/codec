@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include "mem.h"
 
 typedef struct {
@@ -12,8 +13,54 @@ typedef struct {
     uint64_t tm_free;
 } mem_request_t;
 
+uint64_t time_diff(struct timeval *tm1, struct timeval *tm2)
+{
+    return (uint64_t)((tm1->tv_sec - tm2->tv_sec) * 1000000 + tm1->tv_usec - tm2->tv_usec);
+}
+
 void *thread_main(void *arg)
 {
+    struct timeval tm_start;
+    struct timeval tm_end;
+    struct timeval tm_start_total;
+    struct timeval tm_end_total;
+    int i, j;
+    uint64_t *ptrs = NULL;
+
+    mem_request_t *req = (mem_request_t *) arg;
+
+    ptrs = (uint64_t *)mem_malloc(sizeof(uint64_t) * req->n_malloc);
+    if (!ptrs)
+        goto err_out;
+
+    gettimeofday(&tm_start_total, NULL);
+
+    for (i = 0; i < req->n_times; i++) {
+        gettimeofday(&tm_start, NULL);
+        for (j = 0; j < req->n_malloc; j++) {
+            ptrs[j] = (uint64_t)mem_malloc(random() % 4096);
+        }
+        gettimeofday(&tm_end, NULL);
+        req->tm_malloc += time_diff(&tm_end, &tm_start);
+
+        gettimeofday(&tm_start, NULL);
+        for (j = 0; j < req->n_malloc; j++) {
+            if (ptrs[j] != 0) {
+                mem_free((void *)ptrs[j]);
+                ptrs[j] = 0;
+            }
+        }
+        gettimeofday(&tm_end, NULL);
+        req->tm_free += time_diff(&tm_end, &tm_start);
+    }
+
+    gettimeofday(&tm_end_total, NULL);
+
+    req->tm_total = time_diff(&tm_end_total, &tm_start_total);
+
+err_out:
+    printf("Thread %lu finished: (%lu, %lu, %lu)\n", pthread_self(), req->tm_total, req->tm_malloc, req->tm_free);
+
     return NULL;
 }
 
@@ -52,6 +99,31 @@ static void do_testing(size_t n_threads, size_t n_times, size_t n_malloc, size_t
         }
     }
 
+    {
+        uint64_t time_total = 0;
+        uint64_t time_total_alloc = 0;
+        uint64_t time_total_free = 0;
+
+        for(i = 0; i < n_threads; i++) {
+            r = req + i;
+            time_total += r->tm_total;
+            time_total_alloc += r->tm_malloc;
+            time_total_free  += r->tm_free;
+        }
+
+        printf("summery information -> total: %lu, total alloc: %lu, total free: %lu\n",
+                time_total, time_total_alloc, time_total_free);
+        printf("summery information -> AVG: total: %lf, total alloc: %lf, total free: %lf\n",
+                (double)time_total/r->n_times / 1000000,
+                (double)time_total_alloc/r->n_times / 1000000,
+                (double)time_total_free/r->n_times / 1000000);
+
+        printf("summery information -> AVG ALL: total: %lf, total alloc: %lf, total free: %lf\n",
+                (double)time_total/(r->n_times * n_threads) / 1000000,
+                (double)time_total_alloc/(r->n_times * n_threads) / 1000000,
+                (double)time_total_free/(r->n_times * n_threads) / 1000000);
+    }
+
 err_out:
     if (req) {
         mem_free(req);
@@ -83,6 +155,8 @@ int main(int argc, char **argv)
         printf("Invalid arguments\n");
         return 1;
     }
+
+    srand(time(NULL));
 
     mem_init();
 

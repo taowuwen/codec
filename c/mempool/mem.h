@@ -12,22 +12,25 @@
 
 #define MAX_STACK_SIZE  20
 
+typedef struct _mem_mgmt_s mem_mgmt_t;
+
 typedef struct {
     int       _size;
     uintptr_t _stack[MAX_STACK_SIZE];
 } mem_stack_t;
 
 typedef struct {
-    uint64_t    _size;
+    uint64_t    size;
 
-    uint64_t    _stat_alloc;
-    uint64_t    _stat_free;
+    uint64_t    stat_alloc;
+    uint64_t    stat_free;
 
-    uint64_t    _total_node;
-    uint64_t    _total_size;
-    uint64_t    _total_size_real;
+    uint64_t    total_node;
+    uint64_t    total_size;
+    uint64_t    total_size_real;
 
     mem_pool_t *pool;
+    mem_mgmt_t *mgmt;
 } mem_class_t;
 
 typedef struct {
@@ -38,6 +41,24 @@ typedef struct {
     mem_stack_t *_stack;
     mem_class_t *_cls;
 } mem_node_t;
+
+struct _mem_mgmt_s {
+    int enable;
+    int enable_backtrace;
+
+    int          n_pool;
+    mem_pool_t  *pool;
+
+    int          n_cls;
+    mem_class_t *cls;
+
+    uint64_t total_node;
+    uint64_t total_size;
+    uint64_t total_size_real;
+
+    uint64_t stat_alloc;
+    uint64_t stat_free;
+};
 
 int mem_init();
 int mem_uninit();

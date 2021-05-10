@@ -1,9 +1,25 @@
 #include "mem.h"
+#include <sys/sysinfo.h>
 
 typedef struct {
     uint32_t n_size;
     mem_mgmt_t *mgmt;
 } mem_sched_t;
+
+static mem_sched_t *g_sched;
+
+static inline uint32_t getenv_uint32(const char *key, uint32_t def)
+{
+    char *val = NULL;
+//  val = secure_getenv(key);
+    val = getenv(key);
+    return val ? (uint32_t)atoi(val) : def;
+}
+
+static int mem_mgmt_init(mem_mgmt_t *mgmt)
+{
+    return -1;
+}
 
 /*
  * memory pool build method, default is factor:
@@ -19,8 +35,32 @@ typedef struct {
  * */
 int mem_init()
 {
-    // secure_getenv(MEMORY_POOL_BUILD_METHOD);
-    // secure_getenv(MEMORY_POOL_FACTOR);
+    uint32_t i = 0;
+    if (!g_sched) {
+        return 0;
+    }
+
+    g_sched = (mem_sched_t *)malloc(sizeof(mem_sched_t));
+    if (!g_sched) {
+        return -1;
+    }
+
+    g_sched->n_size = getenv_uint32("MEMPOOL_SCHED_SIZE", get_nprocs());
+    if (g_sched->n_size <= 0 || g_sched->n_size >= 1000) {
+        g_sched->n_size = get_nprocs();
+    }
+
+    g_sched->mgmt = (mem_mgmt_t *) malloc(sizeof(mem_mgmt_t) * g_sched->n_size);
+    if (!g_sched->mgmt) {
+        free(g_sched);
+        g_sched = NULL;
+        return -1;
+    }
+
+    for (i = 0; i < g_sched->n_size; i++) {
+        mem_mgmt_init(g_sched->mgmt + i);
+    }
+
     return 0;
 }
 

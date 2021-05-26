@@ -18,7 +18,36 @@ static inline uint32_t getenv_uint32(const char *key, uint32_t def)
 
 static int mem_mgmt_init(mem_mgmt_t *mgmt)
 {
-    return -1;
+    int i = 0;
+
+    memset(mgmt, 0, sizeof(mem_mgmt_t));
+    mgmt->enable = 1;
+    mgmt->enable_backtrace = 0;
+
+    mgmt->n_pool = 0;
+    mgmt->pool = (mem_pool_t *)malloc(sizeof(mem_pool_t) * mgmt->n_pool);
+    if (!mgmt->pool) {
+        return -1;
+    }
+
+    mgmt->n_cls = 0;
+    mgmt->cls = (mem_class_t *)malloc(sizeof(mem_class_t) * mgmt->n_cls);
+
+    if (!mgmt->cls) {
+        free(mgmt->pool);
+        mgmt->pool = NULL;
+        return -1;
+    }
+
+    for (i = 0; i < mgmt->n_pool; i++) {
+        ;
+    }
+
+    for (i = 0; i < mgmt->n_cls; i++) {
+        ;
+    }
+
+    return 0;
 }
 
 /*

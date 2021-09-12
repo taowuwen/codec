@@ -3,7 +3,10 @@
 
 import sys
 import time
-from dbgview import DebugStringPrint
+try:
+    from dbgview import DebugStringPrint
+except Exception as e:
+    def DebugStringPrint(*args, **kwargs): pass
 
 class DecodeFailed(Exception): pass
 

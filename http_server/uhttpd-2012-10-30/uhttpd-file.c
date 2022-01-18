@@ -307,8 +307,7 @@ static void uh_file_dirlist(struct client *cl, struct path_info *pi)
 			strncat(filename, files[i]->d_name,
 					sizeof(filename) - strlen(files[i]->d_name));
 
-			if (!stat(filename, &s) &&
-				(s.st_mode & S_IFDIR) && (s.st_mode & S_IXOTH))
+			if (!stat(filename, &s) && (s.st_mode & S_IFDIR))
 			{
 				ensure_out(uh_http_sendf(cl, &cl->request,
 										 "<li><strong><a href='%s%s'>%s</a>/"
@@ -330,8 +329,7 @@ static void uh_file_dirlist(struct client *cl, struct path_info *pi)
 			strncat(filename, files[i]->d_name,
 					sizeof(filename) - strlen(files[i]->d_name));
 
-			if (!stat(filename, &s) &&
-				!(s.st_mode & S_IFDIR) && (s.st_mode & S_IROTH))
+			if (!stat(filename, &s) && !(s.st_mode & S_IFDIR))
 			{
 				ensure_out(uh_http_sendf(cl, &cl->request,
 										 "<li><strong><a href='%s%s'>%s</a>"

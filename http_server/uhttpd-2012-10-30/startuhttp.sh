@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-ROOT=${HOME}/codec/html
+ROOT=${HOME}/usr/html
 
-bind_address="-s 0.0.0.0:18880"
+bind_address="-s 0.0.0.0:8080"
 
 [ `id -u` -eq 0 ] && bind_address="$bind_address -s 0.0.0.0:80"
 

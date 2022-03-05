@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <signal.h>
 
 
 extern char **environ;
@@ -151,6 +152,11 @@ int main(int argc, char **argv)
 		free(ptr);
 
 	}
+
+    {
+        printf("MINSIGSTKSZ = %d\n", MINSIGSTKSZ);
+        printf("SIGSTKSZ = %d\n", SIGSTKSZ);
+    }
 
 	return 0;
 }

@@ -109,7 +109,9 @@ class OrderedDict(dict):
         for k in self:
             yield (k, self[k])
 
-    update = collections.MutableMapping.update
+    #update = collections.MutableMapping.update
+    # python >=3.10 
+    update = collections.abc.MutableMapping.update
 
     __update = update # let subclasses override update without breaking __init__
 
